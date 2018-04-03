@@ -1,0 +1,1 @@
+from .token_decorator import token_required
