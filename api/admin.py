@@ -41,6 +41,13 @@ class MyUserAdmin(UserAdmin):
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'role' )}),
     )
 
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'password1', 'password2'),
+        }),
+    )
+
 admin.site.register(User, MyUserAdmin)
 admin.site.register(Device, DeviceAdmin)
 admin.site.unregister(Group)

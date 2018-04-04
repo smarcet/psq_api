@@ -185,3 +185,9 @@ AUTH_USER_MODEL='api.User'
 CORS_ORIGIN_ALLOW_ALL=True
 
 APPEND_SLASH=False
+
+# Import local settings
+try:
+    from .settings_local import *
+except ImportError:
+    print("Notice: Didn't import settings_local.")
