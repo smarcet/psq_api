@@ -5,6 +5,7 @@ from ..exceptions.authz_error import AuthzError
 from ..jwt.utils import JSONWebTokenValidator
 from django.utils.translation import ugettext_lazy as _
 
+
 def token_required(required_role = None):
     def _decorator(view_func):
         def __decorator(view, *args, **kwargs):
