@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from ..managers.user_manager import UserManager
 from django.contrib.auth.models import PermissionsMixin
 
+
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
