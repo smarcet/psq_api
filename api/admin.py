@@ -51,3 +51,4 @@ class MyUserAdmin(UserAdmin):
 admin.site.register(User, MyUserAdmin)
 admin.site.register(Device, DeviceAdmin)
 admin.site.unregister(Group)
+admin.site.site_header = 'PSQ Admin'
