@@ -4,7 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from ..managers.user_manager import UserManager
 from django.contrib.auth.models import PermissionsMixin
-
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
@@ -13,6 +14,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff status'), default=False)
+
+    # relations
+
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL,
+                                   related_name="created_users")
+
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL,
+                                   related_name="updated_users")
     STUDENT = 1
     TEACHER = 2
     SUPERVISOR = 3
@@ -43,4 +52,3 @@ class User(AbstractBaseUser, PermissionsMixin):
         Sends an email to this User.
         '''
         send_mail(subject, message, from_email, [self.email], **kwargs)
-

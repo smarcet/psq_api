@@ -5,7 +5,7 @@ from rest_framework_jwt.authentication import BaseJSONWebTokenAuthentication
 from rest_framework_jwt.settings import api_settings
 from calendar import timegm
 from datetime import datetime
-
+from ..exceptions import ValidationError
 from rest_framework_jwt.compat import get_username_field, get_username
 from rest_framework import exceptions, status
 from rest_framework.authentication import (
@@ -13,7 +13,7 @@ from rest_framework.authentication import (
 )
 from django.utils.encoding import smart_text
 
-from ..models.users import User
+from ..models.user import User
 
 
 def jwt_payload_handler(user):

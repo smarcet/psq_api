@@ -1,12 +1,18 @@
 from django import forms
 from django.contrib import admin
 from django.core.exceptions import ValidationError
-from .models import User
-from .models import Device
+
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import gettext_lazy as _
+
+from .models import User
+from .models import Device
+from .models import Exam
+from .models import Exercise
+from .models import ExamVideo
+from .models import TutorialVideo
 
 
 class DeviceForm(forms.ModelForm):
@@ -28,7 +34,7 @@ class DeviceAdmin(admin.ModelAdmin):
 
 
 class MyUserAdmin(UserAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'role')
+    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'role', 'created_by', 'updated_by')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'role')
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
@@ -50,5 +56,10 @@ class MyUserAdmin(UserAdmin):
 
 admin.site.register(User, MyUserAdmin)
 admin.site.register(Device, DeviceAdmin)
+admin.site.register(Exam)
+admin.site.register(Exercise)
+admin.site.register(ExamVideo)
+admin.site.register(TutorialVideo)
 admin.site.unregister(Group)
+
 admin.site.site_header = 'PSQ Admin'
