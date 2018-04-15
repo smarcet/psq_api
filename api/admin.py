@@ -13,7 +13,7 @@ from .models import Exam
 from .models import Exercise
 from .models import ExamVideo
 from .models import TutorialVideo
-
+from .models import DeviceUsersGroup
 
 class DeviceForm(forms.ModelForm):
     class Meta:
@@ -60,6 +60,7 @@ admin.site.register(Exam)
 admin.site.register(Exercise)
 admin.site.register(ExamVideo)
 admin.site.register(TutorialVideo)
+admin.site.register(DeviceUsersGroup)
 admin.site.unregister(Group)
 
 admin.site.site_header = 'PSQ Admin'

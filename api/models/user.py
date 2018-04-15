@@ -7,7 +7,9 @@ from django.contrib.auth.models import PermissionsMixin
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
+
 class User(AbstractBaseUser, PermissionsMixin):
+
     email = models.EmailField(_('email address'), unique=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
@@ -36,9 +38,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-
-    class Meta:
-        app_label = 'api'
 
     def get_full_name(self):
         '''

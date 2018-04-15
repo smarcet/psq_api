@@ -3,11 +3,14 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 
+
 class Exam(TimeStampedModel):
 
     notes = models.TextField()
 
     duration = models.DurationField()
+
+    approved = models.BooleanField()
 
     # relations
 
@@ -17,7 +20,7 @@ class Exam(TimeStampedModel):
 
     evaluator = models.ForeignKey(settings.AUTH_USER_MODEL,
                               null=True, on_delete=models.SET_NULL,
-                              related_name="evalutaed_exams")
+                              related_name="evaluated_exams")
 
     exercise = models.ForeignKey("Exercise",
                                  null=True, on_delete=models.SET_NULL,

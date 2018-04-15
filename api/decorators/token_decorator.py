@@ -12,7 +12,7 @@ def token_required(required_role = None):
             request = view.request
             token = request.query_params.get('token')
             if token is None:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
+                return Response(status=status.HTTP_401_UNAUTHORIZED, data=_("missing token param"))
 
             validator = JSONWebTokenValidator()
 

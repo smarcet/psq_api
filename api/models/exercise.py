@@ -5,7 +5,6 @@ from model_utils.models import TimeStampedModel
 
 
 class Exercise(TimeStampedModel):
-
     title = models.CharField(max_length=100)
 
     abstract = models.TextField()
@@ -24,11 +23,16 @@ class Exercise(TimeStampedModel):
     # relations
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
-                              null=True, on_delete=models.SET_NULL,
-                              related_name="created_exercises")
+                               null=True, on_delete=models.SET_NULL,
+                               related_name="created_exercises")
 
     original_device = models.ForeignKey("Device",
-                               null=True, on_delete=models.SET_NULL,
-                               related_name="owned_exercises")
+                                        null=True, on_delete=models.SET_NULL,
+                                        related_name="owned_exercises")
 
     allowed_devices = models.ManyToManyField("Device", related_name="allowed_exercises", blank=True)
+
+    created_from_tutorial = models.ForeignKey("Exercise",
+                                              null=True, on_delete=models.SET_NULL,
+                                              blank=True
+                                              )
