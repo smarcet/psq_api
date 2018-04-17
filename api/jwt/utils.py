@@ -7,7 +7,7 @@ from calendar import timegm
 from datetime import datetime
 from ..exceptions import ValidationError
 from rest_framework_jwt.compat import get_username_field, get_username
-from rest_framework import exceptions, status
+from rest_framework import exceptions
 from rest_framework.authentication import (
     get_authorization_header
 )
@@ -47,7 +47,6 @@ def jwt_payload_handler(user):
 
     if api_settings.JWT_ISSUER is not None:
         payload['iss'] = api_settings.JWT_ISSUER
-
 
     return payload
 
@@ -97,10 +96,9 @@ class CustomJSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
         """
         return '{0} realm="{1}"'.format(api_settings.JWT_AUTH_HEADER_PREFIX, self.www_authenticate_realm)
 
+
 jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
-
-
 
 
 class JSONWebTokenValidator:

@@ -15,6 +15,7 @@ from .models import ExamVideo
 from .models import TutorialVideo
 from .models import DeviceUsersGroup
 
+
 class DeviceForm(forms.ModelForm):
     class Meta:
         model = Device
@@ -34,13 +35,13 @@ class DeviceAdmin(admin.ModelAdmin):
 
 
 class MyUserAdmin(UserAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'role', 'created_by', 'updated_by')
+    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'role', 'created_by', 'updated_by','is_verified', 'date_verified')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'role')
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
     filter_horizontal = ()
 
-    ## Static overriding
+    # Static overriding
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'bio')}),
@@ -53,6 +54,7 @@ class MyUserAdmin(UserAdmin):
             'fields': ('email', 'password1', 'password2'),
         }),
     )
+
 
 admin.site.register(User, MyUserAdmin)
 admin.site.register(Device, DeviceAdmin)

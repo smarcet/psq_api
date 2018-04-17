@@ -1,0 +1,154 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-04-16 22:23-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin.py:28
+#, python-brace-format
+msgid "Maximum {slots} users are allowed."
+msgstr ""
+
+#: admin.py:47
+msgid "Personal info"
+msgstr ""
+
+#: admin.py:48
+msgid "Permissions"
+msgstr ""
+
+#: decorators/allowed_device.py:15
+#, python-brace-format
+msgid "you are not allowed to admin device {device_id}"
+msgstr ""
+
+#: decorators/token_decorator.py:15
+msgid "missing token param"
+msgstr ""
+
+#: decorators/token_decorator.py:22
+#, python-brace-format
+msgid "you need role {role}"
+msgstr ""
+
+#: exceptions/authz_error.py:8
+msgid "Authorization error."
+msgstr ""
+
+#: exceptions/validation_error.py:8
+msgid "Invalid input."
+msgstr ""
+
+#: jwt/utils.py:82
+msgid "Invalid Authorization header. No credentials provided."
+msgstr ""
+
+#: jwt/utils.py:85
+msgid ""
+"Invalid Authorization header. Credentials string should not contain spaces."
+msgstr ""
+
+#: jwt/utils.py:123
+msgid "Signature has expired."
+msgstr ""
+
+#: jwt/utils.py:126
+msgid "Error decoding signature."
+msgstr ""
+
+#: jwt/utils.py:136
+msgid "Invalid payload."
+msgstr ""
+
+#: jwt/utils.py:143
+msgid "User doesn't exist."
+msgstr ""
+
+#: jwt/utils.py:147
+msgid "User account is disabled."
+msgstr ""
+
+#: models/device.py:15 models/user.py:21
+msgid "active"
+msgstr ""
+
+#: models/device.py:29 models/device.py:45 tests/test_models.py:50
+msgid "no more available free slots"
+msgstr ""
+
+#: models/device.py:32
+#, python-format
+msgid "user %s is already an allowed user"
+msgstr ""
+
+#: models/device.py:39
+#, python-format
+msgid "user %s is not an allowed user"
+msgstr ""
+
+#: models/device.py:48
+#, python-format
+msgid "user %s is already an admin"
+msgstr ""
+
+#: models/device.py:55
+#, python-format
+msgid "user %s is not an admin"
+msgstr ""
+
+#: models/user.py:17
+msgid "email address"
+msgstr ""
+
+#: models/user.py:18
+msgid "first name"
+msgstr ""
+
+#: models/user.py:19
+msgid "last name"
+msgstr ""
+
+#: models/user.py:20
+msgid "date joined"
+msgstr ""
+
+#: models/user.py:22
+msgid "verified"
+msgstr ""
+
+#: models/user.py:23
+msgid "staff status"
+msgstr ""
+
+#: models/user.py:70
+#, python-brace-format
+msgid "Please Confirm your Email <a href='{href}'>Clicking Here</a>"
+msgstr "Por favor, confirme su email <a href='{href}'>Haciendo click aqui.</a>"
+
+#: models/user.py:73
+msgid "Attention: You have been invited to PSQ Application!!!"
+msgstr "Atencion: Ud ha sido invitado a la Aplicacion PSQ!!!"
+
+#: tests/test_models.py:37
+msgid "user is already an user"
+msgstr ""
+
+#: views/devices.py:65 views/devices.py:80 views/devices.py:100
+#: views/devices.py:116
+#, python-format
+msgid "User %s does not exists"
+msgstr ""

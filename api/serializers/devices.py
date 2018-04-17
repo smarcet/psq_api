@@ -1,13 +1,13 @@
 from rest_framework import serializers
-from ..serializers.users import UserSerializer
+from ..serializers.users import ReadUserSerializer
 from ..models import Device
 from ..models import User
 
 
 class ReadDeviceSerializer(serializers.ModelSerializer):
-    owner = UserSerializer()
-    users = UserSerializer(many=True)
-    admins = UserSerializer(many=True)
+    owner = ReadUserSerializer()
+    users = ReadUserSerializer(many=True)
+    admins = ReadUserSerializer(many=True)
 
     class Meta:
         model = Device
@@ -50,7 +50,6 @@ class WriteableDeviceSerializer(serializers.ModelSerializer):
 
         instance.set_owner(owner)
         return instance
-
 
     class Meta:
         model = Device

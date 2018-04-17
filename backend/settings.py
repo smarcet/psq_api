@@ -17,6 +17,8 @@ import datetime
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+API_DOMAIN = 'http://127.0.0.1:8000'
+WEB_DOMAIN = 'http://127.0.0.1:8080'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -29,6 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+FROM_EMAIL = "noreply@psq.com"
 
 # Application definition
 
@@ -112,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ES'
 
 TIME_ZONE = 'UTC'
 
@@ -123,6 +126,7 @@ USE_L10N = True
 USE_TZ = True
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'api.exceptions.custom_exception_handler',
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
@@ -136,7 +140,7 @@ REST_FRAMEWORK = {
     #),
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
 }
 
 JWT_AUTH = {
@@ -187,8 +191,15 @@ CORS_ORIGIN_ALLOW_ALL=True
 
 APPEND_SLASH=False
 
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'smarcet1981'
+EMAIL_HOST_PASSWORD = 'Koguryo@1981'
+EMAIL_USE_TLS = True
+
 # Import local settings
 try:
     from .settings_local import *
 except ImportError:
     print("Notice: Didn't import settings_local.")
+

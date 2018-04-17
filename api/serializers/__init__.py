@@ -1,2 +1,2 @@
 from .devices import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDeviceSerializer
-from .users import UserSerializer
+from .users import WritableUserSerializer, ReadUserSerializer, WritableAdminUserSerializer, WritableRawUserSerializer
