@@ -6,15 +6,15 @@ from ..serializers import WriteableDeviceSerializer, ReadDeviceSerializer, Nulla
 from ..models import Device
 from ..models import User
 from ..models import ModelValidationException
-from ..decorators import token_required, allowed_device
+from ..decorators import role_required, allowed_device
 
 
-class DeviceList(ListCreateAPIView):
+class DeviceListCreate(ListCreateAPIView):
 
     queryset = Device.objects.all()
     filter_fields = ('serial', 'friendly_name', 'is_active')
 
-    @token_required(required_role=User.SUPERVISOR)
+    @role_required(required_role=User.SUPERVISOR)
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
@@ -35,11 +35,11 @@ class DeviceDetail(RetrieveUpdateDestroyAPIView):
     def patch(self, request, *args, **kwargs):
         pass
 
-    @token_required(required_role=User.SUPERVISOR)
+    @role_required(required_role=User.SUPERVISOR)
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
-    @token_required(required_role=User.TEACHER)
+    @role_required(required_role=User.TEACHER)
     @allowed_device()
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
@@ -49,7 +49,7 @@ class DeviceUsersList(GenericAPIView):
     queryset = Device.objects.all()
     serializer_class = NullableDeviceSerializer
 
-    @token_required(required_role=User.TEACHER)
+    @role_required(required_role=User.TEACHER)
     @allowed_device()
     def put(self, request, pk, user_id):
         device = self.get_object()
@@ -64,7 +64,7 @@ class DeviceUsersList(GenericAPIView):
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)
 
-    @token_required(required_role=User.TEACHER)
+    @role_required(required_role=User.TEACHER)
     @allowed_device()
     def delete(self, request, pk, user_id):
         device = self.get_object()
@@ -84,7 +84,7 @@ class DeviceAdminsList(GenericAPIView):
     queryset = Device.objects.all()
     serializer_class = NullableDeviceSerializer
 
-    @token_required(required_role=User.TEACHER)
+    @role_required(required_role=User.TEACHER)
     @allowed_device()
     def put(self, request, pk, user_id):
         device = self.get_object()
@@ -99,7 +99,7 @@ class DeviceAdminsList(GenericAPIView):
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)
 
-    @token_required(required_role=User.TEACHER)
+    @role_required(required_role=User.TEACHER)
     @allowed_device()
     def delete(self, request, pk, user_id):
 

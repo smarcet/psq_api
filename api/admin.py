@@ -14,6 +14,7 @@ from .models import Exercise
 from .models import ExamVideo
 from .models import TutorialVideo
 from .models import DeviceUsersGroup
+from .models import Tutorial
 
 
 class DeviceForm(forms.ModelForm):
@@ -35,7 +36,7 @@ class DeviceAdmin(admin.ModelAdmin):
 
 
 class MyUserAdmin(UserAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'role', 'created_by', 'updated_by','is_verified', 'date_verified')
+    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'role', 'created_by', 'updated_by','is_verified', 'date_verified', 'pic')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'role')
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
@@ -44,7 +45,7 @@ class MyUserAdmin(UserAdmin):
     # Static overriding
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'bio')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'bio', 'pic')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'role' )}),
     )
 
@@ -59,6 +60,7 @@ class MyUserAdmin(UserAdmin):
 admin.site.register(User, MyUserAdmin)
 admin.site.register(Device, DeviceAdmin)
 admin.site.register(Exam)
+admin.site.register(Tutorial)
 admin.site.register(Exercise)
 admin.site.register(ExamVideo)
 admin.site.register(TutorialVideo)

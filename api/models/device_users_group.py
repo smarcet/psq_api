@@ -6,8 +6,8 @@ from model_utils.models import TimeStampedModel
 
 class DeviceUsersGroup(TimeStampedModel):
 
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
+    name = models.CharField(max_length=255, unique=True)
+    code = models.CharField(max_length=50, unique=True)
 
     device = models.ForeignKey("Device",
                                null=True, on_delete=models.SET_NULL,

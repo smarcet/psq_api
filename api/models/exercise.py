@@ -2,14 +2,17 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
+from ..models import ModelValidationException
+from ..validators import validate_max_duration
 
 
 class Exercise(TimeStampedModel):
-    title = models.CharField(max_length=100)
 
-    abstract = models.TextField()
+    title = models.CharField(max_length=255, blank=False, unique=True)
 
-    max_duration = models.DurationField()
+    abstract = models.TextField(blank=False)
+
+    max_duration = models.IntegerField(blank=False, validators=[validate_max_duration,])
 
     REGULAR = 1
     TUTORIAL = 2
@@ -18,7 +21,7 @@ class Exercise(TimeStampedModel):
         (TUTORIAL, 'Tutorial')
     )
 
-    type = models.PositiveSmallIntegerField(choices=TYPE_CHOICES, null=True, blank=True)
+    type = models.PositiveSmallIntegerField(choices=TYPE_CHOICES, null=True, blank=False, default=REGULAR)
 
     # relations
 
@@ -36,3 +39,23 @@ class Exercise(TimeStampedModel):
                                               null=True, on_delete=models.SET_NULL,
                                               blank=True
                                               )
+
+    def add_allowed_device(self, device):
+
+        if device in self.allowed_devices.all():
+            raise ModelValidationException(_("device {device_id} is already an allowed device").format(device_id=device.id))
+
+        self.allowed_devices.add(device)
+        self.save()
+
+    def set_author(self, author):
+        self.author = author
+        self.save()
+
+    def set_original_device(self, original_device):
+        if original_device is None:
+            raise ModelValidationException(
+                _("original device could not be null"))
+
+        self.original_device = original_device
+        self.save()

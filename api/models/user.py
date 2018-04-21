@@ -24,6 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(_('verified'), default=False)
     is_staff = models.BooleanField(_('staff status'), default=False)
     registration_hash = models.CharField(max_length=REGISTRATION_HASH_LEN, blank=True)
+    pic = models.ImageField(upload_to = 'users', null=True, blank=True)
     # relations
 
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL,

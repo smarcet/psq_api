@@ -13,7 +13,7 @@ class Device(TimeStampedModel):
     friendly_name = models.CharField(max_length=100, unique=True)
     slots = models.PositiveSmallIntegerField(default=3, null=False)
     is_active = models.BooleanField(_('active'), default=True)
-
+    is_live =  models.BooleanField(_('live'), default=False)
     # relations
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -64,8 +64,14 @@ class Device(TimeStampedModel):
         consumed_slots = self.admins.count() + self.users.count()
         return self.slots - consumed_slots
 
-    class Meta:
-        app_label = 'api'
+    def is_allowed_admin(self, user):
+        if self.owner == user:
+            return True
+
+        if user in self.admins:
+            return True
+
+        return False
 
     def clean(self):
         pass

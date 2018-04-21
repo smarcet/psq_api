@@ -1,12 +1,15 @@
+from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.generics import  ListCreateAPIView
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
-from ..decorators import token_required
-from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, WritableRawUserSerializer
+from ..decorators import role_required
+from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, WritableRawUserSerializer, UserPicSerializer
 from ..models import User
 import hashlib
+from django.utils.translation import ugettext_lazy as _
 
 
 class UserValidateView(APIView):
@@ -15,21 +18,22 @@ class UserValidateView(APIView):
     def post(self, request, registration_token):
         json=request.data
         password=json.get("password", None)
+
         if registration_token is None:
-            return Response(status=400, data="Missing param 'registration_token'")
+            return Response(status=400, data=_("Missing param 'registration_token'"))
+
         if password is None:
-            return Response(status=400, data="Missing param 'password'")
+            return Response(status=400, data=_("Missing param 'password'"))
 
         user = User.objects.filter(registration_hash=hashlib.md5(registration_token.encode('utf-8')).hexdigest()).first()
 
         if user is None:
-            return Response(status=404, data="User not found")
+            return Response(status=404, data=_("User not found"))
 
         if user.is_verified:
-            return Response(status=404, data="User not found")
+            return Response(status=404, data=_("User not found"))
 
-
-        user.verify(password);
+        user.verify(password)
 
         return Response(status=201)
 
@@ -42,6 +46,22 @@ class UserList(APIView):
         return Response(serializer.data)
 
 
+class AdminUserPicView(APIView):
+    serializer_class = UserPicSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    @staticmethod
+    def post(request, pk):
+
+        pic_serializer = UserPicSerializer(data=request.data)
+
+        if pic_serializer.is_valid():
+            pic_serializer.save()
+            return Response(pic_serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(pic_serializer.errors, status=status.HTTP_412_PRECONDITION_FAILED)
+
+
 class CreateAdminUserView(ListCreateAPIView):
     queryset = User.objects.filter(role=User.TEACHER)
 
@@ -50,7 +70,7 @@ class CreateAdminUserView(ListCreateAPIView):
             return WritableAdminUserSerializer
         return ReadUserSerializer
 
-    #@token_required(required_role=User.SUPERVISOR)
+    @role_required(required_role=User.SUPERVISOR)
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
@@ -63,7 +83,7 @@ class CreateRawUserView(ListCreateAPIView):
             return WritableRawUserSerializer
         return ReadUserSerializer
 
-    #@token_required(required_role=User.TEACHER)
+    @role_required(required_role=User.TEACHER)
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
@@ -77,7 +97,6 @@ class UserDetailMe(APIView):
         except User.DoesNotExist:
             raise Http404
 
-    @token_required()
     def get(self, request):
         user = self.get_object(request.user.id)
         serializer = ReadUserSerializer(user)

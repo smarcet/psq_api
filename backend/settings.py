@@ -190,12 +190,17 @@ AUTH_USER_MODEL='api.User'
 CORS_ORIGIN_ALLOW_ALL=True
 
 APPEND_SLASH=False
+# Mail Settings
 
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'smarcet1981'
 EMAIL_HOST_PASSWORD = 'Koguryo@1981'
 EMAIL_USE_TLS = True
+
+# file upload
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Import local settings
 try:
