@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-16 22:23-0300\n"
+"POT-Creation-Date: 2018-04-22 14:34-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,138 +17,175 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-#: admin.py:28
+#: api/admin.py:30
 #, python-brace-format
 msgid "Maximum {slots} users are allowed."
 msgstr ""
 
-#: admin.py:47
+#: api/admin.py:49
 msgid "Personal info"
 msgstr ""
 
-#: admin.py:48
+#: api/admin.py:50
 msgid "Permissions"
 msgstr ""
 
-#: decorators/allowed_device.py:15
+#: api/decorators/allowed_device.py:15
 #, python-brace-format
 msgid "you are not allowed to admin device {device_id}"
 msgstr ""
 
-#: decorators/token_decorator.py:15
-msgid "missing token param"
+#: api/decorators/role_required.py:13
+msgid "user is not present"
 msgstr ""
 
-#: decorators/token_decorator.py:22
+#: api/decorators/role_required.py:16
 #, python-brace-format
 msgid "you need role {role}"
 msgstr ""
 
-#: exceptions/authz_error.py:8
+#: api/exceptions/authz_error.py:8
 msgid "Authorization error."
 msgstr ""
 
-#: exceptions/validation_error.py:8
+#: api/exceptions/validation_error.py:8
 msgid "Invalid input."
 msgstr ""
 
-#: jwt/utils.py:82
+#: api/jwt/utils.py:82
 msgid "Invalid Authorization header. No credentials provided."
 msgstr ""
 
-#: jwt/utils.py:85
+#: api/jwt/utils.py:85
 msgid ""
 "Invalid Authorization header. Credentials string should not contain spaces."
 msgstr ""
 
-#: jwt/utils.py:123
+#: api/jwt/utils.py:123
 msgid "Signature has expired."
 msgstr ""
 
-#: jwt/utils.py:126
+#: api/jwt/utils.py:126
 msgid "Error decoding signature."
 msgstr ""
 
-#: jwt/utils.py:136
+#: api/jwt/utils.py:136
 msgid "Invalid payload."
 msgstr ""
 
-#: jwt/utils.py:143
+#: api/jwt/utils.py:143
 msgid "User doesn't exist."
 msgstr ""
 
-#: jwt/utils.py:147
+#: api/jwt/utils.py:147
 msgid "User account is disabled."
 msgstr ""
 
-#: models/device.py:15 models/user.py:21
+#: api/models/device.py:15 api/models/user.py:23
 msgid "active"
 msgstr ""
 
-#: models/device.py:29 models/device.py:45 tests/test_models.py:50
+#: api/models/device.py:16 api/models/user.py:24
+msgid "verified"
+msgstr ""
+
+#: api/models/device.py:18
+msgid "live"
+msgstr ""
+
+#: api/models/device.py:32 api/models/device.py:48 api/tests/test_models.py:50
 msgid "no more available free slots"
 msgstr ""
 
-#: models/device.py:32
+#: api/models/device.py:35
 #, python-format
 msgid "user %s is already an allowed user"
 msgstr ""
 
-#: models/device.py:39
+#: api/models/device.py:42
 #, python-format
 msgid "user %s is not an allowed user"
 msgstr ""
 
-#: models/device.py:48
+#: api/models/device.py:51
 #, python-format
 msgid "user %s is already an admin"
 msgstr ""
 
-#: models/device.py:55
+#: api/models/device.py:58
 #, python-format
 msgid "user %s is not an admin"
 msgstr ""
 
-#: models/user.py:17
+#: api/models/exercise.py:46
+#, python-brace-format
+msgid "device {device_id} is already an allowed device"
+msgstr ""
+
+#: api/models/exercise.py:58
+msgid "original device could not be null"
+msgstr ""
+
+#: api/models/user.py:18
 msgid "email address"
 msgstr ""
 
-#: models/user.py:18
+#: api/models/user.py:19
 msgid "first name"
 msgstr ""
 
-#: models/user.py:19
+#: api/models/user.py:20
 msgid "last name"
 msgstr ""
 
-#: models/user.py:20
+#: api/models/user.py:21
 msgid "date joined"
 msgstr ""
 
-#: models/user.py:22
-msgid "verified"
-msgstr ""
-
-#: models/user.py:23
+#: api/models/user.py:25
 msgid "staff status"
 msgstr ""
 
-#: models/user.py:70
+#: api/models/user.py:75
 #, python-brace-format
 msgid "Please Confirm your Email <a href='{href}'>Clicking Here</a>"
-msgstr "Por favor, confirme su email <a href='{href}'>Haciendo click aqui.</a>"
+msgstr "Por Favor confirme su Email <a href='{href}'>haciendo click aqui</a>"
 
-#: models/user.py:73
+#: api/models/user.py:81
 msgid "Attention: You have been invited to PSQ Application!!!"
-msgstr "Atencion: Ud ha sido invitado a la Aplicacion PSQ!!!"
+msgstr "Atencion: Ha sido invitado a la aplicacion PSQ!!!"
 
-#: tests/test_models.py:37
+#: api/serializers/exercises.py:44
+#, python-brace-format
+msgid "user {user_id} is not allowed to admin device {device_id}"
+msgstr ""
+
+#: api/tests/test_models.py:37
 msgid "user is already an user"
 msgstr ""
 
-#: views/devices.py:65 views/devices.py:80 views/devices.py:100
-#: views/devices.py:116
+#: api/validators/durations.py:7
+msgid "duration should be greater than 0 seconds"
+msgstr ""
+
+#: api/validators/durations.py:11
+msgid "max duration should be greater than 0 seconds"
+msgstr ""
+
+#: api/views/devices.py:65 api/views/devices.py:80 api/views/devices.py:100
+#: api/views/devices.py:116
 #, python-format
 msgid "User %s does not exists"
+msgstr ""
+
+#: api/views/users.py:23
+msgid "Missing param 'registration_token'"
+msgstr ""
+
+#: api/views/users.py:26
+msgid "Missing param 'password'"
+msgstr ""
+
+#: api/views/users.py:31 api/views/users.py:34
+msgid "User not found"
 msgstr ""

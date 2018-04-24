@@ -10,7 +10,7 @@ class Exam(TimeStampedModel):
 
     duration = models.IntegerField(blank=False, validators=[validate_duration,])
 
-    approved = models.BooleanField()
+    approved = models.BooleanField(default=False)
 
     # relations
 

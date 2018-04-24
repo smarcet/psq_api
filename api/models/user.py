@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-from django.core.mail import send_mail
+from ..models import MailRequest
 from ..managers.user_manager import UserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.conf import settings
@@ -69,18 +69,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
 
         if self.id is None:
-            registration_token = User.generates_registration_token();
+            registration_token = User.generates_registration_token()
             self.registration_hash = hashlib.md5(registration_token.encode('utf-8')).hexdigest()
             # defined on .po file
             body=_("Please Confirm your Email <a href='{href}'>Clicking Here</a>").format(
                     href="%s/users/validate/%s" % (settings.WEB_DOMAIN, registration_token))
-            send_mail(
+
+            mail_request = MailRequest(
+                to_address = self.email,
+                from_address=settings.FROM_EMAIL,
                 subject=_("Attention: You have been invited to PSQ Application!!!"),
-                message=body,
-                from_email=settings.FROM_EMAIL,
-                recipient_list=[self.email, ],
-                html_message=body,
+                body=body
             )
+
+            mail_request.save()
+
             # send registration email
 
         return super(User, self).save(*args, **kwargs)

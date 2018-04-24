@@ -1,2 +1,4 @@
 from .users import UserDetailMe, UserList, CreateAdminUserView, CreateRawUserView, UserValidateView
 from .exercises import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView
+from .devices import DeviceOpenRegistrationView
+from .tutorials import TutorialListCreateAPIView, TutorialRetrieveUpdateDestroyAPIView

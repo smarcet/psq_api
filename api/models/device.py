@@ -3,17 +3,26 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 from ..models import ModelValidationException
+from django.utils.crypto import get_random_string
+import uuid
+import hashlib
+from macaddress.fields import MACAddressField
 
 
 class Device(TimeStampedModel):
+    STREAM_KEY_LEN = 255
+    STREAM_KEY_ALLOWED_CHARS = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ0123456789-_'
 
-    serial = models.CharField(max_length=100, unique=True)
-    mac_address = models.CharField(max_length=100, blank=True, null=True, unique=True)
-    last_know_ip = models.CharField(max_length=50, blank=True)
-    friendly_name = models.CharField(max_length=100, unique=True)
+    serial = models.UUIDField(unique=True, null=False, default=uuid.uuid4)
+    mac_address =  MACAddressField(integer=False, unique=True)
+    last_know_ip = models.GenericIPAddressField()
+    friendly_name = models.CharField(max_length=100, unique=True, null=True)
     slots = models.PositiveSmallIntegerField(default=3, null=False)
-    is_active = models.BooleanField(_('active'), default=True)
-    is_live =  models.BooleanField(_('live'), default=False)
+    is_active = models.BooleanField( default=False)
+    is_verified = models.BooleanField( default=False)
+    stream_key = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    is_live = models.BooleanField(default=False, editable=False)
+
     # relations
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -68,7 +77,7 @@ class Device(TimeStampedModel):
         if self.owner == user:
             return True
 
-        if user in self.admins:
+        if user in self.admins.all():
             return True
 
         return False
@@ -76,3 +85,17 @@ class Device(TimeStampedModel):
     def clean(self):
         pass
 
+    @staticmethod
+    def generates_stream_token():
+        return get_random_string(Device.STREAM_KEY_LEN, Device.STREAM_KEY_ALLOWED_CHARS)
+
+    def save(self, *args, **kwargs):
+
+        if self.id is None:
+            while True:
+                new_stream_token = Device.generates_stream_token()
+                self.stream_key = hashlib.md5(new_stream_token.encode('utf-8')).hexdigest()
+                if Device.objects.filter(stream_key=self.stream_key).count() == 0:
+                    break
+
+        return super(Device, self).save(*args, **kwargs)

@@ -12,7 +12,7 @@ class ReadDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = (
-        'id', 'mac_address', 'last_know_ip', 'friendly_name', 'serial', 'slots', 'is_active', 'owner', 'users', 'admins')
+        'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'mac_address', 'stream_key', 'serial', 'slots', 'is_active', 'owner', 'users', 'admins')
 
 
 class NullableDeviceSerializer(serializers.ModelSerializer):
@@ -20,7 +20,14 @@ class NullableDeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        exclude = ('id', 'mac_address', 'last_know_ip', 'friendly_name', 'serial', 'slots', 'is_active', 'owner', 'users', 'admins')
+        exclude = ('id', 'mac_address', 'last_know_ip', 'friendly_name',  'is_verified', 'mac_address', 'stream_key', 'serial', 'slots', 'is_active', 'owner', 'users', 'admins', 'is_live')
+
+
+class OpenRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Device
+        fields = ('mac_address', 'last_know_ip')
+        read_only_fields = ('serial','stream_key', 'id')
 
 
 class WriteableDeviceSerializer(serializers.ModelSerializer):
@@ -53,4 +60,4 @@ class WriteableDeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        fields = ('id', 'mac_address', 'last_know_ip', 'friendly_name', 'serial', 'slots', 'is_active', 'owner', 'users', 'admins')
+        fields = ('id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'slots', 'is_active', 'owner', 'users', 'admins')

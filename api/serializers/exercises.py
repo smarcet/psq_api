@@ -18,7 +18,7 @@ class ReadExerciseSerializer(serializers.ModelSerializer):
 
 
 class WriteableExerciseSerializer(serializers.ModelSerializer):
-    author = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all())
+    author = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.filter(role=User.TEACHER))
     original_device = serializers.PrimaryKeyRelatedField(many=False, queryset=Device.objects.all())
     allowed_devices = serializers.PrimaryKeyRelatedField(many=True, queryset=Device.objects.all(), required=False)
 
@@ -31,6 +31,10 @@ class WriteableExerciseSerializer(serializers.ModelSerializer):
         if 'allowed_devices' in validated_data:
             allowed_devices = validated_data.pop('allowed_devices')
 
+        if not original_device.is_allowed_admin(author):
+            raise ModelValidationException(
+                _("user {user_id} is not allowed to admin device {device_id}").format(user_id=author.id,
+                                                                                      device_id=original_device.id))
         instance = Exercise.objects.create(**validated_data)
 
         for device in allowed_devices:
@@ -39,10 +43,6 @@ class WriteableExerciseSerializer(serializers.ModelSerializer):
         instance.set_author(author)
         instance.set_original_device(original_device)
 
-        if not original_device.is_allowed_admin(author):
-            raise ModelValidationException(
-                _("user {user_id} is not allowed to admin device {device_id}").format(user_id=author.id,
-                                                                                      device_id=original_device.id))
         return instance
 
     class Meta:

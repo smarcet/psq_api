@@ -2,7 +2,7 @@ from rest_framework_jwt.views import (obtain_jwt_token)
 from django.urls import path
 from .views.users import UserDetailMe, UserList, CreateRawUserView, CreateAdminUserView, UserValidateView, AdminUserPicView
 from .views.devices import DeviceListCreate, DeviceDetail, DeviceUsersList, DeviceAdminsList
-from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView
+from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, TutorialRetrieveUpdateDestroyAPIView, TutorialListCreateAPIView
 
 urlpatterns = [
     path('token', obtain_jwt_token, name='get-token'),
@@ -12,9 +12,12 @@ urlpatterns = [
     path('admin-users/<int:pk>/pic', AdminUserPicView.as_view(), name='admin-user-pic'),
     path('raw-users', CreateRawUserView.as_view(), name='create-list-raw-users'),
     path('devices', DeviceListCreate.as_view(), name='device-list-create'),
+    path('devices/registration', DeviceOpenRegistrationView.as_view(), name='device-open-registration'),
     path('devices/<int:pk>', DeviceDetail.as_view(), name='device-detail'),
     path('devices/<int:pk>/users/<int:user_id>', DeviceUsersList.as_view(), name='device-users'),
     path('devices/<int:pk>/admins/<int:user_id>', DeviceAdminsList.as_view(), name='device-admins'),
     path('exercises', ExerciseListCreateAPIView.as_view(), name='exercises-list-create'),
     path('exercises/<int:pk>', ExerciseRetrieveUpdateDestroyAPIView.as_view(), name='exercises-retrieve-update-destroy'),
+    path('tutorials', TutorialListCreateAPIView.as_view(), name='tutorials-list-create'),
+    path('tutorials/<int:pk>', TutorialRetrieveUpdateDestroyAPIView.as_view(), name='tutorials-retrieve-update-destroy')
 ]

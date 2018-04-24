@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'corsheaders',
+    'django_cron',
     'model_utils',
     'django_filters',
     'django.contrib.admin',
@@ -201,6 +202,12 @@ EMAIL_USE_TLS = True
 # file upload
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+CRON_CLASSES = [
+    "api.cron_jobs.MailCronJob",
+]
+
+MACADDRESS_DEFAULT_DIALECT = 'netaddr.mac_eui48'
 
 # Import local settings
 try:

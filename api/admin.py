@@ -15,6 +15,7 @@ from .models import ExamVideo
 from .models import TutorialVideo
 from .models import DeviceUsersGroup
 from .models import Tutorial
+from .models import MailRequest
 
 
 class DeviceForm(forms.ModelForm):
@@ -66,5 +67,6 @@ admin.site.register(ExamVideo)
 admin.site.register(TutorialVideo)
 admin.site.register(DeviceUsersGroup)
 admin.site.unregister(Group)
+admin.site.register(MailRequest)
 
 admin.site.site_header = 'PSQ Admin'
