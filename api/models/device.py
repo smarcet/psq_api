@@ -2,6 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
+
+from api.models import User
 from ..models import ModelValidationException
 from django.utils.crypto import get_random_string
 import uuid
@@ -16,7 +18,7 @@ class Device(TimeStampedModel):
     serial = models.UUIDField(unique=True, null=False, default=uuid.uuid4)
     mac_address =  MACAddressField(integer=False, unique=True)
     last_know_ip = models.GenericIPAddressField()
-    friendly_name = models.CharField(max_length=100, unique=True, null=True)
+    friendly_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
     slots = models.PositiveSmallIntegerField(default=3, null=False)
     is_active = models.BooleanField( default=False)
     is_verified = models.BooleanField( default=False)
@@ -26,6 +28,7 @@ class Device(TimeStampedModel):
     # relations
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL,
+                              blank=True,
                               null=True, on_delete=models.SET_NULL,
                               related_name="owned_devices")
 
@@ -74,12 +77,19 @@ class Device(TimeStampedModel):
         return self.slots - consumed_slots
 
     def is_allowed_admin(self, user):
+
+        if user.role == User.SUPERVISOR:
+            return True
+
         if self.owner == user:
             return True
 
         if user in self.admins.all():
             return True
 
+        return False
+
+    def is_allowed_user(self, user):
         return False
 
     def clean(self):
@@ -89,13 +99,14 @@ class Device(TimeStampedModel):
     def generates_stream_token():
         return get_random_string(Device.STREAM_KEY_LEN, Device.STREAM_KEY_ALLOWED_CHARS)
 
-    def save(self, *args, **kwargs):
-
-        if self.id is None:
+    def do_verify(self):
+        self.is_verified = True
+        if self.stream_key is None:
             while True:
                 new_stream_token = Device.generates_stream_token()
                 self.stream_key = hashlib.md5(new_stream_token.encode('utf-8')).hexdigest()
                 if Device.objects.filter(stream_key=self.stream_key).count() == 0:
                     break
 
+    def save(self, *args, **kwargs):
         return super(Device, self).save(*args, **kwargs)

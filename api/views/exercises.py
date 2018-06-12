@@ -7,7 +7,8 @@ from ..decorators import role_required
 
 
 class ExerciseListCreateAPIView(ListCreateAPIView):
-
+    filter_fields = ('id', 'title', 'type')
+    ordering_fields = ('id', 'title', 'type')
     queryset = Exercise.objects.all()
 
     def get_serializer_class(self):

@@ -1,16 +1,17 @@
 from django.conf import settings
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
+import uuid
 
 
 class Video(TimeStampedModel):
-
     description = models.TextField()
 
-    url = models.URLField()
+    key = models.UUIDField(unique=True, null=False, default=uuid.uuid4)
 
-    thumbnail = models.URLField()
+    file = models.FileField(upload_to='videos')
+
+    thumbnail = models.FileField(upload_to='thumbnails')
 
     # relations
 

@@ -12,7 +12,8 @@ from ..serializers import TutorialWriteSerializer, TutorialReadSerializer
 
 class TutorialListCreateAPIView(ListCreateAPIView):
     queryset = Tutorial.objects.all()
-    filter_fields = ()
+    filter_fields = ('id', 'title')
+    ordering_fields = ('id', 'title')
 
     @role_required(required_role=User.TEACHER)
     def post(self, request, *args, **kwargs):

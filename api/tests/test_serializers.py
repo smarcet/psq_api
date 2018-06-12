@@ -16,6 +16,8 @@ class TestSerializers(TestCase):
         data = {
             'serial': '123456',
             'friendly_name': 'device#1',
+            'mac_address': '01-23-45-67-89-AB',
+            'last_know_ip': '127.0.0.1',
             'slots' : 3,
             'owner' : 1,
             'admins': [1],

@@ -13,6 +13,10 @@ manage.py migrate django_cron
 
 https://docs.djangoproject.com/en/2.0/topics/migrations/
 
+# create super user
+
+manage.py createsuperuser
+
 # cron jobs
 
 http://django-cron.readthedocs.io/en/latest/installation.html

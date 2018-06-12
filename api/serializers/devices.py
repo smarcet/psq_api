@@ -12,7 +12,8 @@ class ReadDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = (
-        'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'mac_address', 'stream_key', 'serial', 'slots', 'is_active', 'owner', 'users', 'admins')
+            'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'mac_address', 'stream_key', 'serial',
+            'slots', 'is_active', 'owner', 'users', 'admins')
 
 
 class NullableDeviceSerializer(serializers.ModelSerializer):
@@ -20,19 +21,26 @@ class NullableDeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        exclude = ('id', 'mac_address', 'last_know_ip', 'friendly_name',  'is_verified', 'mac_address', 'stream_key', 'serial', 'slots', 'is_active', 'owner', 'users', 'admins', 'is_live')
+        exclude = (
+            'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'mac_address', 'stream_key', 'serial',
+            'slots', 'is_active', 'owner', 'users', 'admins', 'is_live')
 
 
 class OpenRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = ('mac_address', 'last_know_ip')
-        read_only_fields = ('serial','stream_key', 'id')
+        read_only_fields = ('serial', 'stream_key', 'id')
+
+
+class VerifyDeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Device
+        fields = ('friendly_name', 'slots')
 
 
 class WriteableDeviceSerializer(serializers.ModelSerializer):
-
-    owner = serializers.PrimaryKeyRelatedField(many=False, queryset= User.objects.all())
+    owner = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all(), required=False, allow_null=True)
     users = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False)
     admins = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False)
 
@@ -60,4 +68,6 @@ class WriteableDeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Device
-        fields = ('id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'slots', 'is_active', 'owner', 'users', 'admins')
+        fields = (
+            'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'slots', 'is_active', 'owner', 'users',
+            'admins')

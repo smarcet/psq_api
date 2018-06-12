@@ -3,18 +3,20 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
 from rest_framework import status
 from rest_framework.response import Response
+
 from ..models import Device
 from ..models import User
 from ..models import ModelValidationException
 from ..decorators import role_required
 from ..exceptions import ValidationError
 from ..serializers import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDeviceSerializer, \
-    OpenRegistrationSerializer
+    OpenRegistrationSerializer, VerifyDeviceSerializer
 
 
 class DeviceListCreate(ListCreateAPIView):
     queryset = Device.objects.all()
     filter_fields = ('serial', 'friendly_name', 'is_active')
+    ordering_fields = ('id', 'friendly_name')
 
     @role_required(required_role=User.SUPERVISOR)
     def post(self, request, *args, **kwargs):
@@ -48,7 +50,7 @@ class DeviceDetail(RetrieveUpdateDestroyAPIView):
             device = self.get_object()
             if not device.is_allowed_admin(current_user):
                 raise ModelValidationException(
-                    _("User {user_id} is mot allowed to manage device {device_id}}").format(user_id=current_user.id,
+                    _("User {user_id} is mot allowed to manage device {device_id}").format(user_id=current_user.id,
                                                                                             device_id=device.id))
             return self.partial_update(request, *args, **kwargs)
 
@@ -99,6 +101,26 @@ class DeviceUsersList(GenericAPIView):
 
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)
+
+
+class DeviceVerifyView(GenericAPIView):
+    queryset = Device.objects.all()
+    serializer_class = VerifyDeviceSerializer
+
+    @role_required(required_role=User.SUPERVISOR)
+    def put(self, request):
+        device = self.get_object()
+
+        serializer = VerifyDeviceSerializer(device, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            device.do_verify()
+            instance = serializer.save()
+            data = {'id': instance.id, 'mac_address': str(instance.mac_address), 'last_know_ip': instance.last_know_ip,
+                    'stream_key': instance.stream_key, 'serial': str(instance.serial)}
+            return Response(data, status=status.HTTP_204_NO_CONTENT)
+
+        return Response(serializer.errors, status=status.HTTP_412_PRECONDITION_FAILED)
 
 
 class DeviceOpenRegistrationView(GenericAPIView):

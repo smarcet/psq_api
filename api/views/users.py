@@ -71,6 +71,10 @@ class CreateAdminUserView(ListCreateAPIView):
         return ReadUserSerializer
 
     @role_required(required_role=User.SUPERVISOR)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    @role_required(required_role=User.SUPERVISOR)
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 

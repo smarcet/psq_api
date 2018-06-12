@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 from django.conf import settings
 import datetime
+from google.oauth2 import service_account
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_cron',
     'model_utils',
+    'storages',
     'django_filters',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -140,7 +142,7 @@ REST_FRAMEWORK = {
     #    'rest_framework.renderers.JSONRenderer',
     #),
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'api.utils.pagination.LargeResultsSetPagination',
     'PAGE_SIZE': 100,
 }
 
@@ -209,6 +211,12 @@ CRON_CLASSES = [
 
 MACADDRESS_DEFAULT_DIALECT = 'netaddr.mac_eui48'
 
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'psqcom'
+GS_PROJECT_ID = 'psq-api-200120'
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    "/Users/smarcet/git/Python/psq_api/credentials.json"
+)
 # Import local settings
 try:
     from .settings_local import *
