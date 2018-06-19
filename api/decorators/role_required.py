@@ -15,7 +15,7 @@ def role_required(required_role):
             if required_role is not None and required_role > user.role:
                 raise AuthzError(_("you need role {role}").format(role=required_role))
 
-            response = view_func(view, request)
+            response = view_func(view, request, *args, **kwargs)
             return response
 
         return wraps(view_func)(__decorator)

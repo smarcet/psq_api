@@ -1,8 +1,9 @@
 from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 from django.urls import path
 from .views.users import UserDetailMe, CreateRawUserView, CreateAdminUserView, UserValidateView, \
-    AdminUserPicView
-from .views.devices import DeviceListCreate, DeviceDetail, DeviceUsersList, DeviceAdminsList, DeviceVerifyView
+    AdminUserPicView, AdminUserDetail, AdminUserDetailOwnedDevices
+from .views.devices import DeviceListCreate, DeviceDetail, DeviceUsersList, DeviceAdminsList, DeviceVerifyView, \
+    AdminUserOwnedDevicesManageView
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
     TutorialRetrieveUpdateDestroyAPIView, TutorialListCreateAPIView, ExamListCreateAPIView, \
     ExamRetrieveUpdateDestroyAPIView
@@ -11,11 +12,14 @@ urlpatterns = [
     # https://getblimp.github.io/django-rest-framework-jwt/
     path('token/refresh', refresh_jwt_token, name='refresh-token'),
     path('token', obtain_jwt_token, name='get-token'),
-
     path('users/me', UserDetailMe.as_view(), name='get-my-user'),
     path('users/validate/<slug:registration_token>', UserValidateView.as_view(), name='validate-user'),
     path('admin-users', CreateAdminUserView.as_view(), name='create-list-admin-users'),
+    path('admin-users/<int:pk>/owned-devices/<int:device_id>', AdminUserOwnedDevicesManageView.as_view(),
+         name='admin-user-owned-devices-manage'),
+    path('admin-users/<int:pk>/owned-devices', AdminUserDetailOwnedDevices.as_view(), name='admin-user-devices'),
     path('admin-users/<int:pk>/pic', AdminUserPicView.as_view(), name='admin-user-pic'),
+    path('admin-users/<int:pk>', AdminUserDetail.as_view(), name='admin-user'),
     path('raw-users', CreateRawUserView.as_view(), name='create-list-raw-users'),
     path('devices', DeviceListCreate.as_view(), name='device-list-create'),
     path('devices/registration', DeviceOpenRegistrationView.as_view(), name='device-open-registration'),

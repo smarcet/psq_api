@@ -211,12 +211,12 @@ CRON_CLASSES = [
 
 MACADDRESS_DEFAULT_DIALECT = 'netaddr.mac_eui48'
 
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = 'psqcom'
-GS_PROJECT_ID = 'psq-api-200120'
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-    "/Users/smarcet/git/Python/psq_api/credentials.json"
-)
+#DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+#GS_BUCKET_NAME = 'psqcom'
+#GS_PROJECT_ID = 'psq-api-200120'
+#GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+#    "/Users/smarcet/git/Python/psq_api/credentials.json"
+#   )
 # Import local settings
 try:
     from .settings_local import *

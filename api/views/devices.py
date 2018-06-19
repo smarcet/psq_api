@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -15,12 +16,17 @@ from ..serializers import WriteableDeviceSerializer, ReadDeviceSerializer, Nulla
 
 class DeviceListCreate(ListCreateAPIView):
     queryset = Device.objects.all()
-    filter_fields = ('serial', 'friendly_name', 'is_active')
+    filter_backends = (SearchFilter,)
+    search_fields   = ('friendly_name', 'mac_address')
     ordering_fields = ('id', 'friendly_name')
 
     @role_required(required_role=User.SUPERVISOR)
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+    @role_required(required_role=User.SUPERVISOR)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -55,7 +61,7 @@ class DeviceDetail(RetrieveUpdateDestroyAPIView):
             return self.partial_update(request, *args, **kwargs)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1))
+            raise ValidationError(str(error1), 'error')
 
 
 class DeviceUsersList(GenericAPIView):
@@ -77,7 +83,7 @@ class DeviceUsersList(GenericAPIView):
             device.add_user(user)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1))
+            raise ValidationError(str(error1), 'error')
 
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)
@@ -97,10 +103,48 @@ class DeviceUsersList(GenericAPIView):
             device.remove_user(user)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1))
+            raise ValidationError(str(error1), 'error')
 
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)
+
+
+class AdminUserOwnedDevicesManageView(GenericAPIView):
+
+    @role_required(required_role=User.SUPERVISOR)
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        device_id = kwargs.get('device_id')
+        admin_user = User.objects.get(pk=pk)
+        device = Device.objects.get(pk=device_id)
+        try:
+            if not device.is_allowed_admin(admin_user):
+                raise ModelValidationException(
+                    _("User {user_id} is mot allowed to manage device {device_id}}").format(user_id=admin_user.id, device_id=device_id))
+
+            device.unlink_from_owner()
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')
+
+    @role_required(required_role=User.SUPERVISOR)
+    def put(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        device_id = kwargs.get('device_id')
+        admin_user = User.objects.get(pk=pk)
+        device = Device.objects.get(pk=device_id)
+        try:
+            if device.is_owned_by(admin_user):
+                raise ModelValidationException(
+                    _("User {user_id} already own device {device_id}").format(user_id=admin_user.id,
+                                                                               device_id=device_id))
+
+            device.link_to(admin_user)
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')
 
 
 class DeviceVerifyView(GenericAPIView):
@@ -159,7 +203,7 @@ class DeviceAdminsList(GenericAPIView):
             device.add_admin(user)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1))
+            raise ValidationError(str(error1), 'error')
 
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)
@@ -180,7 +224,7 @@ class DeviceAdminsList(GenericAPIView):
             device.remove_admin(user)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1))
+            raise ValidationError(str(error1), 'error')
 
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)

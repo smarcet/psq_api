@@ -61,6 +61,34 @@ class CustomJSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
        """
     www_authenticate_realm = 'api'
 
+    """
+       Token based authentication using the JSON Web Token standard.
+       """
+
+    def authenticate(self, request):
+        """
+        Returns a two-tuple of `User` and token if a valid signature has been
+        supplied using JWT-based authentication.  Otherwise returns `None`.
+        """
+        jwt_value = self.get_jwt_value(request)
+        if jwt_value is None:
+            return None
+
+        try:
+            payload = jwt_decode_handler(jwt_value)
+        except jwt.ExpiredSignature:
+            msg = _('Signature has expired.')
+            raise exceptions.AuthenticationFailed(msg)
+        except jwt.DecodeError:
+            msg = _('Error decoding signature.')
+            raise exceptions.AuthenticationFailed(msg)
+        except jwt.InvalidTokenError:
+            raise exceptions.AuthenticationFailed()
+
+        user = self.authenticate_credentials(payload)
+
+        return (user, jwt_value)
+
     def get_jwt_value(self, request):
         auth = get_authorization_header(request).split()
         auth_header_prefix = api_settings.JWT_AUTH_HEADER_PREFIX.lower()

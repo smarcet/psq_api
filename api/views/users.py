@@ -2,12 +2,16 @@ from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.http import Http404
 from rest_framework.views import APIView
-from rest_framework.generics import  ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+
+from api.exceptions import ValidationError
+from api.models import ModelValidationException
+from ..serializers.devices import ReadDeviceSerializer
 from ..decorators import role_required
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, WritableRawUserSerializer, UserPicSerializer
-from ..models import User
+from ..models import User, Device
 import hashlib
 from django.utils.translation import ugettext_lazy as _
 
@@ -60,6 +64,53 @@ class AdminUserPicView(APIView):
             return Response(pic_serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(pic_serializer.errors, status=status.HTTP_412_PRECONDITION_FAILED)
+
+
+class AdminUserDetailOwnedDevices(ListAPIView):
+
+    def get_serializer_class(self):
+        return ReadDeviceSerializer
+
+    @role_required(required_role=User.SUPERVISOR)
+    def get(self, request,  *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        admin_user = User.objects.get(pk=pk)
+        queryset = self.filter_queryset(Device.objects.filter(owner=admin_user))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class AdminUserDetail(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.filter(role=User.TEACHER)
+
+    def get_serializer_class(self):
+        if self.request.method == 'PUT':
+            return WritableAdminUserSerializer
+        return ReadUserSerializer
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    @role_required(required_role=User.SUPERVISOR)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+    @role_required(required_role=User.TEACHER)
+    def put(self, request, *args, **kwargs):
+        try:
+            current_user = request.user
+            admin_user = self.get_object()
+
+            return self.partial_update(request, *args, **kwargs)
+
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')
 
 
 class CreateAdminUserView(ListCreateAPIView):

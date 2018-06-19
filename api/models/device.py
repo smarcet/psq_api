@@ -89,6 +89,7 @@ class Device(TimeStampedModel):
 
         return False
 
+
     def is_allowed_user(self, user):
         return False
 
@@ -107,6 +108,19 @@ class Device(TimeStampedModel):
                 self.stream_key = hashlib.md5(new_stream_token.encode('utf-8')).hexdigest()
                 if Device.objects.filter(stream_key=self.stream_key).count() == 0:
                     break
+
+    def unlink_from_owner(self):
+        self.owner = None
+        self.save()
+
+    def is_owned_by(self, user):
+        return self.owner is not None and self.owner.id == user.id
+
+    def link_to(self, user):
+        if user.role != User.TEACHER:
+            raise ModelValidationException(_("user %s is not an allowed admin user") % user.id)
+        self.owner = user
+        self.save()
 
     def save(self, *args, **kwargs):
         return super(Device, self).save(*args, **kwargs)

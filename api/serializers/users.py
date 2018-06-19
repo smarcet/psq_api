@@ -1,11 +1,13 @@
 from rest_framework import serializers
+
 from ..models import User
 
 
 class ReadUserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name', 'role', 'pic')
+        fields = ('id', 'email', 'bio', 'is_active', 'is_verified', 'first_name', 'last_name', 'role', 'pic')
 
 
 class WritableUserSerializer(serializers.ModelSerializer):
