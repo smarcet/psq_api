@@ -1,8 +1,9 @@
+from django.utils.decorators import method_decorator
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.http import Http404
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 
@@ -10,7 +11,8 @@ from api.exceptions import ValidationError
 from api.models import ModelValidationException
 from ..serializers.devices import ReadDeviceSerializer
 from ..decorators import role_required
-from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, WritableRawUserSerializer, UserPicSerializer
+from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
+    WritableRawUserSerializer, UserPicSerializer, WritableUserSerializer
 from ..models import User, Device
 import hashlib
 from django.utils.translation import ugettext_lazy as _
@@ -19,6 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 class UserValidateView(APIView):
     parser_classes = (JSONParser,)
 
+    @method_decorator
     def post(self, request, registration_token):
         json=request.data
         password=json.get("password", None)
@@ -50,18 +53,18 @@ class UserList(APIView):
         return Response(serializer.data)
 
 
-class AdminUserPicView(APIView):
+class UserPicView(APIView):
     serializer_class = UserPicSerializer
     parser_classes = (MultiPartParser, FormParser)
 
     @staticmethod
-    def post(request, pk):
-
-        pic_serializer = UserPicSerializer(data=request.data)
-
+    def post(request):
+        pic_serializer = UserPicSerializer(instance=request.user, data=request.data, partial=True)
         if pic_serializer.is_valid():
             pic_serializer.save()
-            return Response(pic_serializer.data, status=status.HTTP_201_CREATED)
+            response_data = pic_serializer.data
+            response_data['pic_url'] = request.build_absolute_uri(response_data['pic'])
+            return Response(data=response_data, status=status.HTTP_201_CREATED)
 
         return Response(pic_serializer.errors, status=status.HTTP_412_PRECONDITION_FAILED)
 
@@ -143,16 +146,23 @@ class CreateRawUserView(ListCreateAPIView):
         return self.create(request, *args, **kwargs)
 
 
-class UserDetailMe(APIView):
+class UserDetailMe(RetrieveUpdateAPIView):
 
-    @staticmethod
-    def get_object(pk):
-        try:
-            return User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            raise Http404
+    def get_serializer_class(self):
+        if self.request.method == 'PUT':
+            return WritableUserSerializer
+        return ReadUserSerializer
 
-    def get(self, request):
-        user = self.get_object(request.user.id)
-        serializer = ReadUserSerializer(user)
+    def get_object(self):
+        return self.request.user
+
+    def get(self, request, **kwargs):
+        user = self.get_object()
+        serializer = ReadUserSerializer(user, context={"request": request})
         return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        try:
+            return self.partial_update(request, *args, **kwargs)
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')

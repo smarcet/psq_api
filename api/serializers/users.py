@@ -4,13 +4,22 @@ from ..models import User
 
 
 class ReadUserSerializer(serializers.ModelSerializer):
+    pic_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'bio', 'is_active', 'is_verified', 'first_name', 'last_name', 'role', 'pic')
+        fields = ('id', 'email', 'bio', 'is_active', 'is_verified', 'first_name', 'last_name', 'role', 'pic', 'pic_url')
+
+    def get_pic_url(self, user):
+        request = self.context.get('request')
+        if not user.pic:
+            return None
+        pic_url = user.pic.url
+        return request.build_absolute_uri(pic_url)
 
 
 class WritableUserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name')
@@ -19,7 +28,7 @@ class WritableUserSerializer(serializers.ModelSerializer):
 class UserPicSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'pic')
+        fields = ('id','pic')
 
 
 class WritableAdminUserSerializer(WritableUserSerializer):

@@ -112,9 +112,7 @@ class DeviceUsersList(GenericAPIView):
 class AdminUserOwnedDevicesManageView(GenericAPIView):
 
     @role_required(required_role=User.SUPERVISOR)
-    def delete(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-        device_id = kwargs.get('device_id')
+    def delete(self, request, pk, device_id):
         admin_user = User.objects.get(pk=pk)
         device = Device.objects.get(pk=device_id)
         try:
@@ -129,9 +127,7 @@ class AdminUserOwnedDevicesManageView(GenericAPIView):
             raise ValidationError(str(error1), 'error')
 
     @role_required(required_role=User.SUPERVISOR)
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-        device_id = kwargs.get('device_id')
+    def put(self, request, pk, device_id):
         admin_user = User.objects.get(pk=pk)
         device = Device.objects.get(pk=device_id)
         try:
