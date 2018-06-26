@@ -27,3 +27,7 @@ python manage.py runcrons --force
 
 django-admin makemessages -l es
 django-admin compilemessages
+
+# kill debug process
+
+sudo lsof -t -i tcp:8000 | xargs kill -9

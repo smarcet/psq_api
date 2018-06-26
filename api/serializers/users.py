@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
+from api.models import ModelValidationException
 from ..models import User
-
+from django.utils.translation import ugettext_lazy as _
 
 class ReadUserSerializer(serializers.ModelSerializer):
     pic_url = serializers.SerializerMethodField()
@@ -23,6 +24,37 @@ class WritableUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name')
+
+
+class WritableOwnUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'bio', 'first_name', 'last_name')
+
+    def update(self, instance, validated_data):
+        instance.set_email(validated_data.get('email', instance.email))
+        instance.bio = validated_data.get('bio', instance.bio)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.first_name = validated_data.get('last_name', instance.last_name)
+        instance.save()
+        return instance
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """
+    Serializer for password change endpoint.
+    """
+    password = serializers.CharField(required=True, min_length=8)
+    password_confirmation = serializers.CharField(required=True)
+
+    def validate(self, data):
+        """
+        Check that the start is before the stop.
+        """
+        if data['password'] != data['password_confirmation']:
+            raise serializers.ValidationError(_("password and password confirmation should match"))
+        return data
 
 
 class UserPicSerializer(serializers.ModelSerializer):

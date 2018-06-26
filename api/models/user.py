@@ -66,24 +66,35 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.set_password(raw_password)
         self.save()
 
+    def set_email(self, new_email):
+        old_email = self.email
+        self.email = new_email
+        if old_email != new_email and old_email != '' and self.id is not None:
+            # reset email
+            self._generate_user_verification_email()
+        self.save()
+
+    def _generate_user_verification_email(self):
+        registration_token = User.generates_registration_token()
+        self.registration_hash = hashlib.md5(registration_token.encode('utf-8')).hexdigest()
+        self.is_verified = False
+        self.is_active = False
+        # defined on .po file
+        body = _("Please Confirm your Email <a href='{href}'>Clicking Here</a>").format(
+            href="%s/users/validate/%s" % (settings.WEB_DOMAIN, registration_token))
+
+        mail_request = MailRequest(
+            to_address=self.email,
+            from_address=settings.FROM_EMAIL,
+            subject=_("Attention: You have been invited to PSQ Application!!!"),
+            body=body
+        )
+
+        mail_request.save()
+
     def save(self, *args, **kwargs):
 
         if self.id is None:
-            registration_token = User.generates_registration_token()
-            self.registration_hash = hashlib.md5(registration_token.encode('utf-8')).hexdigest()
-            # defined on .po file
-            body=_("Please Confirm your Email <a href='{href}'>Clicking Here</a>").format(
-                    href="%s/users/validate/%s" % (settings.WEB_DOMAIN, registration_token))
-
-            mail_request = MailRequest(
-                to_address = self.email,
-                from_address=settings.FROM_EMAIL,
-                subject=_("Attention: You have been invited to PSQ Application!!!"),
-                body=body
-            )
-
-            mail_request.save()
-
-            # send registration email
+            self._generate_user_verification_email()
 
         return super(User, self).save(*args, **kwargs)
