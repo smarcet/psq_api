@@ -12,7 +12,7 @@ class ReadDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = (
-            'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'mac_address', 'stream_key', 'serial',
+            'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'stream_key', 'serial',
             'slots', 'is_active', 'owner', 'users', 'admins')
 
 

@@ -14,10 +14,10 @@ from ..serializers import WriteableDeviceSerializer, ReadDeviceSerializer, Nulla
     OpenRegistrationSerializer, VerifyDeviceSerializer
 
 
-class DeviceListCreate(ListCreateAPIView):
+class DeviceListCreateView(ListCreateAPIView):
     queryset = Device.objects.all()
     filter_backends = (SearchFilter,)
-    search_fields   = ('friendly_name', 'mac_address')
+    search_fields = ('friendly_name', 'mac_address')
     ordering_fields = ('id', 'friendly_name')
 
     @role_required(required_role=User.SUPERVISOR)
@@ -34,7 +34,7 @@ class DeviceListCreate(ListCreateAPIView):
         return ReadDeviceSerializer
 
 
-class DeviceDetail(RetrieveUpdateDestroyAPIView):
+class DeviceDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Device.objects.all()
 
     def get_serializer_class(self):
@@ -44,6 +44,21 @@ class DeviceDetail(RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, *args, **kwargs):
         pass
+
+    @role_required(required_role=User.STUDENT)
+    def get(self, request, *args, **kwargs):
+        try:
+            current_user = request.user
+            device = self.get_object()
+
+            if not device.is_allowed_user(current_user):
+                raise ModelValidationException(
+                    _("User {user_id} is mot allowed to manage device {device_id}").format(user_id=current_user.id,
+                                                                                           device_id=device.id))
+
+            return self.retrieve(request, *args, **kwargs)
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')
 
     @role_required(required_role=User.SUPERVISOR)
     def delete(self, request, *args, **kwargs):
@@ -57,14 +72,14 @@ class DeviceDetail(RetrieveUpdateDestroyAPIView):
             if not device.is_allowed_admin(current_user):
                 raise ModelValidationException(
                     _("User {user_id} is mot allowed to manage device {device_id}").format(user_id=current_user.id,
-                                                                                            device_id=device.id))
+                                                                                           device_id=device.id))
             return self.partial_update(request, *args, **kwargs)
 
         except ModelValidationException as error1:
             raise ValidationError(str(error1), 'error')
 
 
-class DeviceUsersList(GenericAPIView):
+class DeviceUsersListView(GenericAPIView):
     queryset = Device.objects.all()
     serializer_class = NullableDeviceSerializer
 
@@ -118,7 +133,8 @@ class AdminUserOwnedDevicesManageView(GenericAPIView):
         try:
             if not device.is_allowed_admin(admin_user):
                 raise ModelValidationException(
-                    _("User {user_id} is mot allowed to manage device {device_id}}").format(user_id=admin_user.id, device_id=device_id))
+                    _("User {user_id} is mot allowed to manage device {device_id}}").format(user_id=admin_user.id,
+                                                                                            device_id=device_id))
 
             device.unlink_from_owner()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
@@ -134,7 +150,7 @@ class AdminUserOwnedDevicesManageView(GenericAPIView):
             if device.is_owned_by(admin_user):
                 raise ModelValidationException(
                     _("User {user_id} already own device {device_id}").format(user_id=admin_user.id,
-                                                                               device_id=device_id))
+                                                                              device_id=device_id))
 
             device.link_to(admin_user)
             return Response({}, status=status.HTTP_204_NO_CONTENT)
@@ -164,7 +180,6 @@ class DeviceVerifyView(GenericAPIView):
 
 
 class DeviceOpenRegistrationView(GenericAPIView):
-
     queryset = Device.objects.all()
     serializer_class = OpenRegistrationSerializer
 
@@ -173,13 +188,14 @@ class DeviceOpenRegistrationView(GenericAPIView):
 
         if serializer.is_valid():
             instance = serializer.save()
-            data = {'id' : instance.id, 'mac_address' : str(instance.mac_address), 'last_know_ip' : instance.last_know_ip, 'stream_key': instance.stream_key, 'serial': str(instance.serial)  }
+            data = {'id': instance.id, 'mac_address': str(instance.mac_address), 'last_know_ip': instance.last_know_ip,
+                    'stream_key': instance.stream_key, 'serial': str(instance.serial)}
             return Response(data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_412_PRECONDITION_FAILED)
 
 
-class DeviceAdminsList(GenericAPIView):
+class DeviceAdminsListView(GenericAPIView):
     queryset = Device.objects.all()
     serializer_class = NullableDeviceSerializer
 

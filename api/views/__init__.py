@@ -1,5 +1,5 @@
-from .users import UserDetailMe, UserList, CreateAdminUserView, CreateRawUserView, UserValidateView,\
-    AdminUserDetail, AdminUserDetailOwnedDevices, UserPicView
+from .users import MyUserDetailView, UserList, CreateAdminUserView, CreateRawUserView, UserActivationView,\
+    AdminUserDetailView, AdminUserDetailOwnedDevicesView, UserPicUpdateView, AdminUserMyDeviceListView
 from .exercises import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView
 from .devices import DeviceOpenRegistrationView, DeviceVerifyView, AdminUserOwnedDevicesManageView
 from .tutorials import TutorialListCreateAPIView, TutorialRetrieveUpdateDestroyAPIView

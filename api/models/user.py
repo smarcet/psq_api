@@ -92,6 +92,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
         mail_request.save()
 
+    def resend_verification(self):
+        self._generate_user_verification_email()
+        self.save()
+
     def save(self, *args, **kwargs):
 
         if self.id is None:

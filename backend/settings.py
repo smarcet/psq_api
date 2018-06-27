@@ -18,8 +18,8 @@ from google.oauth2 import service_account
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-API_DOMAIN = 'http://127.0.0.1:8000'
-WEB_DOMAIN = 'http://127.0.0.1:8080'
+API_DOMAIN = 'http://localhost:8000'
+WEB_DOMAIN = 'https://localhost:8080'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.middleware.JWTAuthMiddleware',
     'api.middleware.WhoDidMiddleware',
 ]
 

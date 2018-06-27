@@ -12,6 +12,7 @@ from macaddress.fields import MACAddressField
 
 
 class Device(TimeStampedModel):
+
     STREAM_KEY_LEN = 255
     STREAM_KEY_ALLOWED_CHARS = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ0123456789-_'
 
@@ -89,8 +90,13 @@ class Device(TimeStampedModel):
 
         return False
 
-
     def is_allowed_user(self, user):
+        if user in self.users.all():
+            return True
+
+        if self.is_allowed_admin(user):
+            return True
+
         return False
 
     def clean(self):

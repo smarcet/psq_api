@@ -1,1 +1,2 @@
 from .who_did_middleware import WhoDidMiddleware
+from .jwt_auth_middleware import JWTAuthMiddleware
