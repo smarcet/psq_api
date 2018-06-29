@@ -2,7 +2,7 @@ from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 from django.urls import path
 from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserView, UserActivationView, \
     UserPicUpdateView, AdminUserDetailView, AdminUserDetailOwnedDevicesView, AdminUserMyDeviceListView, \
-    UserResendVerificationView
+    UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView
 from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, DeviceVerifyView, \
     AdminUserOwnedDevicesManageView
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
@@ -15,6 +15,8 @@ urlpatterns = [
     path('token', obtain_jwt_token, name='get-token'),
     path('users/me/pic', UserPicUpdateView.as_view(), name='user-pic'),
     path('users/me', MyUserDetailView.as_view(), name='my-user-details'),
+    path('users/non-super-admin', NonSuperAdminUsersListView.as_view(), name='non-super-admin-users-list'),
+    path('users/admins', AdminUsersListView.as_view(), name='admin-users-list'),
     path('users/<int:pk>/verification/resend', UserResendVerificationView.as_view(), name='user-verification-resend'),
     path('users/activate/<slug:registration_token>', UserActivationView.as_view(), name='activate-user'),
     path('admin-users', CreateAdminUserView.as_view(), name='create-list-admin-users'),

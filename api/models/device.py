@@ -2,7 +2,6 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
-
 from api.models import User
 from ..models import ModelValidationException
 from django.utils.crypto import get_random_string
@@ -44,6 +43,9 @@ class Device(TimeStampedModel):
         if user in self.users.all():
             raise ModelValidationException(_("user %s is already an allowed user") % user.id)
 
+        if user.id == self.owner.id:
+            raise ModelValidationException(_("user %s is already device owner") % user.id)
+
         self.users.add(user)
         self.save()
 
@@ -59,6 +61,9 @@ class Device(TimeStampedModel):
 
         if user in self.admins.all():
             raise ModelValidationException(_("user %s is already an admin") % user.id)
+
+        if user.id == self.owner.id:
+            raise ModelValidationException(_("user %s is already device owner") % user.id)
 
         self.admins.add(user)
         self.save()

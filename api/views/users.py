@@ -157,6 +157,29 @@ class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
             raise ValidationError(str(error1), 'error')
 
 
+class NonSuperAdminUsersListView(ListAPIView):
+    serializer_class = ReadUserSerializer
+    queryset = User.objects.filter((Q(role=User.TEACHER) | Q(role=User.STUDENT) & Q(is_active = True)))
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('email', 'first_name', 'last_name')
+    ordering_fields = ('id', 'email', 'first_name', 'last_name')
+
+    @role_required(required_role=User.TEACHER)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+class AdminUsersListView(ListAPIView):
+    serializer_class = ReadUserSerializer
+    queryset = User.objects.filter((Q(role=User.TEACHER)& Q(is_active = True)))
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('email', 'first_name', 'last_name')
+    ordering_fields = ('id', 'email', 'first_name', 'last_name')
+
+    @role_required(required_role=User.TEACHER)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
 class CreateAdminUserView(ListCreateAPIView):
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('email', 'first_name', 'last_name')

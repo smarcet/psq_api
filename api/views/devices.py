@@ -4,7 +4,6 @@ from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
 from rest_framework import status
 from rest_framework.response import Response
-
 from ..models import Device
 from ..models import User
 from ..models import ModelValidationException
@@ -97,6 +96,8 @@ class DeviceUsersListView(GenericAPIView):
 
             device.add_user(user)
 
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
         except ModelValidationException as error1:
             raise ValidationError(str(error1), 'error')
 
@@ -116,6 +117,8 @@ class DeviceUsersListView(GenericAPIView):
             user = User.objects.get(pk=user_id)
 
             device.remove_user(user)
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         except ModelValidationException as error1:
             raise ValidationError(str(error1), 'error')
@@ -214,6 +217,8 @@ class DeviceAdminsListView(GenericAPIView):
 
             device.add_admin(user)
 
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+
         except ModelValidationException as error1:
             raise ValidationError(str(error1), 'error')
 
@@ -234,6 +239,8 @@ class DeviceAdminsListView(GenericAPIView):
             user = User.objects.get(pk=user_id)
 
             device.remove_admin(user)
+
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
 
         except ModelValidationException as error1:
             raise ValidationError(str(error1), 'error')

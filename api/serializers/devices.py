@@ -1,7 +1,9 @@
 from rest_framework import serializers
+from ..models import ModelValidationException
 from ..serializers.users import ReadUserSerializer
 from ..models import Device
 from ..models import User
+from django.utils.translation import ugettext_lazy as _
 
 
 class ReadDeviceSerializer(serializers.ModelSerializer):
@@ -65,6 +67,15 @@ class WriteableDeviceSerializer(serializers.ModelSerializer):
 
         instance.set_owner(owner)
         return instance
+
+    def update(self, instance, validated_data):
+        slots = validated_data['slots']
+        users = instance.admins.count() + instance.users.count()
+
+        if slots < users :
+            raise ModelValidationException(_("slots max. # cant be less than current users quantity!"))
+
+        return super(WriteableDeviceSerializer, self).update(instance, validated_data)
 
     class Meta:
         model = Device
