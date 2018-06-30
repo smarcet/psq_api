@@ -1,8 +1,7 @@
 from rest_framework import serializers
-
-from api.models import ModelValidationException
 from ..models import User
 from django.utils.translation import ugettext_lazy as _
+
 
 class ReadUserSerializer(serializers.ModelSerializer):
     pic_url = serializers.SerializerMethodField()
@@ -24,6 +23,21 @@ class WritableUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name')
+
+
+class RoleWritableUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name', 'role')
+
+    def validate(self, data):
+        """
+        Check that the start is before the stop.
+        """
+        if data['role'] != User.TEACHER and data['role'] != User.STUDENT:
+            raise serializers.ValidationError(_("role has a non valid value"))
+        return data
 
 
 class WritableOwnUserSerializer(serializers.ModelSerializer):

@@ -12,8 +12,8 @@ from api.models import ModelValidationException
 from ..serializers.devices import ReadDeviceSerializer, WriteableDeviceSerializer
 from ..decorators import role_required
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
-    WritableRawUserSerializer, UserPicSerializer, WritableUserSerializer, WritableOwnUserSerializer, \
-    ChangePasswordSerializer
+    WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \
+    ChangePasswordSerializer, RoleWritableUserSerializer
 from ..models import User, Device
 import hashlib
 from django.utils.translation import ugettext_lazy as _
@@ -22,7 +22,7 @@ from django.db.models import Q
 
 class UserResendVerificationView(APIView):
 
-    @role_required(required_role=User.SUPERVISOR)
+    @role_required(required_role=User.TEACHER)
     def post(self, request, pk):
         user = User.objects.get(pk=pk)
         if user is None:
@@ -141,9 +141,18 @@ class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
     def patch(self, request, *args, **kwargs):
         pass
 
-    @role_required(required_role=User.SUPERVISOR)
+    @role_required(required_role=User.TEACHER)
     def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+        try:
+            instance = self.get_object()
+            current_user = self.request.user
+
+            if current_user.role == User.TEACHER and instance.created_by.id != current_user.id:
+                raise ModelValidationException(_('user was not created by current user'))
+
+            return self.destroy(request, *args, **kwargs)
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')
 
     @role_required(required_role=User.TEACHER)
     def put(self, request, *args, **kwargs):
@@ -159,7 +168,7 @@ class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
 
 class NonSuperAdminUsersListView(ListAPIView):
     serializer_class = ReadUserSerializer
-    queryset = User.objects.filter((Q(role=User.TEACHER) | Q(role=User.STUDENT) & Q(is_active = True)))
+    queryset = User.objects.filter((Q(role=User.TEACHER) | Q(role=User.STUDENT)))
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('email', 'first_name', 'last_name')
     ordering_fields = ('id', 'email', 'first_name', 'last_name')
@@ -171,7 +180,7 @@ class NonSuperAdminUsersListView(ListAPIView):
 
 class AdminUsersListView(ListAPIView):
     serializer_class = ReadUserSerializer
-    queryset = User.objects.filter((Q(role=User.TEACHER)& Q(is_active = True)))
+    queryset = User.objects.filter((Q(role=User.TEACHER)))
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('email', 'first_name', 'last_name')
     ordering_fields = ('id', 'email', 'first_name', 'last_name')
@@ -179,6 +188,23 @@ class AdminUsersListView(ListAPIView):
     @role_required(required_role=User.TEACHER)
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+
+class ListMyUsersUserView(ListCreateAPIView):
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('email', 'first_name', 'last_name')
+    ordering_fields = ('id', 'email', 'first_name', 'last_name')
+
+    def get_queryset(self):
+        return User.objects.filter(created_by=self.request.user)
+
+    def get_serializer_class(self):
+        return ReadUserSerializer
+
+    @role_required(required_role=User.TEACHER)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
 
 class CreateAdminUserView(ListCreateAPIView):
     filter_backends = (SearchFilter, OrderingFilter)
@@ -195,7 +221,7 @@ class CreateAdminUserView(ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    @role_required(required_role=User.SUPERVISOR)
+    @role_required(required_role=User.TEACHER)
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
