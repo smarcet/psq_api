@@ -16,6 +16,7 @@ class Exercise(TimeStampedModel):
 
     REGULAR = 1
     TUTORIAL = 2
+
     TYPE_CHOICES = (
         (REGULAR, 'Regular'),
         (TUTORIAL, 'Tutorial')

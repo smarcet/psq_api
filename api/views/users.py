@@ -1,23 +1,26 @@
+import hashlib
+
+from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, RetrieveUpdateAPIView
+from rest_framework.parsers import JSONParser
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api.exceptions import ValidationError
-from api.models import ModelValidationException
-from ..serializers.devices import ReadDeviceSerializer, WriteableDeviceSerializer
+from api.serializers import WriteableExerciseSerializer
 from ..decorators import role_required
+from ..models import ModelValidationException, Exercise
+from ..models import User, Device
+from ..serializers import ReadExerciseSerializer
+from ..serializers.devices import ReadDeviceSerializer
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
     WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \
-    ChangePasswordSerializer, RoleWritableUserSerializer
-from ..models import User, Device
-import hashlib
-from django.utils.translation import ugettext_lazy as _
-from django.db.models import Q
+    ChangePasswordSerializer
 
 
 class UserResendVerificationView(APIView):
@@ -92,14 +95,40 @@ class AdminUserMyDeviceListView(ListAPIView):
     ordering_fields = ('id', 'friendly_name')
 
     def get_serializer_class(self):
-        if self.request.method == 'PUT':
-            return WriteableDeviceSerializer
         return ReadDeviceSerializer
 
     @role_required(required_role=User.TEACHER)
     def get(self, request, *args, **kwargs):
         admin_user = request.user
         queryset = self.filter_queryset(Device.objects.filter(Q(owner=admin_user) | Q(admins__in=[admin_user])))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class AdminUserMyExercisesCreateListView(ListCreateAPIView):
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('title', 'abstract', )
+    ordering_fields = ('id', 'title')
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return WriteableExerciseSerializer
+        return ReadExerciseSerializer
+
+    @role_required(required_role=User.TEACHER)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    @role_required(required_role=User.TEACHER)
+    def get(self, request, *args, **kwargs):
+        admin_user = request.user
+        queryset = self.filter_queryset(Exercise.objects.filter(Q(author=admin_user) | Q(allowed_devices__admins__in=[admin_user])))
 
         page = self.paginate_queryset(queryset)
         if page is not None:

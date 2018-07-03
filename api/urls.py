@@ -2,7 +2,8 @@ from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 from django.urls import path
 from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserView, UserActivationView, \
     UserPicUpdateView, AdminUserDetailView, AdminUserDetailOwnedDevicesView, AdminUserMyDeviceListView, \
-    UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, ListMyUsersUserView
+    UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
+    ListMyUsersUserView, AdminUserMyExercisesCreateListView
 from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, DeviceVerifyView, \
     AdminUserOwnedDevicesManageView
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
@@ -22,6 +23,7 @@ urlpatterns = [
     path('users/activate/<slug:registration_token>', UserActivationView.as_view(), name='activate-user'),
     path('admin-users', CreateAdminUserView.as_view(), name='create-list-admin-users'),
     path('admin-users/me/devices', AdminUserMyDeviceListView.as_view(), name='admin-user-my-devices'),
+    path('admin-users/me/exercises', AdminUserMyExercisesCreateListView.as_view(), name='admin-user-my-exercises'),
     path('admin-users/<int:pk>/owned-devices/<int:device_id>', AdminUserOwnedDevicesManageView.as_view(),
          name='admin-user-owned-devices-manage'),
     path('admin-users/<int:pk>/owned-devices', AdminUserDetailOwnedDevicesView.as_view(), name='admin-user-devices'),
