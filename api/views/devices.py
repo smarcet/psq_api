@@ -167,7 +167,7 @@ class DeviceVerifyView(GenericAPIView):
     serializer_class = VerifyDeviceSerializer
 
     @role_required(required_role=User.SUPERVISOR)
-    def put(self, request):
+    def put(self, request, pk):
         device = self.get_object()
 
         serializer = VerifyDeviceSerializer(device, data=request.data, partial=True)

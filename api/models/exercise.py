@@ -30,10 +30,6 @@ class Exercise(TimeStampedModel):
                                null=True, on_delete=models.SET_NULL,
                                related_name="created_exercises")
 
-    original_device = models.ForeignKey("Device",
-                                        null=True, on_delete=models.SET_NULL,
-                                        related_name="owned_exercises")
-
     allowed_devices = models.ManyToManyField("Device", related_name="allowed_exercises", blank=True)
 
     created_from_tutorial = models.ForeignKey("Exercise",
@@ -53,10 +49,13 @@ class Exercise(TimeStampedModel):
         self.author = author
         self.save()
 
-    def set_original_device(self, original_device):
-        if original_device is None:
-            raise ModelValidationException(
-                _("original device could not be null"))
+    def can_view(self, user):
+        if self.author.id == user.id:
+            return True
 
-        self.original_device = original_device
-        self.save()
+        for device in self.allowed_devices.all():
+            if device.is_allowed_user(user):
+                return True
+
+        return False
+

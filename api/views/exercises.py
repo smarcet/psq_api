@@ -35,6 +35,18 @@ class ExerciseRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     def patch(self, request, *args, **kwargs):
         pass
 
+    @role_required(required_role=User.STUDENT)
+    def get(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            exercise = self.get_object()
+            if not exercise.can_view(user):
+                raise ModelValidationException(_('user is not allowed to get this exercise'))
+
+            return self.retrieve(request, *args, **kwargs)
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')
+
     @role_required(required_role=User.TEACHER)
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)

@@ -4,7 +4,9 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, \
+    ListAPIView, RetrieveUpdateAPIView, RetrieveAPIView
+
 from rest_framework.parsers import JSONParser
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
@@ -12,7 +14,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.exceptions import ValidationError
-from api.serializers import WriteableExerciseSerializer
 from ..decorators import role_required
 from ..models import ModelValidationException, Exercise
 from ..models import User, Device
@@ -20,7 +21,7 @@ from ..serializers import ReadExerciseSerializer
 from ..serializers.devices import ReadDeviceSerializer
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
     WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \
-    ChangePasswordSerializer
+    ChangePasswordSerializer, RoleWritableUserSerializer
 
 
 class UserResendVerificationView(APIView):
@@ -100,7 +101,8 @@ class AdminUserMyDeviceListView(ListAPIView):
     @role_required(required_role=User.TEACHER)
     def get(self, request, *args, **kwargs):
         admin_user = request.user
-        queryset = self.filter_queryset(Device.objects.filter(Q(owner=admin_user) | Q(admins__in=[admin_user])))
+        queryset = self.filter_queryset(
+            Device.objects.filter(Q(owner=admin_user) | Q(admins__in=[admin_user])).distinct())
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -111,24 +113,36 @@ class AdminUserMyDeviceListView(ListAPIView):
         return Response(serializer.data)
 
 
-class AdminUserMyExercisesCreateListView(ListCreateAPIView):
+class UserDetailsView(RetrieveAPIView):
+    queryset = User.objects
+    serializer_class = ReadUserSerializer
+
+    @role_required(required_role=User.TEACHER)
+    def get(self, request, *args, **kwargs):
+        try:
+            current_user = request.user
+            user = self.get_object()
+            if current_user.role == User.TEACHER and user.created_by.id != current_user.id:
+                raise ModelValidationException(_('user was not created by current user'))
+            return self.retrieve(request, *args, **kwargs)
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')
+
+
+class AdminUserMyExercisesListView(ListAPIView):
     filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('title', 'abstract', )
+    search_fields = ('title', 'abstract',)
     ordering_fields = ('id', 'title')
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return WriteableExerciseSerializer
         return ReadExerciseSerializer
-
-    @role_required(required_role=User.TEACHER)
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
 
     @role_required(required_role=User.TEACHER)
     def get(self, request, *args, **kwargs):
         admin_user = request.user
-        queryset = self.filter_queryset(Exercise.objects.filter(Q(author=admin_user) | Q(allowed_devices__admins__in=[admin_user])))
+        queryset = self.filter_queryset(Exercise.objects.filter(
+            Q(allowed_devices__owner=admin_user) | Q(author=admin_user) | Q(
+                allowed_devices__admins__in=[admin_user])).distinct())
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -159,12 +173,17 @@ class AdminUserDetailOwnedDevicesView(ListAPIView):
         return Response(serializer.data)
 
 
-class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.filter(role=User.TEACHER)
+class RawUserDetailView(RetrieveUpdateDestroyAPIView):
+    def get_queryset(self):
+        if self.request.method == 'PUT':
+            return User.objects
+        return User.objects.filter(role=User.STUDENT)
 
     def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return WritableRawUserSerializer
         if self.request.method == 'PUT':
-            return WritableAdminUserSerializer
+            return RoleWritableUserSerializer
         return ReadUserSerializer
 
     def patch(self, request, *args, **kwargs):
@@ -186,9 +205,44 @@ class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
     @role_required(required_role=User.TEACHER)
     def put(self, request, *args, **kwargs):
         try:
-            current_user = request.user
-            admin_user = self.get_object()
+            return self.partial_update(request, *args, **kwargs)
 
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')
+
+
+class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
+    def get_queryset(self):
+        if self.request.method == 'PUT':
+            return User.objects
+        return User.objects.filter(role=User.TEACHER)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return WritableAdminUserSerializer
+        if self.request.method == 'PUT':
+            return RoleWritableUserSerializer
+        return ReadUserSerializer
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    @role_required(required_role=User.TEACHER)
+    def delete(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            current_user = self.request.user
+
+            if current_user.role == User.TEACHER and instance.created_by.id != current_user.id:
+                raise ModelValidationException(_('user was not created by current user'))
+
+            return self.destroy(request, *args, **kwargs)
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1), 'error')
+
+    @role_required(required_role=User.TEACHER)
+    def put(self, request, *args, **kwargs):
+        try:
             return self.partial_update(request, *args, **kwargs)
 
         except ModelValidationException as error1:

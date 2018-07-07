@@ -9,12 +9,11 @@ from django.utils.translation import ugettext_lazy as _
 
 class ReadExerciseSerializer(serializers.ModelSerializer):
     author = ReadUserSerializer()
-    original_device = ReadDeviceSerializer(many=False)
     allowed_devices = ReadDeviceSerializer(many=True)
 
     class Meta:
         model = Exercise
-        fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration', 'type', 'author', 'original_device',
+        fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration', 'type', 'author',
                   'allowed_devices')
 
 
