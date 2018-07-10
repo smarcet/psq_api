@@ -7,4 +7,5 @@ from .users import WritableUserSerializer, ReadUserSerializer, WritableAdminUser
 
 from .exercises import ReadExerciseSerializer, WriteableExerciseSerializer
 from .tutorials import TutorialReadSerializer, TutorialWriteSerializer
-from .exams import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
+from .exams import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer, \
+    ExamVideoWriteSerializer

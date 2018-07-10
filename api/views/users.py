@@ -1,5 +1,4 @@
 import hashlib
-
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status

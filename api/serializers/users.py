@@ -1,14 +1,27 @@
 from rest_framework import serializers
+from ..models import Device
 from ..models import User
 from django.utils.translation import ugettext_lazy as _
 
+class InternalReadDeviceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Device
+        fields = (
+            'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'stream_key', 'serial',
+            'slots', 'is_active')
 
 class ReadUserSerializer(serializers.ModelSerializer):
     pic_url = serializers.SerializerMethodField()
 
+    assigned_devices = InternalReadDeviceSerializer(many=True)
+    managed_devices = InternalReadDeviceSerializer(many=True)
+    owned_devices = InternalReadDeviceSerializer(many=True)
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'bio', 'is_active', 'is_verified', 'first_name', 'last_name', 'role', 'pic', 'pic_url')
+        fields = ('id', 'email', 'bio', 'is_active',
+                  'is_verified', 'first_name', 'last_name', 'role', 'pic', 'pic_url', 'assigned_devices', 'managed_devices', 'owned_devices')
 
     def get_pic_url(self, user):
         request = self.context.get('request')

@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from ..models import Device
 from ..models import User
@@ -185,14 +186,33 @@ class DeviceVerifyView(GenericAPIView):
 class DeviceOpenRegistrationView(GenericAPIView):
     queryset = Device.objects.all()
     serializer_class = OpenRegistrationSerializer
+    # open registration
+
+    permission_classes = (AllowAny,)
 
     def post(self, request):
+
+        device = Device.objects.filter(mac_address = request.data['mac_address']).first()
+
+        if device is not None:
+            # device already registered
+            data = {'id': device.id,
+                    'mac_address': str(device.mac_address),
+                    'last_know_ip': device.last_know_ip,
+                    'is_verified': device.is_verified
+                    }
+            return Response(data, status=status.HTTP_200_OK)
+
         serializer = OpenRegistrationSerializer(data=request.data)
 
         if serializer.is_valid():
             instance = serializer.save()
-            data = {'id': instance.id, 'mac_address': str(instance.mac_address), 'last_know_ip': instance.last_know_ip,
-                    'stream_key': instance.stream_key, 'serial': str(instance.serial)}
+            data = {'id': instance.id,
+                    'mac_address': str(instance.mac_address),
+                    'last_know_ip': instance.last_know_ip,
+                    'stream_key': instance.stream_key,
+                    'serial': str(instance.serial)
+                    }
             return Response(data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_412_PRECONDITION_FAILED)

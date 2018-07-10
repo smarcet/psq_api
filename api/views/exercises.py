@@ -1,20 +1,37 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from django.db.models import Q
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from ..exceptions import ValidationError
-from api.models import ModelValidationException
+from ..models import ModelValidationException
 from ..serializers import WriteableExerciseSerializer, ReadExerciseSerializer
 from ..models import User, Exercise
 from ..decorators import role_required
+from django.utils.translation import ugettext_lazy as _
 
 
 class ExerciseListCreateAPIView(ListCreateAPIView):
     filter_fields = ('id', 'title', 'type')
     ordering_fields = ('id', 'title', 'type')
-    queryset = Exercise.objects.all()
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return WriteableExerciseSerializer
         return ReadExerciseSerializer
+
+    def get_queryset(self):
+        if self.request.method == 'GET':
+            current_user = self.request.user
+            if current_user.role == User.STUDENT:
+                # get only the available exercises for current student
+                return Exercise.objects\
+                    .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).distinct()
+            if current_user.role == User.TEACHER:
+                return Exercise.objects \
+                    .filter(Q(allowed_devices__admins__in=[current_user])
+                            | Q(allowed_devices__owner__in=[current_user])
+                            | Q(author=current_user)).distinct()
+            # for super admin return all
+            return Exercise.objects.all()
+        return Exercise.objects.all()
 
     @role_required(required_role=User.TEACHER)
     def post(self, request, *args, **kwargs):
@@ -54,3 +71,11 @@ class ExerciseRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     @role_required(required_role=User.TEACHER)
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+class DeviceExercisesDetailView(ListAPIView):
+    serializer_class = ReadExerciseSerializer
+
+    def get_queryset(self):
+        device_id = self.kwargs['pk'];
+        return Exercise.objects.filter(allowed_devices__in=[device_id])

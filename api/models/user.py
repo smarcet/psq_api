@@ -48,6 +48,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
+    @property
+    def allowed_devices(self):
+        assigned_devices = self.assigned_devices.all()
+        managed_devices = self.managed_devices.all()
+        owned_devices = self.owned_devices.all()
+
+        return []
+
     @staticmethod
     def generates_registration_token():
         return get_random_string(User.REGISTRATION_HASH_LEN, User.REGISTRATION_HASH_ALLOWED_CHARS)

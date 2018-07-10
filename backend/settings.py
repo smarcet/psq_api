@@ -203,6 +203,7 @@ EMAIL_USE_TLS = True
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+# http://django-cron.readthedocs.io/en/latest/configuration.html
 CRON_CLASSES = [
     "api.cron_jobs.MailCronJob",
 ]

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import ModelValidationException
+from api.models import ModelValidationException, ExamVideo
 from ..serializers import ReadUserSerializer, ReadDeviceSerializer, ReadExerciseSerializer
 from ..models import Exercise, User, Device, Tutorial, Exam
 from django.utils.translation import ugettext_lazy as _
@@ -19,6 +19,12 @@ class ExamReadSerializer(serializers.ModelSerializer):
                   )
 
 
+class ExamVideoWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExamVideo
+        fields = ('file', 'author')
+
+
 class ExamStudentWriteSerializer(serializers.ModelSerializer):
     taker = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.filter(
         Q(role=User.STUDENT) | Q(role=User.TEACHER)))
@@ -33,12 +39,12 @@ class ExamStudentWriteSerializer(serializers.ModelSerializer):
             raise ModelValidationException(
                 _("user {user_id} is not allowed to use device {device_id}").format(user_id=taker.id,
                                                                                     device_id=device.id))
-        instance = Tutorial.objects.create(**validated_data)
+        instance = Exam.objects.create(**validated_data)
 
         return instance.set_taker(taker).set_device(device)
 
     class Meta:
-        model = Tutorial
+        model = Exam
         fields = ('duration', 'taker', 'exercise', 'device')
 
 

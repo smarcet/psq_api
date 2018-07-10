@@ -1,5 +1,7 @@
 from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 from django.urls import path
+
+from .views.exercises import DeviceExercisesDetailView
 from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserView, UserActivationView, \
     UserPicUpdateView, AdminUserDetailView, AdminUserDetailOwnedDevicesView, AdminUserMyDeviceListView, \
     UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
@@ -9,6 +11,8 @@ from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersLi
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
     TutorialRetrieveUpdateDestroyAPIView, TutorialListCreateAPIView, ExamListCreateAPIView, \
     ExamRetrieveUpdateDestroyAPIView
+
+from .views import ExamUploadAPIView
 
 urlpatterns = [
     # https://getblimp.github.io/django-rest-framework-jwt/
@@ -31,19 +35,21 @@ urlpatterns = [
     path('admin-users/<int:pk>', AdminUserDetailView.as_view(), name='admin-users'),
     path('raw-users', CreateRawUserView.as_view(), name='create-list-raw-users'),
     path('raw-users/<int:pk>', RawUserDetailView.as_view(), name='raw-users'),
+    # Devices
     path('devices', DeviceListCreateView.as_view(), name='device-list-create'),
-    path('devices/registration', DeviceOpenRegistrationView.as_view(), name='device-open-registration'),
+    path('devices/current/registration', DeviceOpenRegistrationView.as_view(), name='device-open-registration'),
     path('devices/<int:pk>/verify', DeviceVerifyView.as_view(), name='device-verify'),
     path('devices/<int:pk>', DeviceDetailView.as_view(), name='device-detail'),
+    path('devices/<int:pk>/exercises', DeviceExercisesDetailView.as_view(), name='device-exercises'),
     path('devices/<int:pk>/users/<int:user_id>', DeviceUsersListView.as_view(), name='device-users'),
     path('devices/<int:pk>/admins/<int:user_id>', DeviceAdminsListView.as_view(), name='device-admins'),
-
+    # exercises
     path('exercises', ExerciseListCreateAPIView.as_view(), name='exercises-list-create'),
-    path('exercises/<int:pk>', ExerciseRetrieveUpdateDestroyAPIView.as_view(),
-         name='exercises-retrieve-update-destroy'),
+    path('exercises/<int:pk>', ExerciseRetrieveUpdateDestroyAPIView.as_view(), name='exercises-retrieve-update-destroy'),
     path('tutorials', TutorialListCreateAPIView.as_view(), name='tutorials-list-create'),
-    path('tutorials/<int:pk>', TutorialRetrieveUpdateDestroyAPIView.as_view(),
-         name='tutorials-retrieve-update-destroy'),
+    path('tutorials/<int:pk>', TutorialRetrieveUpdateDestroyAPIView.as_view(), name='tutorials-retrieve-update-destroy'),
+    # exams
+    path('exams/upload', ExamUploadAPIView.as_view(), name='exams-upload'),
     path('exams', ExamListCreateAPIView.as_view(), name='exams-list-create'),
     path('exams/<int:pk>', ExamRetrieveUpdateDestroyAPIView.as_view(), name='exams-retrieve-update-destroy'),
 ]

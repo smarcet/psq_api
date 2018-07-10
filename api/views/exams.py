@@ -1,9 +1,56 @@
+from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from ..exceptions import ValidationError
-from api.models import ModelValidationException
-from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
-from ..models import User, Exam
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from api.models import ModelValidationException, Device
 from ..decorators import role_required
+from ..exceptions import ValidationError
+from ..models import User, Exam
+from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
+from ..serializers import ExamVideoWriteSerializer
+
+
+class ExamUploadAPIView(APIView):
+    permission_classes = (AllowAny,)
+    serializer_class = ExamVideoWriteSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    @staticmethod
+    def post(request):
+
+        try:
+            if not 'device_mac_address' in request.data:
+                raise ModelValidationException
+
+            if not 'device' in request.data:
+                raise ModelValidationException
+
+            device = Device.objects.filter(mac_address=request.data['device_mac_address']).first()
+
+            if device is None:
+                raise ModelValidationException
+
+            if device.id != int(request.data['device']):
+                raise ModelValidationException
+
+            exam_video_serializer = ExamVideoWriteSerializer(data=request.data)
+            exam_serializer = ExamStudentWriteSerializer(data=request.data)
+
+            if exam_serializer.is_valid() and exam_video_serializer.is_valid():
+                exam = exam_serializer.save()
+                exam_video = exam_video_serializer.save()
+                exam_video.set_exam(exam)
+                response_data = exam_serializer.data
+                return Response(data=response_data, status=status.HTTP_201_CREATED)
+
+            return Response(exam_video_serializer.errors + exam_serializer.errors,
+                            status=status.HTTP_412_PRECONDITION_FAILED)
+
+        except ModelValidationException as error1:
+            raise ValidationError(str(error1))
 
 
 class ExamListCreateAPIView(ListCreateAPIView):

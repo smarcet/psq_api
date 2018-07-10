@@ -3,7 +3,6 @@ from ..models import MailRequest
 from django.core.mail import send_mail
 
 
-
 class MailCronJob(CronJobBase):
     RUN_EVERY_MINS: int = 1  # every minute
 

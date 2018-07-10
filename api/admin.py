@@ -1,21 +1,19 @@
 from django import forms
 from django.contrib import admin
-from django.core.exceptions import ValidationError
-
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-
-from .models import User
+from django.utils.translation import ugettext_lazy as _
 from .models import Device
-from .models import Exam
-from .models import Exercise
-from .models import ExamVideo
-from .models import TutorialVideo
 from .models import DeviceUsersGroup
-from .models import Tutorial
+from .models import Exam
+from .models import ExamVideo
+from .models import Exercise
 from .models import MailRequest
+from .models import Tutorial
+from .models import TutorialVideo
+from .models import User
 
 
 class DeviceForm(forms.ModelForm):
@@ -34,6 +32,16 @@ class DeviceForm(forms.ModelForm):
 
 class DeviceAdmin(admin.ModelAdmin):
     form = DeviceForm
+
+
+class ExamForm(forms.ModelForm):
+    class Meta:
+        model = Exam
+        fields = '__all__'
+
+
+class ExamAdmin(admin.ModelAdmin):
+    form = ExamForm
 
 
 class MyUserAdmin(UserAdmin):
@@ -60,7 +68,7 @@ class MyUserAdmin(UserAdmin):
 
 admin.site.register(User, MyUserAdmin)
 admin.site.register(Device, DeviceAdmin)
-admin.site.register(Exam)
+admin.site.register(Exam, ExamAdmin)
 admin.site.register(Tutorial)
 admin.site.register(Exercise)
 admin.site.register(ExamVideo)
