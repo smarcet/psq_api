@@ -1,6 +1,6 @@
 from django.utils.deprecation import MiddlewareMixin
 
-from api.jwt.utils import CustomJSONWebTokenAuthentication
+from ..jwt import CustomJSONWebTokenAuthentication
 
 
 class JWTAuthMiddleware(MiddlewareMixin):
