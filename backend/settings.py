@@ -211,6 +211,8 @@ CRON_CLASSES = [
 
 MACADDRESS_DEFAULT_DIALECT = 'netaddr.mac_eui48'
 
+SEND_GRID_API_KEY = "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"
+
 #DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 #GS_BUCKET_NAME = 'psqcom'
 #GS_PROJECT_ID = 'psq-api-200120'
