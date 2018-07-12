@@ -1,6 +1,6 @@
 from django.db.models import Q
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
-from ..exceptions import ValidationError
+from ..exceptions import CustomValidationError
 from ..models import ModelValidationException
 from ..serializers import WriteableExerciseSerializer, ReadExerciseSerializer
 from ..models import User, Exercise
@@ -38,7 +38,7 @@ class ExerciseListCreateAPIView(ListCreateAPIView):
         try:
             return self.create(request, *args, **kwargs)
         except ModelValidationException as error1:
-            raise ValidationError(str(error1))
+            raise CustomValidationError(str(error1))
 
 
 class ExerciseRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -62,7 +62,7 @@ class ExerciseRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
             return self.retrieve(request, *args, **kwargs)
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
     @role_required(required_role=User.TEACHER)
     def delete(self, request, *args, **kwargs):

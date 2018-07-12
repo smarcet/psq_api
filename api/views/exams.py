@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from api.models import ModelValidationException, Device
 from ..decorators import role_required
-from ..exceptions import ValidationError
+from ..exceptions import CustomValidationError
 from ..models import User, Exam
 from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
 from ..serializers import ExamVideoWriteSerializer
@@ -50,7 +50,7 @@ class ExamUploadAPIView(APIView):
                             status=status.HTTP_412_PRECONDITION_FAILED)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1))
+            raise CustomValidationError(str(error1))
 
 
 class ExamListCreateAPIView(ListCreateAPIView):
@@ -68,7 +68,7 @@ class ExamListCreateAPIView(ListCreateAPIView):
         try:
             return self.create(request, *args, **kwargs)
         except ModelValidationException as error1:
-            raise ValidationError(str(error1))
+            raise CustomValidationError(str(error1))
 
 
 class ExamRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):

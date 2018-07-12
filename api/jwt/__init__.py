@@ -1,1 +1,2 @@
-from .utils import CustomJSONWebTokenAuthentication, jwt_payload_handler, JSONWebTokenValidator
+from .utils import \
+    CustomJSONWebTokenAuthentication, jwt_payload_handler

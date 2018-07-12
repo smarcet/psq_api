@@ -12,7 +12,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.exceptions import ValidationError
+from api.exceptions import CustomValidationError
 from ..decorators import role_required
 from ..models import ModelValidationException, Exercise
 from ..models import User, Device
@@ -125,7 +125,7 @@ class UserDetailsView(RetrieveAPIView):
                 raise ModelValidationException(_('user was not created by current user'))
             return self.retrieve(request, *args, **kwargs)
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
 
 class AdminUserMyExercisesListView(ListAPIView):
@@ -199,7 +199,7 @@ class RawUserDetailView(RetrieveUpdateDestroyAPIView):
 
             return self.destroy(request, *args, **kwargs)
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
     @role_required(required_role=User.TEACHER)
     def put(self, request, *args, **kwargs):
@@ -207,7 +207,7 @@ class RawUserDetailView(RetrieveUpdateDestroyAPIView):
             return self.partial_update(request, *args, **kwargs)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
 
 class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
@@ -237,7 +237,7 @@ class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
 
             return self.destroy(request, *args, **kwargs)
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
     @role_required(required_role=User.TEACHER)
     def put(self, request, *args, **kwargs):
@@ -245,7 +245,7 @@ class AdminUserDetailView(RetrieveUpdateDestroyAPIView):
             return self.partial_update(request, *args, **kwargs)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
 
 class NonSuperAdminUsersListView(ListAPIView):
@@ -349,4 +349,4 @@ class MyUserDetailView(RetrieveUpdateAPIView):
 
             return self.partial_update(request, *args, **kwargs)
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')

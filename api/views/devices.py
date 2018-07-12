@@ -9,7 +9,7 @@ from ..models import Device
 from ..models import User
 from ..models import ModelValidationException
 from ..decorators import role_required
-from ..exceptions import ValidationError
+from ..exceptions import CustomValidationError
 from ..serializers import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDeviceSerializer, \
     OpenRegistrationSerializer, VerifyDeviceSerializer
 
@@ -58,7 +58,7 @@ class DeviceDetailView(RetrieveUpdateDestroyAPIView):
 
             return self.retrieve(request, *args, **kwargs)
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
     @role_required(required_role=User.SUPERVISOR)
     def delete(self, request, *args, **kwargs):
@@ -76,7 +76,7 @@ class DeviceDetailView(RetrieveUpdateDestroyAPIView):
             return self.partial_update(request, *args, **kwargs)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
 
 class DeviceUsersListView(GenericAPIView):
@@ -100,7 +100,7 @@ class DeviceUsersListView(GenericAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)
@@ -122,7 +122,7 @@ class DeviceUsersListView(GenericAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)
@@ -144,7 +144,7 @@ class AdminUserOwnedDevicesManageView(GenericAPIView):
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
     @role_required(required_role=User.SUPERVISOR)
     def put(self, request, pk, device_id):
@@ -160,7 +160,7 @@ class AdminUserOwnedDevicesManageView(GenericAPIView):
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
 
 class DeviceVerifyView(GenericAPIView):
@@ -240,7 +240,7 @@ class DeviceAdminsListView(GenericAPIView):
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)
@@ -263,7 +263,7 @@ class DeviceAdminsListView(GenericAPIView):
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
         except ModelValidationException as error1:
-            raise ValidationError(str(error1), 'error')
+            raise CustomValidationError(str(error1), 'error')
 
         except User.DoesNotExist:
             raise Http404(_("User %s does not exists") % user_id)

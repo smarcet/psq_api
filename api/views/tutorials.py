@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from ..models import ModelValidationException
 from ..models import Tutorial, User
 from ..decorators import role_required
-from ..exceptions import ValidationError
+from ..exceptions import CustomValidationError
 from ..serializers import TutorialWriteSerializer, TutorialReadSerializer
 
 
@@ -20,7 +20,7 @@ class TutorialListCreateAPIView(ListCreateAPIView):
         try:
             return self.create(request, *args, **kwargs)
         except ModelValidationException as error1:
-            raise ValidationError(str(error1))
+            raise CustomValidationError(str(error1))
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
