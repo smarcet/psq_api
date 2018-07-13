@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from model_utils.models import TimeStampedModel
 import uuid
+from storages.backends.gcloud import GoogleCloudStorage
 
 
 class Video(TimeStampedModel):
@@ -9,7 +10,9 @@ class Video(TimeStampedModel):
 
     key = models.UUIDField(unique=True, null=False, default=uuid.uuid4)
 
-    file = models.FileField(upload_to='videos')
+    file = models.FileField(
+        storage=GoogleCloudStorage(bucket_name='psq_videos'),
+        upload_to='videos')
 
     thumbnail = models.FileField(upload_to='thumbnails')
 

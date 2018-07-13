@@ -13,7 +13,7 @@ class ExamReadSerializer(serializers.ModelSerializer):
     device = ReadDeviceSerializer()
 
     class Meta:
-        model = Tutorial
+        model = Exam
         fields = ('id', 'created', 'modified', 'notes', 'duration', 'approved', 'taker', 'evaluator',
                   'exercise', 'device'
                   )
