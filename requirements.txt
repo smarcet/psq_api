@@ -46,6 +46,7 @@ google-resumable-media==0.3.1
 googleapis-common-protos==1.5.3
 grpc-google-iam-v1==0.11.4
 grpcio==1.11.0
+gunicorn==19.9.0
 httplib2==0.11.3
 idna==2.6
 netaddr==0.7.19
@@ -60,8 +61,12 @@ psutil==5.4.5
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 PyJWT==1.6.1
+python-http-client==3.1.0
+python-slugify==1.2.5
 pytz==2018.3
 requests==2.18.4
 rsa==3.4.2
+sendgrid==5.4.1
 six==1.11.0
+Unidecode==1.0.22
 urllib3==1.22

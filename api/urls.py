@@ -10,7 +10,7 @@ from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersLi
     AdminUserOwnedDevicesManageView
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
     TutorialRetrieveUpdateDestroyAPIView, TutorialListCreateAPIView, ExamListCreateAPIView, \
-    ExamRetrieveUpdateDestroyAPIView
+    ExamRetrieveUpdateDestroyAPIView, DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView
 
 from .views import ExamUploadAPIView
 
@@ -38,6 +38,8 @@ urlpatterns = [
     # Devices
     path('devices', DeviceListCreateView.as_view(), name='device-list-create'),
     path('devices/current/registration', DeviceOpenRegistrationView.as_view(), name='device-open-registration'),
+    path('devices/streaming/publish/start', DeviceOpenLocalStreamingStartView.as_view(), name='device-local-streaming-publish-start'),
+    path('devices/streaming/publish/finish', DeviceOpenLocalStreamingEndsView.as_view(), name='device-open-streaming-publish-done'),
     path('devices/<int:pk>/verify', DeviceVerifyView.as_view(), name='device-verify'),
     path('devices/<int:pk>', DeviceDetailView.as_view(), name='device-detail'),
     path('devices/<int:pk>/exercises', DeviceExercisesDetailView.as_view(), name='device-exercises'),

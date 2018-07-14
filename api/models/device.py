@@ -8,7 +8,7 @@ from django.utils.crypto import get_random_string
 import uuid
 import hashlib
 from macaddress.fields import MACAddressField
-
+from slugify import slugify
 
 class Device(TimeStampedModel):
 
@@ -18,12 +18,12 @@ class Device(TimeStampedModel):
     serial = models.UUIDField(unique=True, null=False, default=uuid.uuid4)
     mac_address =  MACAddressField(integer=False, unique=True)
     last_know_ip = models.GenericIPAddressField()
-    friendly_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    friendly_name = models.CharField(max_length=255, unique=True, null=True, blank=True)
     slots = models.PositiveSmallIntegerField(default=3, null=False)
     is_active = models.BooleanField( default=False)
     is_verified = models.BooleanField( default=False)
     stream_key = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    is_live = models.BooleanField(default=False, editable=False)
+    slug = models.CharField(max_length=255, blank=True, null=True, unique=True)
 
     # relations
 
@@ -134,4 +134,8 @@ class Device(TimeStampedModel):
         self.save()
 
     def save(self, *args, **kwargs):
+        # create slug with friendly_name
+        if self.friendly_name is not None:
+            self.slug = slugify(self.friendly_name)
+
         return super(Device, self).save(*args, **kwargs)

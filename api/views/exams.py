@@ -11,6 +11,7 @@ from ..exceptions import CustomValidationError
 from ..models import User, Exam
 from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
 from ..serializers import ExamVideoWriteSerializer
+from django.utils.translation import ugettext_lazy as _
 
 
 class ExamUploadAPIView(APIView):
@@ -81,6 +82,21 @@ class ExamRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, *args, **kwargs):
         pass
+
+    @role_required(required_role=User.STUDENT)
+    def get(self, request, *args, **kwargs):
+        try:
+            exam = self.get_object()
+            current_user = request.user
+            if current_user.role == User.STUDENT and exam.taker.id != current_user.id:
+                # exam should be own by user
+                raise ModelValidationException(
+                    _("exam {exam_id} does not belongs to user {user_id}").format(user_id=current_user.id,
+                                                                                  exam_id=exam.id))
+            return self.retrieve(request, *args, **kwargs)
+
+        except ModelValidationException as error1:
+            raise CustomValidationError(str(error1))
 
     @role_required(required_role=User.TEACHER)
     def delete(self, request, *args, **kwargs):

@@ -1,10 +1,15 @@
-from django.http import Http404
+from django.db.models import Q
+from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+
+from api.models import Exercise
+from api.models.device_broadcast import DeviceBroadCast
 from ..models import Device
 from ..models import User
 from ..models import ModelValidationException
@@ -183,6 +188,60 @@ class DeviceVerifyView(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_412_PRECONDITION_FAILED)
 
 
+class DeviceOpenLocalStreamingStartView(GenericAPIView):
+    queryset = Device.objects.all()
+    serializer_class = OpenRegistrationSerializer
+    # open local endpoint
+
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        stream_key = request.POST['name']
+        exercise_id = int(request.GET.get('exercise_id'))
+        user_id = int(request.GET.get('user_id'))
+
+        device = Device.objects.filter(stream_key=stream_key).first()
+
+        if device is None:
+            return Response("", status=status.HTTP_404_NOT_FOUND)
+
+        broadcast = DeviceBroadCast
+        broadcast.device = device
+        broadcast.exercise = Exercise.objects.filter(id=exercise_id).first()
+        broadcast.user = User.objects.filter(id=user_id).first()
+        broadcast.start_at = timezone.now()
+        broadcast.save()
+
+        # Redirect the private stream key to the user's public stream
+        # NOTE: a relative redirect like this will not work in
+        #       Django <= 1.8
+        return HttpResponseRedirect(device.slug)
+
+
+class DeviceOpenLocalStreamingEndsView(GenericAPIView):
+    queryset = Device.objects.all()
+    serializer_class = OpenRegistrationSerializer
+    # open local endpoint
+
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        stream_key = request.POST['name']
+
+        device = Device.objects.filter(stream_key=stream_key).first()
+
+        if device is None:
+            return Response("", status=status.HTTP_404_NOT_FOUND)
+
+        broadcast = DeviceBroadCast.objects.filter(Q(device=device) & Q(ends_at=None)).first()
+
+        broadcast.ends_at = timezone.now()
+        broadcast.save()
+
+        # Response is ignored.
+        return HttpResponse("OK")
+
+
 class DeviceOpenRegistrationView(GenericAPIView):
     queryset = Device.objects.all()
     serializer_class = OpenRegistrationSerializer
@@ -192,7 +251,7 @@ class DeviceOpenRegistrationView(GenericAPIView):
 
     def post(self, request):
 
-        device = Device.objects.filter(mac_address = request.data['mac_address']).first()
+        device = Device.objects.filter(mac_address=request.data['mac_address']).first()
 
         if device is not None:
             # device already registered

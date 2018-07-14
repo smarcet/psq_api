@@ -6,16 +6,33 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
 
+class VideoExamReadSerializer(serializers.ModelSerializer):
+
+    video_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExamVideo
+        fields = ('id', 'created', 'modified', 'video_url')
+
+    def get_video_url(self, video):
+        request = self.context.get('request')
+        if not video.file:
+            return None
+        video_url = video.file.url
+        return request.build_absolute_uri(video_url)
+
+
 class ExamReadSerializer(serializers.ModelSerializer):
     taker = ReadUserSerializer()
     evaluator = ReadUserSerializer()
     exercise = ReadExerciseSerializer()
     device = ReadDeviceSerializer()
+    videos = VideoExamReadSerializer(many=True, read_only=True)
 
     class Meta:
         model = Exam
         fields = ('id', 'created', 'modified', 'notes', 'duration', 'approved', 'taker', 'evaluator',
-                  'exercise', 'device'
+                  'exercise', 'device', 'videos'
                   )
 
 
@@ -49,6 +66,7 @@ class ExamStudentWriteSerializer(serializers.ModelSerializer):
 
 
 class ExamEvaluatorWriteSerializer(serializers.ModelSerializer):
+
     device = serializers.PrimaryKeyRelatedField(many=False, queryset=Device.objects.all())
     evaluator = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.filter(role=User.TEACHER))
 
@@ -70,5 +88,5 @@ class ExamEvaluatorWriteSerializer(serializers.ModelSerializer):
         instance.set_evaluator(evaluator)
 
     class Meta:
-        model = Tutorial
+        model = Exam
         fields = ('evaluator', 'notes' 'device', 'approved')

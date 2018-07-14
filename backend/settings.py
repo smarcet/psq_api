@@ -20,6 +20,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 API_DOMAIN = 'http://localhost:8000'
 WEB_DOMAIN = 'https://localhost:8080'
+STREAMING_SERVER = "https://streaming.psq.com"
+STREAMING_SERVER_DASH_TPL = STREAMING_SERVER + '/dash/{slug}.m4v'
+STREAMING_SERVER_HLS_TPL = STREAMING_SERVER + '/hls/{slug}.m3u8'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -85,7 +88,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -95,7 +97,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -114,7 +115,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
@@ -139,9 +139,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
-    #'DEFAULT_RENDERER_CLASSES': (
+    # 'DEFAULT_RENDERER_CLASSES': (
     #    'rest_framework.renderers.JSONRenderer',
-    #),
+    # ),
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_PAGINATION_CLASS': 'api.utils.pagination.LargeResultsSetPagination',
     'PAGE_SIZE': 100,
@@ -149,19 +149,19 @@ REST_FRAMEWORK = {
 
 JWT_AUTH = {
     'JWT_ENCODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_encode_handler',
+        'rest_framework_jwt.utils.jwt_encode_handler',
 
     'JWT_DECODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_decode_handler',
+        'rest_framework_jwt.utils.jwt_decode_handler',
 
     'JWT_PAYLOAD_HANDLER':
-    'api.jwt.utils.jwt_payload_handler',
+        'api.jwt.utils.jwt_payload_handler',
 
     'JWT_PAYLOAD_GET_USER_ID_HANDLER':
-    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+        'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
 
     'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_response_payload_handler',
+        'rest_framework_jwt.utils.jwt_response_payload_handler',
 
     'JWT_SECRET_KEY': settings.SECRET_KEY,
     'JWT_GET_USER_SECRET_KEY': None,
@@ -180,18 +180,17 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE': None,
 }
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-AUTH_USER_MODEL='api.User'
+AUTH_USER_MODEL = 'api.User'
 
-CORS_ORIGIN_ALLOW_ALL=True
+CORS_ORIGIN_ALLOW_ALL = True
 
-APPEND_SLASH=False
+APPEND_SLASH = False
 # Mail Settings
 
 EMAIL_HOST = 'smtp.sendgrid.net'
@@ -218,11 +217,10 @@ GS_BUCKET_NAME = 'psq_files'
 GS_PROJECT_ID = 'psq-api-200120'
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     "/Users/smarcet/git/Python/psq_api/credentials.json"
-   )
+)
 
 # Import local settings
 try:
     from .settings_local import *
 except ImportError:
     print("Notice: Didn't import settings_local.")
-

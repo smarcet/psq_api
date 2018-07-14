@@ -11,6 +11,7 @@ class InternalReadDeviceSerializer(serializers.ModelSerializer):
             'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'stream_key', 'serial',
             'slots', 'is_active')
 
+
 class ReadUserSerializer(serializers.ModelSerializer):
     pic_url = serializers.SerializerMethodField()
 
