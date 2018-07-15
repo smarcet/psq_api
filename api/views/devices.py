@@ -87,7 +87,7 @@ class DeviceDetailView(RetrieveUpdateDestroyAPIView):
 
 class DeviceUsersListView(GenericAPIView):
     queryset = Device.objects.all()
-    serializer_class = serializer
+    serializer_class = NullableDeviceSerializer
 
     @role_required(required_role=User.TEACHER)
     def put(self, request, pk, user_id):
