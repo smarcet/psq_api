@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
@@ -17,6 +17,7 @@ from ..decorators import role_required
 from ..exceptions import CustomValidationError
 from ..serializers import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDeviceSerializer, \
     OpenRegistrationSerializer, VerifyDeviceSerializer
+import logging
 
 
 class DeviceListCreateView(ListCreateAPIView):
@@ -86,7 +87,7 @@ class DeviceDetailView(RetrieveUpdateDestroyAPIView):
 
 class DeviceUsersListView(GenericAPIView):
     queryset = Device.objects.all()
-    serializer_class = NullableDeviceSerializer
+    serializer_class = serializer
 
     @role_required(required_role=User.TEACHER)
     def put(self, request, pk, user_id):
@@ -190,21 +191,23 @@ class DeviceVerifyView(GenericAPIView):
 
 class DeviceOpenLocalStreamingStartView(GenericAPIView):
     queryset = Device.objects.all()
-    serializer_class = OpenRegistrationSerializer
+    serializer_class = serializers.ModelSerializer
     # open local endpoint
 
     permission_classes = (AllowAny,)
 
     def post(self, request):
+        logger = logging.getLogger('api')
         stream_key = request.POST['name']
         exercise_id = int(request.GET.get('exercise_id'))
         user_id = int(request.GET.get('user_id'))
 
         device = Device.objects.filter(stream_key=stream_key).first()
+        logger.info("on_publish_start stream_key {stream_key}".format(stream_key=stream_key))
 
         if device is None:
             return Response("", status=status.HTTP_404_NOT_FOUND)
-
+        logger.info("device found")
         broadcast = DeviceBroadCast
         broadcast.device = device
         broadcast.exercise = Exercise.objects.filter(id=exercise_id).first()
@@ -212,22 +215,22 @@ class DeviceOpenLocalStreamingStartView(GenericAPIView):
         broadcast.start_at = timezone.now()
         broadcast.save()
 
-        # Redirect the private stream key to the user's public stream
-        # NOTE: a relative redirect like this will not work in
-        #       Django <= 1.8
+        logger.info("redirection to {slug}".format(slug=device.slug))
+
         return HttpResponseRedirect(device.slug)
 
 
 class DeviceOpenLocalStreamingEndsView(GenericAPIView):
     queryset = Device.objects.all()
-    serializer_class = OpenRegistrationSerializer
+    serializer_class = serializers.ModelSerializer
     # open local endpoint
 
     permission_classes = (AllowAny,)
 
     def post(self, request):
         stream_key = request.POST['name']
-
+        logger = logging.getLogger('api')
+        logger.info("on_publish_done stream_key {stream_key}".format(stream_key=stream_key))
         device = Device.objects.filter(stream_key=stream_key).first()
 
         if device is None:
@@ -237,7 +240,7 @@ class DeviceOpenLocalStreamingEndsView(GenericAPIView):
 
         broadcast.ends_at = timezone.now()
         broadcast.save()
-
+        logger.info("on_publish done!")
         # Response is ignored.
         return HttpResponse("OK")
 

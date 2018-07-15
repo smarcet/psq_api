@@ -17,5 +17,5 @@ __pycache__/
 .DS_Store
 *.mo
 media/
-
+*.log
 /credentials.json

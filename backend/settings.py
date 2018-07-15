@@ -216,7 +216,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'psq_files'
 GS_PROJECT_ID = 'psq-api-200120'
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-    "/Users/smarcet/git/Python/psq_api/credentials.json"
+  os.path.join(BASE_DIR, 'credentials.json')
 )
 
 # Import local settings
@@ -224,3 +224,5 @@ try:
     from .settings_local import *
 except ImportError:
     print("Notice: Didn't import settings_local.")
+
+

@@ -10,6 +10,8 @@ pip install -r requirements.txt
 
 pip freeze > requirements.txt
 
+pip install gunicorn
+
 python manage.py makemigrations
 
 python manage.py migrate
