@@ -7,11 +7,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework import status, serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-
-from api.models import Exercise
-from api.models.device_broadcast import DeviceBroadCast
-from ..models import Device
-from ..models import User
+from ..models import User, DeviceBroadCast, Device, Exercise
 from ..models import ModelValidationException
 from ..decorators import role_required
 from ..exceptions import CustomValidationError

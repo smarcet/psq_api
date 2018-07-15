@@ -6,6 +6,7 @@ from backend.settings import STREAMING_SERVER_DASH_TPL, STREAMING_SERVER_HLS_TPL
 
 
 class DeviceBroadCast(TimeStampedModel):
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              blank=True,
                              null=True, on_delete=models.SET_NULL,
