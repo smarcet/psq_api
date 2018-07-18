@@ -204,7 +204,7 @@ class DeviceOpenLocalStreamingStartView(GenericAPIView):
         if device is None:
             return Response("", status=status.HTTP_404_NOT_FOUND)
         logger.info("device found")
-        broadcast = DeviceBroadCast
+        broadcast = DeviceBroadCast()
         broadcast.device = device
         broadcast.exercise = Exercise.objects.filter(id=exercise_id).first()
         broadcast.user = User.objects.filter(id=user_id).first()

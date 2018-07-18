@@ -13,16 +13,10 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 from django.conf import settings
 import datetime
-from google.oauth2 import service_account
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-API_DOMAIN = 'http://localhost:8000'
-WEB_DOMAIN = 'https://localhost:8080'
-STREAMING_SERVER = "https://streaming.psq.com"
-STREAMING_SERVER_DASH_TPL = STREAMING_SERVER + '/dash/{slug}.m4v'
-STREAMING_SERVER_HLS_TPL = STREAMING_SERVER + '/hls/{slug}.m3u8'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -191,13 +185,6 @@ AUTH_USER_MODEL = 'api.User'
 CORS_ORIGIN_ALLOW_ALL = True
 
 APPEND_SLASH = False
-# Mail Settings
-
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'smarcet1981'
-EMAIL_HOST_PASSWORD = 'Koguryo@1981'
-EMAIL_USE_TLS = True
 
 # file upload
 MEDIA_URL = '/media/'
@@ -210,14 +197,6 @@ CRON_CLASSES = [
 
 MACADDRESS_DEFAULT_DIALECT = 'netaddr.mac_eui48'
 
-SEND_GRID_API_KEY = "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"
-
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = 'psq_files'
-GS_PROJECT_ID = 'psq-api-200120'
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-  os.path.join(BASE_DIR, 'credentials.json')
-)
 
 # Import local settings
 try:

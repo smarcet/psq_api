@@ -19,3 +19,4 @@ __pycache__/
 media/
 *.log
 /credentials.json
+/backend/settings_local.py
