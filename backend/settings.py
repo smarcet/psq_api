@@ -10,10 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
-import os
 from django.conf import settings
 import datetime
+import os
+from google.oauth2 import service_account
 
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,15 +25,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '*=ujr)im1f)&gj_3+av70^8fh%*@*dbgr5q8g5j47u-(yzlyhk'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
-
-FROM_EMAIL = "noreply@psq.com"
+DEBUG = False
 
 # Application definition
 
@@ -81,16 +78,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -198,10 +185,84 @@ CRON_CLASSES = [
 MACADDRESS_DEFAULT_DIALECT = 'netaddr.mac_eui48'
 
 
-# Import local settings
-try:
-    from .settings_local import *
-except ImportError:
-    print("Notice: Didn't import settings_local.")
+API_DOMAIN = os.getenv("API_DOMAIN")
+WEB_DOMAIN = os.getenv("WEB_DOMAIN")
 
+STREAMING_SERVER = os.getenv("STREAMING_SERVER")
+STREAMING_SERVER_DASH_TPL = STREAMING_SERVER + '/dash/{slug}.m4v'
+STREAMING_SERVER_HLS_TPL = STREAMING_SERVER + '/hls/{slug}.m3u8'
+
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = ['*']
+
+FROM_EMAIL = os.getenv("FROM_EMAIL")
+
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv("DB_ENGINE"),
+        'NAME':os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PASSWORD"),
+        'HOST':  os.getenv("DB_HOST"),
+        'PORT':  os.getenv("DB_PORT"),
+    }
+}
+
+# Password validation
+# https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# Mail Settings
+
+SEND_GRID_API_KEY = os.getenv("SEND_GRID_API_KEY")
+
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = os.getenv("GS_BUCKET_NAME")
+GS_PROJECT_ID = os.getenv("GS_PROJECT_ID")
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    os.path.join(BASE_DIR, 'credentials.json')
+)
+
+# logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'api': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 

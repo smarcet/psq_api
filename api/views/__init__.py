@@ -1,6 +1,7 @@
 from .users import MyUserDetailView, UserList, CreateAdminUserView, CreateRawUserView, UserActivationView, \
     AdminUserDetailView, AdminUserDetailOwnedDevicesView, UserPicUpdateView, AdminUserMyDeviceListView, \
-    AdminUsersListView, AdminUserMyExercisesListView, RawUserDetailView, UserDetailsView
+    AdminUsersListView, AdminUserMyExercisesListView, RawUserDetailView, \
+    CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView
 from .exercises import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceExercisesDetailView
 from .devices import DeviceOpenRegistrationView, DeviceVerifyView, AdminUserOwnedDevicesManageView, \
     DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView

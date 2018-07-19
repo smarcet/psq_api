@@ -21,7 +21,9 @@ from ..serializers.devices import ReadDeviceSerializer
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
     WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \
     ChangePasswordSerializer, RoleWritableUserSerializer
-
+from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
+import pytz
 
 class UserResendVerificationView(APIView):
 
@@ -111,21 +113,6 @@ class AdminUserMyDeviceListView(ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-
-class UserDetailsView(RetrieveAPIView):
-    queryset = User.objects
-    serializer_class = ReadUserSerializer
-
-    @role_required(required_role=User.TEACHER)
-    def get(self, request, *args, **kwargs):
-        try:
-            current_user = request.user
-            user = self.get_object()
-            if current_user.role == User.TEACHER and user.created_by.id != current_user.id:
-                raise ModelValidationException(_('user was not created by current user'))
-            return self.retrieve(request, *args, **kwargs)
-        except ModelValidationException as error1:
-            raise CustomValidationError(str(error1), 'error')
 
 
 class AdminUserMyExercisesListView(ListAPIView):
@@ -271,7 +258,6 @@ class AdminUsersListView(ListAPIView):
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-
 class ListMyUsersUserView(ListCreateAPIView):
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('email', 'first_name', 'last_name')
@@ -350,3 +336,109 @@ class MyUserDetailView(RetrieveUpdateAPIView):
             return self.partial_update(request, *args, **kwargs)
         except ModelValidationException as error1:
             raise CustomValidationError(str(error1), 'error')
+
+
+class RetrieveUpdateDestroyUsersView(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == 'PUT':
+            return RoleWritableUserSerializer
+        return ReadUserSerializer
+
+    @role_required(required_role=User.TEACHER)
+    def get(self, request, *args, **kwargs):
+        try:
+            current_user = request.user
+            user = self.get_object()
+            if current_user.role == User.TEACHER and user.created_by.id != current_user.id:
+                raise ModelValidationException(_('user was not created by current user'))
+            return self.retrieve(request, *args, **kwargs)
+        except ModelValidationException as error1:
+            raise CustomValidationError(str(error1), 'error')
+
+    @role_required(required_role=User.SUPERVISOR)
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    @role_required(required_role=User.SUPERVISOR)
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    @role_required(required_role=User.SUPERVISOR)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class CreateListUsersView(ListCreateAPIView):
+
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('first_name', 'last_name','email')
+    ordering_fields = ('id', 'first_name', 'last_name','email')
+
+    def get_queryset(self):
+        return User.objects.filter(~Q(id=self.request.user.id))
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return RoleWritableUserSerializer
+        return ReadUserSerializer
+
+    @role_required(required_role=User.SUPERVISOR)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    @role_required(required_role=User.SUPERVISOR)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class SuperAdminsDashboardReportView(APIView):
+
+    @role_required(required_role=User.SUPERVISOR)
+    def get(self, request):
+
+        now = datetime.utcnow().replace(hour=00, minute=00,day=1, second=0 , microsecond=0)
+        now_end_month = now + relativedelta(months=+1, days= -1)
+        start_date_one_month_ago = now + relativedelta(months=-1)
+        end_date_one_month_ago = start_date_one_month_ago + relativedelta(months=+1, days=-1)
+        start_date_two_month_ago = now + relativedelta(months=-2)
+        end_date_two_month_ago = start_date_two_month_ago + relativedelta(months=+1, days=-1)
+        start_date_three_month_ago = now + relativedelta(months=-3)
+        end_date_three_month_ago = start_date_three_month_ago + relativedelta(months=+3, days=-1)
+        start_date_four_month_ago = now + relativedelta(months=-4)
+        end_date_four_month_ago = start_date_four_month_ago + relativedelta(months=+4, days=-1)
+        start_date_five_month_ago = now + relativedelta(months=-5)
+        end_date_five_month_ago = start_date_five_month_ago + relativedelta(months=+5, days=-1)
+
+        dates = [
+            (start_date_five_month_ago.replace(tzinfo=pytz.UTC),
+             end_date_five_month_ago.replace(hour=23, minute=59, second=59, tzinfo=pytz.UTC)),
+            (start_date_four_month_ago.replace(tzinfo=pytz.UTC),
+             end_date_four_month_ago.replace(hour=23, minute=59, second=59,tzinfo=pytz.UTC)),
+            (start_date_three_month_ago.replace(tzinfo=pytz.UTC),
+             end_date_three_month_ago.replace(hour=23, minute=59, second=59, tzinfo=pytz.UTC)),
+            (start_date_two_month_ago.replace(tzinfo=pytz.UTC),
+             end_date_two_month_ago.replace(hour=23, minute=59, second=59, tzinfo=pytz.UTC)),
+            (start_date_one_month_ago.replace(tzinfo=pytz.UTC),
+             end_date_one_month_ago.replace(hour=23, minute=59, second=59, tzinfo=pytz.UTC)),
+            (now.replace(tzinfo=pytz.UTC), now_end_month.replace(hour=23, minute=59, second=59, tzinfo=pytz.UTC)),
+        ]
+
+        users_per_month = []
+        devices_per_month = []
+
+        for dates_tuple in dates:
+            users_per_month.append(User.objects.filter(Q(date_joined__gte=dates_tuple[0]) & Q(date_joined__lte=dates_tuple[1])).count())
+            devices_per_month.append(Device.objects.filter(Q(created__gte=dates_tuple[0]) & Q(created__lte=dates_tuple[1])).count())
+
+        data = {
+            'users_per_month': users_per_month,
+            'devices_per_month': devices_per_month,
+            'super_admin_user_qty' : User.objects.filter(role = User.SUPERVISOR).count(),
+            'admin_user_qty': User.objects.filter(role=User.TEACHER).count(),
+            'raw_user_qty': User.objects.filter(role=User.STUDENT).count(),
+            'devices_qty': Device.objects.count(),
+        }
+
+        return Response(data,status=200)

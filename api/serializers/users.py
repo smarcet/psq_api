@@ -3,6 +3,7 @@ from ..models import Device
 from ..models import User
 from django.utils.translation import ugettext_lazy as _
 
+
 class InternalReadDeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -49,7 +50,13 @@ class RoleWritableUserSerializer(serializers.ModelSerializer):
         """
         Check that the start is before the stop.
         """
-        if data['role'] != User.TEACHER and data['role'] != User.STUDENT:
+        valid_roles = [
+            User.TEACHER,
+            User.STUDENT,
+            User.SUPERVISOR
+        ]
+
+        if not data['role'] in valid_roles :
             raise serializers.ValidationError(_("role has a non valid value"))
         return data
 
