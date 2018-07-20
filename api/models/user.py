@@ -11,7 +11,6 @@ import hashlib
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-
     REGISTRATION_HASH_LEN = 255
     REGISTRATION_HASH_ALLOWED_CHARS = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ0123456789'
 
@@ -24,7 +23,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(_('verified'), default=False)
     is_staff = models.BooleanField(_('staff status'), default=False)
     registration_hash = models.CharField(max_length=REGISTRATION_HASH_LEN, blank=True)
-    pic = models.ImageField(upload_to = 'users', null=True, blank=True)
+    pic = models.ImageField(upload_to='users', null=True, blank=True)
     # relations
 
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL,
@@ -59,6 +58,26 @@ class User(AbstractBaseUser, PermissionsMixin):
     @staticmethod
     def generates_registration_token():
         return get_random_string(User.REGISTRATION_HASH_LEN, User.REGISTRATION_HASH_ALLOWED_CHARS)
+
+    def can_create_role(self, role):
+        current_role = self.role
+        return int(current_role) >= int(role)
+
+    def can_delete_user(self, user):
+        current_role = self.role
+        if current_role == User.SUPERVISOR:
+            return True
+        if user.created_by.id == self.id:
+            return True
+        return False
+
+    def can_update_user(self, user):
+        current_role = self.role
+        if current_role == User.SUPERVISOR:
+            return True
+        if user.created_by.id == self.id:
+            return True
+        return False
 
     def get_full_name(self):
         '''
