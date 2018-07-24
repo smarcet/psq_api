@@ -15,6 +15,7 @@ from .models import Tutorial
 from .models import TutorialVideo
 from .models import User
 from .models import DeviceBroadCast
+from .models import News
 
 
 class DeviceForm(forms.ModelForm):
@@ -78,5 +79,6 @@ admin.site.register(DeviceUsersGroup)
 admin.site.unregister(Group)
 admin.site.register(MailRequest)
 admin.site.register(DeviceBroadCast)
+admin.site.register(News)
 
 admin.site.site_header = 'PSQ Admin'

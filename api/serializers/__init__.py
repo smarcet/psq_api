@@ -11,3 +11,5 @@ from .exams import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluator
     ExamVideoWriteSerializer
 
 from .device_users_groups import ReadDeviceUsersGroupSerializer, WriteableDeviceUsersGroupSerializer
+
+from .news import ReadNewsSerializer, WriteNewsSerializer

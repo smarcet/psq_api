@@ -56,6 +56,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         return []
 
     @property
+    def allowed_admins(self):
+        list = []
+        assigned_devices = self.assigned_devices.all()
+        for device in assigned_devices:
+            if device.owner not in list:
+                list.append(device.owner)
+            for admin in device.admins:
+                if admin not in list:
+                    list.append(admin)
+        return list
+
+    @property
     def my_devices(self):
         managed_devices = self.managed_devices.all()
         owned_devices = self.owned_devices.all()

@@ -2,14 +2,13 @@ from django_cron import CronJobBase, Schedule
 
 from backend import settings
 from ..models import MailRequest
-from django.core.mail import send_mail
-
 import sendgrid
-import os
+from django.conf import settings
 from sendgrid.helpers.mail import *
 
+
 class MailCronJob(CronJobBase):
-    RUN_EVERY_MINS: int = 1  # every minute
+    RUN_EVERY_MINS = 1  # every minute
 
     schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
     code = 'api.MailCronJob'  # a unique code
@@ -21,7 +20,12 @@ class MailCronJob(CronJobBase):
 
             sg = sendgrid.SendGridAPIClient(apikey=settings.SEND_GRID_API_KEY)
             from_email = Email(mail_2_send.from_address)
-            to_email = Email(mail_2_send.to_address)
+
+            if settings.DEBUG:
+                to_email = Email(settings.DEBUG_EMAIL)
+            else:
+                to_email = Email(mail_2_send.to_address)
+
             subject = mail_2_send.subject
             content = Content("text/plain", mail_2_send.body)
             mail = Mail(from_email, subject, to_email, content)
@@ -32,4 +36,3 @@ class MailCronJob(CronJobBase):
 
             mail_2_send.mark_as_sent()
             mail_2_send.save(force_update=True)
-

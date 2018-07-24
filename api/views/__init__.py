@@ -14,3 +14,5 @@ from .tutorials import TutorialListCreateAPIView, TutorialRetrieveUpdateDestroyA
 from .exams import ExamListCreateAPIView, ExamRetrieveUpdateDestroyAPIView, ExamUploadAPIView
 
 from .device_user_groups import DeviceUsersGroupsListCreateView
+
+from .news import NewsListCreateAPIView, NewsRetrieveUpdateDestroyAPIView

@@ -240,6 +240,8 @@ GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     os.path.join(BASE_DIR, 'credentials.json')
 )
 
+DEBUG_EMAIL = os.getenv("DEBUG_EMAIL")
+
 # logging
 
 LOGGING = {

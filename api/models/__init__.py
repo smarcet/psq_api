@@ -9,4 +9,5 @@ from .tutorial import Tutorial
 from .exam_video import ExamVideo
 from .device_users_group import DeviceUsersGroup
 from .device_broadcast import DeviceBroadCast
+from .news import News
 
