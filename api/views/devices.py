@@ -17,7 +17,7 @@ import logging
 
 
 class DeviceListCreateView(ListCreateAPIView):
-    queryset = Device.objects.all()
+    queryset = Device.objects.all().order_by('id')
     filter_backends = (SearchFilter,)
     search_fields = ('friendly_name', 'mac_address')
     ordering_fields = ('id', 'friendly_name')

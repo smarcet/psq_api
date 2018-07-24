@@ -23,15 +23,15 @@ class ExerciseListCreateAPIView(ListCreateAPIView):
             if current_user.role == User.STUDENT:
                 # get only the available exercises for current student
                 return Exercise.objects\
-                    .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).distinct()
+                    .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).distinct().order_by('id')
             if current_user.role == User.TEACHER:
                 return Exercise.objects \
                     .filter(Q(allowed_devices__admins__in=[current_user])
                             | Q(allowed_devices__owner__in=[current_user])
-                            | Q(author=current_user)).distinct()
+                            | Q(author=current_user)).distinct().order_by('id')
             # for super admin return all
-            return Exercise.objects.all()
-        return Exercise.objects.all()
+            return Exercise.objects.all().order_by('id')
+        return Exercise.objects.all().order_by('id')
 
     @role_required(required_role=User.TEACHER)
     def post(self, request, *args, **kwargs):

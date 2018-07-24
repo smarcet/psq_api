@@ -386,7 +386,7 @@ class CreateListUsersView(ListCreateAPIView):
     ordering_fields = ('id', 'first_name', 'last_name', 'email')
 
     def get_queryset(self):
-        return User.objects.filter(~Q(id=self.request.user.id))
+        return User.objects.filter(~Q(id=self.request.user.id)).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

@@ -2,16 +2,20 @@ from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 from django.urls import path
 
 from .views.exercises import DeviceExercisesDetailView
+
 from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserView, UserActivationView, \
     UserPicUpdateView, AdminUserDetailView, AdminUserDetailOwnedDevicesView, AdminUserMyDeviceListView, \
     UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
     ListMyUsersUserView, AdminUserMyExercisesListView, RawUserDetailView, \
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView
+
 from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, DeviceVerifyView, \
     AdminUserOwnedDevicesManageView
+
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
     TutorialRetrieveUpdateDestroyAPIView, TutorialListCreateAPIView, ExamListCreateAPIView, \
-    ExamRetrieveUpdateDestroyAPIView, DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView
+    ExamRetrieveUpdateDestroyAPIView, DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView, \
+    DeviceUsersGroupsListCreateView
 
 from .views import ExamUploadAPIView
 
@@ -29,6 +33,8 @@ urlpatterns = [
     path('users/created-by/me', ListMyUsersUserView.as_view(), name='users-created-by-me'),
     path('users/<int:pk>/verification/resend', UserResendVerificationView.as_view(), name='user-verification-resend'),
     path('users/activate/<slug:registration_token>', UserActivationView.as_view(), name='activate-user'),
+    # device user groups
+    path('users/me/devices/all/user-groups', DeviceUsersGroupsListCreateView.as_view(), name="device-user-groups-list"),
     # super admins
     path('super-admins/dashboard-report', SuperAdminsDashboardReportView.as_view(), name='super-admin-dashboard-report'),
     # admin users

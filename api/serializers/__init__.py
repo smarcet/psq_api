@@ -9,3 +9,5 @@ from .exercises import ReadExerciseSerializer, WriteableExerciseSerializer
 from .tutorials import TutorialReadSerializer, TutorialWriteSerializer
 from .exams import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer, \
     ExamVideoWriteSerializer
+
+from .device_users_groups import ReadDeviceUsersGroupSerializer, WriteableDeviceUsersGroupSerializer

@@ -10,6 +10,7 @@ import hashlib
 from macaddress.fields import MACAddressField
 from slugify import slugify
 
+
 class Device(TimeStampedModel):
 
     STREAM_KEY_LEN = 255
