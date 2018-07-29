@@ -180,6 +180,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # http://django-cron.readthedocs.io/en/latest/configuration.html
 CRON_CLASSES = [
     "api.cron_jobs.MailCronJob",
+    "api.cron_jobs.ExamPendingRequestsJob",
 ]
 
 MACADDRESS_DEFAULT_DIALECT = 'netaddr.mac_eui48'
@@ -191,7 +192,7 @@ WEB_DOMAIN = os.getenv("WEB_DOMAIN")
 STREAMING_SERVER = os.getenv("STREAMING_SERVER")
 STREAMING_SERVER_DASH_TPL = STREAMING_SERVER + '/dash/{slug}.m4v'
 STREAMING_SERVER_HLS_TPL = STREAMING_SERVER + '/hls/{slug}.m3u8'
-
+FILE_UPLOAD_TEMP_DIR="/tmp/django_file_uploads"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -247,11 +248,21 @@ DEBUG_EMAIL = os.getenv("DEBUG_EMAIL")
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+            'console': {
+                # exact format is not important, this is the minimum information
+                'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+            },
+     },
     'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+        },
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'debug.log',
+            'filename':  os.path.join(BASE_DIR, "web.log"),
         },
     },
     'loggers': {
@@ -265,6 +276,21 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'transcoder': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'cronjobs': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 
+# Import local settings
+try:
+    from .settings_local import *
+except ImportError:
+    print("Notice: Didn't import settings_local.")

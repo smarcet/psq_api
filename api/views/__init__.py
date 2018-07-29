@@ -1,7 +1,8 @@
 from .users import MyUserDetailView, UserList, CreateAdminUserView, CreateRawUserView, UserActivationView, \
     AdminUserDetailView, AdminUserDetailOwnedDevicesView, UserPicUpdateView, AdminUserMyDeviceListView, \
     AdminUsersListView, AdminUserMyExercisesListView, RawUserDetailView, \
-    CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView
+    CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, \
+    AdminsDashboardReportView
 
 from .exercises import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, \
     DeviceExercisesDetailView

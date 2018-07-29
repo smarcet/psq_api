@@ -10,4 +10,6 @@ from .exam_video import ExamVideo
 from .device_users_group import DeviceUsersGroup
 from .device_broadcast import DeviceBroadCast
 from .news import News
+from .exam_pending_request import ExamPendingRequest
+from .exam_pending_request_video import ExamPendingRequestVideo
 

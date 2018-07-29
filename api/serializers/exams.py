@@ -12,7 +12,7 @@ class VideoExamReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExamVideo
-        fields = ('id', 'created', 'modified', 'video_url')
+        fields = ('id', 'created', 'modified', 'video_url', 'type')
 
     def get_video_url(self, video):
         request = self.context.get('request')
@@ -67,14 +67,13 @@ class ExamStudentWriteSerializer(serializers.ModelSerializer):
 
 class ExamEvaluatorWriteSerializer(serializers.ModelSerializer):
 
-    device = serializers.PrimaryKeyRelatedField(many=False, queryset=Device.objects.all())
     evaluator = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.filter(role=User.TEACHER))
 
     def update(self, instance, validated_data):
         evaluator = validated_data.pop('evaluator')
-        device = validated_data.pop('device')
         approved = validated_data.get('approved', False)
         notes = validated_data.get('notes', None)
+        device = instance.device
 
         if not device.is_allowed_admin(evaluator):
             raise ModelValidationException(
@@ -83,10 +82,12 @@ class ExamEvaluatorWriteSerializer(serializers.ModelSerializer):
         if approved:
             instance.approve(notes)
         else:
-            return instance.reject(notes)
+            instance.reject(notes)
 
         instance.set_evaluator(evaluator)
 
+        return instance
+
     class Meta:
         model = Exam
-        fields = ('evaluator', 'notes' 'device', 'approved')
+        fields = ('evaluator', 'notes', 'approved')

@@ -4,14 +4,14 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from api.models import ModelValidationException, Device
 from ..decorators import role_required
 from ..exceptions import CustomValidationError
 from ..models import User, Exam
 from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
-from ..serializers import ExamVideoWriteSerializer
+from ..serializers import ExamVideoWriteSerializer, ExamPendingRequestWriteSerializer, ExamPendingRequestVideoWriteSerializer
 from django.utils.translation import ugettext_lazy as _
+import logging
 
 
 class ExamUploadAPIView(APIView):
@@ -21,12 +21,13 @@ class ExamUploadAPIView(APIView):
 
     @staticmethod
     def post(request):
-
+        logger = logging.getLogger('api')
         try:
-            if not 'device_mac_address' in request.data:
+            logger.info("uploading new exam request ...")
+            if 'device_mac_address' not in request.data:
                 raise ModelValidationException
 
-            if not 'device' in request.data:
+            if 'device' not in request.data:
                 raise ModelValidationException
 
             device = Device.objects.filter(mac_address=request.data['device_mac_address']).first()
@@ -37,14 +38,18 @@ class ExamUploadAPIView(APIView):
             if device.id != int(request.data['device']):
                 raise ModelValidationException
 
-            exam_video_serializer = ExamVideoWriteSerializer(data=request.data)
-            exam_serializer = ExamStudentWriteSerializer(data=request.data)
+            exam_video_serializer = ExamPendingRequestVideoWriteSerializer(data=request.data)
+            exam_serializer = ExamPendingRequestWriteSerializer(data=request.data)
 
             if exam_serializer.is_valid() and exam_video_serializer.is_valid():
+                logger.info("uploading new exam request - data is valid")
                 exam = exam_serializer.save()
+                logger.info("uploading new exam request - saving video")
                 exam_video = exam_video_serializer.save()
-                exam_video.set_exam(exam)
+                logger.info("uploading new exam request - saved video")
+                exam_video.set_request(exam)
                 response_data = exam_serializer.data
+                logger.info("uploading new exam request - OK")
                 return Response(data=response_data, status=status.HTTP_201_CREATED)
 
             return Response(exam_video_serializer.errors + exam_serializer.errors,

@@ -257,7 +257,9 @@ class DeviceOpenRegistrationView(GenericAPIView):
             data = {'id': device.id,
                     'mac_address': str(device.mac_address),
                     'last_know_ip': device.last_know_ip,
-                    'is_verified': device.is_verified
+                    'is_verified': device.is_verified,
+                    'stream_key': device.stream_key,
+                    'serial': str(device.serial)
                     }
             return Response(data, status=status.HTTP_200_OK)
 

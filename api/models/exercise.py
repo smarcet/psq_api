@@ -5,7 +5,6 @@ from model_utils.models import TimeStampedModel
 from ..models import ModelValidationException
 from ..validators import validate_max_duration
 
-
 class Exercise(TimeStampedModel):
 
     title = models.CharField(max_length=255, blank=False, unique=True)
@@ -32,10 +31,7 @@ class Exercise(TimeStampedModel):
 
     allowed_devices = models.ManyToManyField("Device", related_name="allowed_exercises", blank=True)
 
-    created_from_tutorial = models.ForeignKey("Exercise",
-                                              null=True, on_delete=models.SET_NULL,
-                                              blank=True
-                                              )
+    tutorials = models.ManyToManyField("Exercise", related_name="related_exercises", blank=True)
 
     def add_allowed_device(self, device):
 
@@ -45,12 +41,23 @@ class Exercise(TimeStampedModel):
         self.allowed_devices.add(device)
         self.save()
 
+    def is_tutorial(self):
+        return self.type == Exercise.TUTORIAL
+
+    def add_tutorial(self, exercise):
+        if not exercise.is_tutorial():
+            raise ModelValidationException(
+                _("exercise {exercise_id} is not a tutorial").format(exercise_id=exercise.id))
+
+        self.tutorials.add(exercise)
+        self.save()
+
     def set_author(self, author):
         self.author = author
         self.save()
 
     def can_view(self, user):
-        if self.author.id == user.id:
+        if self.author is not None and self.author.id == user.id:
             return True
 
         for device in self.allowed_devices.all():

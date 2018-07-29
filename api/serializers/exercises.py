@@ -7,14 +7,21 @@ from ..models import Exercise
 from django.utils.translation import ugettext_lazy as _
 
 
+class ReadTutorialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exercise
+        fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration', 'type', 'author')
+
+
 class ReadExerciseSerializer(serializers.ModelSerializer):
     author = ReadUserSerializer()
     allowed_devices = ReadDeviceSerializer(many=True)
+    tutorials = ReadTutorialSerializer(many=True)
 
     class Meta:
         model = Exercise
         fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration', 'type', 'author',
-                  'allowed_devices')
+                  'allowed_devices', 'tutorials')
 
 
 class WriteableExerciseSerializer(serializers.ModelSerializer):

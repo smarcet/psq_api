@@ -1,4 +1,5 @@
 from django.db.models import Q
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from ..exceptions import CustomValidationError
 from ..models import ModelValidationException
@@ -11,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 class ExerciseListCreateAPIView(ListCreateAPIView):
     filter_fields = ('id', 'title', 'type')
     ordering_fields = ('id', 'title', 'type')
+    filter_backends = (SearchFilter,)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

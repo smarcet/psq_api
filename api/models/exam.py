@@ -2,10 +2,11 @@ from django.conf import settings
 from django.db import models
 from model_utils.models import TimeStampedModel
 from ..validators import validate_duration
-from django.utils.timezone import now
+from datetime import datetime
 
 
 class Exam(TimeStampedModel):
+
     notes = models.TextField()
 
     duration = models.IntegerField(blank=False, validators=[validate_duration, ])
@@ -51,10 +52,10 @@ class Exam(TimeStampedModel):
         self.approved = True
         self.evaluated = True
         self.notes = notes or ''
-        self.eval_date = now()
+        self.eval_date = datetime.utcnow()
 
     def reject(self, notes=None):
-        self.approved = True
+        self.approved = False
         self.evaluated = True
         self.notes = notes or ''
-        self.eval_date = now()
+        self.eval_date = datetime.utcnow()

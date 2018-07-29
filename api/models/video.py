@@ -8,13 +8,13 @@ from storages.backends.gcloud import GoogleCloudStorage
 class Video(TimeStampedModel):
     description = models.TextField()
 
+    type = models.TextField()
+
     key = models.UUIDField(unique=True, null=False, default=uuid.uuid4)
 
     file = models.FileField(
         storage=GoogleCloudStorage(bucket_name='psq_videos'),
         upload_to='videos')
-
-    thumbnail = models.FileField(upload_to='thumbnails')
 
     # relations
 

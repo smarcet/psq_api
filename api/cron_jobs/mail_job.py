@@ -27,7 +27,7 @@ class MailCronJob(CronJobBase):
                 to_email = Email(mail_2_send.to_address)
 
             subject = mail_2_send.subject
-            content = Content("text/plain", mail_2_send.body)
+            content = Content("text/html", mail_2_send.body)
             mail = Mail(from_email, subject, to_email, content)
             response = sg.client.mail.send.post(request_body=mail.get())
             print(response.status_code)

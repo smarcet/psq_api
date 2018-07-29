@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from api.exceptions import CustomValidationError
 from ..decorators import role_required
 from ..models import ModelValidationException, Exercise
-from ..models import User, Device
+from ..models import User, Device, Exam, DeviceUsersGroup
 from ..serializers import ReadExerciseSerializer
 from ..serializers.devices import ReadDeviceSerializer
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
@@ -368,7 +368,7 @@ class RetrieveUpdateDestroyUsersView(RetrieveUpdateDestroyAPIView):
 
     @role_required(required_role=User.TEACHER)
     def patch(self, request, *args, **kwargs):
-       pass
+        pass
 
     @role_required(required_role=User.TEACHER)
     def delete(self, request, *args, **kwargs):
@@ -404,7 +404,7 @@ class CreateListUsersView(ListCreateAPIView):
         if not current_user.can_create_role(role):
             raise CustomValidationError("user {user_id} can not create users with role {role}".format(
                 user_id=current_user.id,
-                role = role
+                role=role
             ), 'error')
         return self.create(request, *args, **kwargs)
 
@@ -447,6 +447,68 @@ class SuperAdminsDashboardReportView(APIView):
             'admin_user_qty': User.objects.filter(role=User.TEACHER).count(),
             'raw_user_qty': User.objects.filter(role=User.STUDENT).count(),
             'devices_qty': Device.objects.count(),
+        }
+
+        return Response(data, status=200)
+
+
+class AdminsDashboardReportView(APIView):
+
+    @role_required(required_role=User.TEACHER)
+    def get(self, request, months_qty=6):
+
+        now = datetime.utcnow().replace(hour=00, minute=00, day=1, second=0, microsecond=0)
+        end_now = now + relativedelta(months=+1, days=-1)
+        dates = [
+            (
+                now.replace(hour=00, minute=00, day=1, second=0, microsecond=0, tzinfo=pytz.UTC),
+                end_now.replace(hour=23, minute=59, second=59, tzinfo=pytz.UTC, microsecond=999999)
+            )
+        ]
+
+        for x in range(1, months_qty):
+            start = now + relativedelta(months=-x)
+            end = start + relativedelta(months=+x, days=-1)
+            dates.append((
+                start.replace(hour=00, minute=00, day=1, second=0, microsecond=0, tzinfo=pytz.UTC),
+                end.replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=pytz.UTC)
+            ))
+
+        exams_evaluated_per_month = []
+        exams_approved_per_month = []
+        exams_reject_per_month = []
+        exams_evaluated_qty = 0
+        exams_approved_qty = 0
+        exams_reject_qty = 0
+        for dates_tuple in reversed(dates):
+            q1 =  Exam.objects.filter(Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(
+                    evaluator=request.user)).count()
+            exams_evaluated_qty += q1
+            exams_evaluated_per_month.append(q1)
+            q2 = Exam.objects.filter(
+                Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(evaluator=request.user) & Q(
+                    approved=True)).count()
+            exams_approved_per_month.append(q2)
+            exams_approved_qty += q2
+            q3 = Exam.objects.filter(
+                    Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(evaluator=request.user) & Q(
+                        approved=False)).count()
+            exams_reject_per_month.append(q3)
+            exams_reject_qty += q3
+        my_devices = request.user.my_devices
+        data = {
+            'exams_evaluated_per_month': exams_evaluated_per_month,
+            'exams_evaluated_qty': exams_evaluated_qty,
+            'exams_approved_per_month': exams_approved_per_month,
+            'exams_approved_qty': exams_approved_qty,
+            'exams_reject_per_month': exams_reject_per_month,
+            'exams_reject_qty': exams_reject_qty,
+            'users_qty': User.objects.filter(created_by=request.user).count(),
+            'devices_qty': Device.objects.filter(owner=request.user).count(),
+            'pending_exams_qty': Exam.objects.filter(
+                Q(evaluator__isnull=True) & Q(device__in=my_devices)
+                ).count(),
+            'user_groups_qty': DeviceUsersGroup.objects.filter(created_by=request.user).count(),
         }
 
         return Response(data, status=200)
