@@ -56,16 +56,28 @@ class User(AbstractBaseUser, PermissionsMixin):
         return []
 
     @property
+    def is_teacher(self):
+        return self.role == User.TEACHER
+
+    @property
+    def is_supervisor(self):
+        return self.role == User.SUPERVISOR
+
+    @property
+    def is_student(self):
+        return self.role == User.STUDENT
+
+    @property
     def allowed_admins(self):
-        list = []
+        res = []
         assigned_devices = self.assigned_devices.all()
         for device in assigned_devices:
-            if device.owner not in list:
-                list.append(device.owner)
+            if device.owner not in res:
+                res.append(device.owner)
             for admin in device.admins:
-                if admin not in list:
-                    list.append(admin)
-        return list
+                if admin not in res:
+                    res.append(admin)
+        return res
 
     @property
     def my_devices(self):

@@ -9,9 +9,23 @@ from ..decorators import role_required
 from django.utils.translation import ugettext_lazy as _
 
 
-class ExerciseListCreateAPIView(ListCreateAPIView):
+class TutorialListAPIView(ListAPIView):
     filter_fields = ('id', 'title', 'type')
     ordering_fields = ('id', 'title', 'type')
+    filter_backends = (SearchFilter,)
+    serializer_class = ReadExerciseSerializer
+
+    def get_queryset(self):
+        current_user = self.request.user
+        return Exercise.objects \
+                .filter(Q(allowed_devices__admins__in=[current_user])
+                        | Q(allowed_devices__owner__in=[current_user])
+                        | Q(author=current_user)).distinct().filter(type=Exercise.TUTORIAL).order_by('id')
+
+
+class ExerciseListCreateAPIView(ListCreateAPIView):
+    filter_fields = ('id', 'title', 'type')
+    ordering_fields = ('id', 'title', 'type', 'created')
     filter_backends = (SearchFilter,)
 
     def get_serializer_class(self):
@@ -22,15 +36,15 @@ class ExerciseListCreateAPIView(ListCreateAPIView):
     def get_queryset(self):
         if self.request.method == 'GET':
             current_user = self.request.user
-            if current_user.role == User.STUDENT:
+            if current_user.is_student :
                 # get only the available exercises for current student
                 return Exercise.objects\
-                    .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).distinct().order_by('id')
-            if current_user.role == User.TEACHER:
+                    .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).order_by('+created').distinct('title')
+            if current_user.is_teacher :
                 return Exercise.objects \
                     .filter(Q(allowed_devices__admins__in=[current_user])
                             | Q(allowed_devices__owner__in=[current_user])
-                            | Q(author=current_user)).distinct().order_by('id')
+                            | Q(author=current_user)).order_by('-created').distinct('title')
             # for super admin return all
             return Exercise.objects.all().order_by('id')
         return Exercise.objects.all().order_by('id')
@@ -79,5 +93,8 @@ class DeviceExercisesDetailView(ListAPIView):
     serializer_class = ReadExerciseSerializer
 
     def get_queryset(self):
-        device_id = self.kwargs['pk'];
-        return Exercise.objects.filter(allowed_devices__in=[device_id])
+        device_id = self.kwargs['pk']
+        current_user = self.request.user
+        if current_user.is_teacher:
+            return Exercise.objects.filter(Q(allowed_devices__in=[device_id])).order_by('-created')
+        return Exercise.objects.filter(Q(allowed_devices__in=[device_id]) & Q(type=Exercise.REGULAR)).order_by('-created')

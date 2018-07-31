@@ -4,13 +4,14 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from api.models import ModelValidationException, Device
+from ..models import ModelValidationException, Device, Exercise
 from ..decorators import role_required
 from ..exceptions import CustomValidationError
 from ..models import User, Exam
 from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
 from ..serializers import ExamVideoWriteSerializer, ExamPendingRequestWriteSerializer, ExamPendingRequestVideoWriteSerializer
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
 import logging
 
 
@@ -62,7 +63,7 @@ class ExamUploadAPIView(APIView):
 class ExamListCreateAPIView(ListCreateAPIView):
     filter_fields = ('id', 'approved')
     ordering_fields = ('id', 'approved')
-    queryset = Exam.objects.all()
+    queryset = Exam.objects.filter(Q(exercise__type=Exercise.REGULAR))
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

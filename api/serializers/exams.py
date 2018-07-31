@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from api.models import ModelValidationException, ExamVideo
 from ..serializers import ReadUserSerializer, ReadDeviceSerializer, ReadExerciseSerializer
-from ..models import Exercise, User, Device, Tutorial, Exam
+from ..models import Exercise, User, Device, Exam
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 

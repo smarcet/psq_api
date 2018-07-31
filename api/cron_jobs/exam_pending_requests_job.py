@@ -5,6 +5,7 @@ import os
 from ..video_utils import MKV2OGGTranscoder, MKV2MP4Transcoder, MKV2WEBMTranscoder
 from pathlib import Path
 import logging
+from django.utils.translation import ugettext_lazy as _
 
 
 class ExamPendingRequestsJob(CronJobBase):
@@ -25,7 +26,12 @@ class ExamPendingRequestsJob(CronJobBase):
             exam.exercise = pending_exam.exercise
             exam.device = pending_exam.device
             exam.duration = video_duration_seconds
+            # if the exam is from an tutorial then auto approve it
+            if exam.exercise.is_tutorial():
+                exam.approve(notes=_('Auto-Aproved bc tutorial'))
+                exam.evaluator = exam.taker
             exam.save()
+
             logger.info("ExamPendingRequestsJob - new exam created")
 
             for pending_video in pending_exam.videos.all():

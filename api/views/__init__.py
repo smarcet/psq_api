@@ -5,12 +5,10 @@ from .users import MyUserDetailView, UserList, CreateAdminUserView, CreateRawUse
     AdminsDashboardReportView
 
 from .exercises import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, \
-    DeviceExercisesDetailView
+    DeviceExercisesDetailView, TutorialListAPIView
 
 from .devices import DeviceOpenRegistrationView, DeviceVerifyView, AdminUserOwnedDevicesManageView, \
     DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView
-
-from .tutorials import TutorialListCreateAPIView, TutorialRetrieveUpdateDestroyAPIView
 
 from .exams import ExamListCreateAPIView, ExamRetrieveUpdateDestroyAPIView, ExamUploadAPIView
 

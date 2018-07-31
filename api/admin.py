@@ -11,8 +11,6 @@ from .models import Exam
 from .models import ExamVideo
 from .models import Exercise
 from .models import MailRequest
-from .models import Tutorial
-from .models import TutorialVideo
 from .models import User
 from .models import DeviceBroadCast
 from .models import News
@@ -73,10 +71,8 @@ class MyUserAdmin(UserAdmin):
 admin.site.register(User, MyUserAdmin)
 admin.site.register(Device, DeviceAdmin)
 admin.site.register(Exam, ExamAdmin)
-admin.site.register(Tutorial)
 admin.site.register(Exercise)
 admin.site.register(ExamVideo)
-admin.site.register(TutorialVideo)
 admin.site.register(DeviceUsersGroup)
 admin.site.unregister(Group)
 admin.site.register(MailRequest)

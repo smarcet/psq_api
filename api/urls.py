@@ -1,7 +1,7 @@
 from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 from django.urls import path
 
-from .views.exercises import DeviceExercisesDetailView
+from .views.exercises import DeviceExercisesDetailView, TutorialListAPIView
 
 from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserView, UserActivationView, \
     UserPicUpdateView, AdminUserDetailView, AdminUserDetailOwnedDevicesView, AdminUserMyDeviceListView, \
@@ -14,7 +14,7 @@ from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersLi
     AdminUserOwnedDevicesManageView
 
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
-    TutorialRetrieveUpdateDestroyAPIView, TutorialListCreateAPIView, ExamListCreateAPIView, \
+    ExamListCreateAPIView, \
     ExamRetrieveUpdateDestroyAPIView, DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView, \
     DeviceUsersGroupsListCreateView, NewsListCreateAPIView, ExamUploadAPIView, NewsRetrieveUpdateDestroyAPIView
 
@@ -60,9 +60,8 @@ urlpatterns = [
     path('devices/<int:pk>/admins/<int:user_id>', DeviceAdminsListView.as_view(), name='device-admins'),
     # exercises
     path('exercises', ExerciseListCreateAPIView.as_view(), name='exercises-list-create'),
+    path('tutorials', TutorialListAPIView.as_view(), name='tutorials-list-create'),
     path('exercises/<int:pk>', ExerciseRetrieveUpdateDestroyAPIView.as_view(), name='exercises-retrieve-update-destroy'),
-    path('tutorials', TutorialListCreateAPIView.as_view(), name='tutorials-list-create'),
-    path('tutorials/<int:pk>', TutorialRetrieveUpdateDestroyAPIView.as_view(), name='tutorials-retrieve-update-destroy'),
     # exams
     path('exams/upload', ExamUploadAPIView.as_view(), name='exams-upload'),
     path('exams', ExamListCreateAPIView.as_view(), name='exams-list-create'),
