@@ -16,7 +16,8 @@ from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersLi
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
     ExamListCreateAPIView, \
     ExamRetrieveUpdateDestroyAPIView, DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView, \
-    DeviceUsersGroupsListCreateView, NewsListCreateAPIView, ExamUploadAPIView, NewsRetrieveUpdateDestroyAPIView
+    DeviceUsersGroupsListCreateView, NewsListCreateAPIView, ExamUploadAPIView, NewsRetrieveUpdateDestroyAPIView, \
+    ValidateExamStreamingSignedUrlView
 
 urlpatterns = [
     # https://getblimp.github.io/django-rest-framework-jwt/
@@ -66,6 +67,7 @@ urlpatterns = [
     path('exams/upload', ExamUploadAPIView.as_view(), name='exams-upload'),
     path('exams', ExamListCreateAPIView.as_view(), name='exams-list-create'),
     path('exams/<int:pk>', ExamRetrieveUpdateDestroyAPIView.as_view(), name='exams-retrieve-update-destroy'),
+    path('streaming/validate', ValidateExamStreamingSignedUrlView.as_view(), name='validate-streaming'),
     # news
     path('news', NewsListCreateAPIView.as_view(), name="news-list-create"),
     path('news/<int:pk>', NewsRetrieveUpdateDestroyAPIView.as_view(), name="news-retrieve-update-destroy")

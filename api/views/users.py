@@ -21,7 +21,7 @@ from ..serializers.devices import ReadDeviceSerializer
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
     WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \
     ChangePasswordSerializer, RoleWritableUserSerializer
-from datetime import date, datetime
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import pytz
 

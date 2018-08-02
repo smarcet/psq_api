@@ -31,10 +31,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL,
                                    related_name="updated_users")
+    GUEST = 0
     STUDENT = 1
     TEACHER = 2
     SUPERVISOR = 3
     ROLE_CHOICES = (
+        (GUEST, 'Guest'),
         (STUDENT, 'Student'),
         (TEACHER, 'Teacher'),
         (SUPERVISOR, 'Supervisor'),
@@ -48,12 +50,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     @property
-    def allowed_devices(self):
-        assigned_devices = self.assigned_devices.all()
-        managed_devices = self.managed_devices.all()
-        owned_devices = self.owned_devices.all()
-
-        return []
+    def is_guest(self):
+        return self.role == User.GUEST
 
     @property
     def is_teacher(self):

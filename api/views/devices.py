@@ -195,11 +195,11 @@ class DeviceOpenLocalStreamingStartView(GenericAPIView):
     def post(self, request):
         logger = logging.getLogger('api')
         stream_key = request.POST['name']
-        exercise_id = int(request.GET.get('exercise_id'))
-        user_id = int(request.GET.get('user_id'))
+        exercise_id = request.POST['exercise_id']
+        user_id = request.POST['user_id']
 
         device = Device.objects.filter(stream_key=stream_key).first()
-        logger.info("on_publish_start stream_key {stream_key}".format(stream_key=stream_key))
+        logger.info("on_publish_start stream_key {stream_key} query string {query_string}".format(stream_key=stream_key, query_string=request.META['QUERY_STRING']))
 
         if device is None:
             return Response("", status=status.HTTP_404_NOT_FOUND)

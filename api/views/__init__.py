@@ -10,7 +10,7 @@ from .exercises import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyA
 from .devices import DeviceOpenRegistrationView, DeviceVerifyView, AdminUserOwnedDevicesManageView, \
     DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView
 
-from .exams import ExamListCreateAPIView, ExamRetrieveUpdateDestroyAPIView, ExamUploadAPIView
+from .exams import ExamListCreateAPIView, ExamRetrieveUpdateDestroyAPIView, ExamUploadAPIView, ValidateExamStreamingSignedUrlView
 
 from .device_user_groups import DeviceUsersGroupsListCreateView
 

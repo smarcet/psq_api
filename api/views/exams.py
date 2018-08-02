@@ -1,10 +1,17 @@
+import hmac
+import hashlib
+import base64
+
+import sys
+from datetime import datetime
+
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from ..models import ModelValidationException, Device, Exercise
+from ..models import ModelValidationException, Device, Exercise, DeviceBroadCast
 from ..decorators import role_required
 from ..exceptions import CustomValidationError
 from ..models import User, Exam
@@ -13,6 +20,14 @@ from ..serializers import ExamVideoWriteSerializer, ExamPendingRequestWriteSeria
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 import logging
+
+from netaddr import mac_unix
+from macaddress import format_mac
+
+
+class mac_unix_expanded_upper(mac_unix):
+    """A UNIX-style MAC address dialect class with leading zeroes."""
+    word_fmt = '%.2X'
 
 
 class ExamUploadAPIView(APIView):
@@ -53,7 +68,7 @@ class ExamUploadAPIView(APIView):
                 logger.info("uploading new exam request - OK")
                 return Response(data=response_data, status=status.HTTP_201_CREATED)
 
-            return Response(exam_video_serializer.errors + exam_serializer.errors,
+            return Response(exam_video_serializer.errors | exam_serializer.errors,
                             status=status.HTTP_412_PRECONDITION_FAILED)
 
         except ModelValidationException as error1:
@@ -111,3 +126,80 @@ class ExamRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     @role_required(required_role=User.TEACHER)
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+class ValidateExamStreamingSignedUrlView(APIView):
+    permission_classes = (AllowAny,)
+
+    @staticmethod
+    def get(request, *args, **kwargs):
+        logger = logging.getLogger('api')
+        try:
+            device_id = int(request.GET.get("device_id"))
+            exercise_id = int(request.GET.get("exercise_id"))
+            user_id = int(request.GET.get("user_id"))
+            exercise_max_duration = int(request.GET.get("exercise_max_duration"))
+            signature = str(request.GET.get("signature"))
+            expires = int(request.GET.get("expires"))
+            now_epoch = int(datetime.utcnow().timestamp())
+
+            if expires < now_epoch:
+                raise ModelValidationException(_("link is expired"))
+
+            current_device = Device.objects.get(pk=device_id)
+            if current_device is None:
+                return Response(data=_("device not found"),
+                                status=status.HTTP_404_NOT_FOUND)
+
+            current_exercise = Exercise.objects.get(pk=exercise_id)
+            if current_exercise is None:
+                return Response(data=_("exercise not found"),
+                                status=status.HTTP_404_NOT_FOUND)
+            current_user = User.objects.get(pk=user_id)
+
+            if current_user is None:
+                return Response(data=_("user not found"),
+                                status=status.HTTP_404_NOT_FOUND)
+
+            secret = format_mac(current_device.mac_address, mac_unix_expanded_upper)
+            str_to_sign = "GET\n%s\n%s\n%s\n%s\n%s" % (device_id, exercise_id, exercise_max_duration, user_id, expires)
+            h = hmac.new(bytearray(secret, 'utf-8'), str_to_sign.encode('utf-8'), hashlib.sha1)
+            digest = h.digest()
+            calculate_signature = base64.b64encode(digest).decode("utf-8")
+            if signature != calculate_signature:
+                raise ModelValidationException(_("link signature is invalid"))
+
+            is_broadcasting =  DeviceBroadCast.objects.filter(
+                Q(exercise_id=exercise_id) &
+                Q(device_id=device_id) &
+                Q(user_id=user_id) &
+                Q(ends_at=None)).count() > 0
+
+            if not is_broadcasting:
+                raise ModelValidationException(_("device is not currently broadcasting"))
+
+            return Response({
+                'device': {
+                    'id' : current_device.id,
+                    'friendly_name' : current_device.friendly_name,
+                    'serial': current_device.serial,
+                    'slug': current_device.slug,
+                },
+                'exercise': {
+                    'id': current_exercise.id,
+                    'title': current_exercise.title,
+                    'max_duration': current_exercise.max_duration,
+                },
+                'user': {
+                    'id': current_user.id,
+                    'first_name': current_user.first_name,
+                    'last_name': current_user.last_name,
+                }
+            }, status=status.HTTP_200_OK)
+
+        except ModelValidationException as error1:
+            raise CustomValidationError(str(error1))
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            logger.error("Unexpected error {error}".format(error=sys.exc_info()[0]))
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
