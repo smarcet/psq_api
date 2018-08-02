@@ -3,7 +3,7 @@ from .devices import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDe
 
 from .users import WritableUserSerializer, ReadUserSerializer, WritableAdminUserSerializer, \
                    WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \
-                   ChangePasswordSerializer, RoleWritableUserSerializer
+                   ChangePasswordSerializer, RoleWritableUserSerializer, WritableGuestUserSerializer
 
 from .exercises import ReadExerciseSerializer, WriteableExerciseSerializer
 from .exams import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer, \

@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, \
-    ListAPIView, RetrieveUpdateAPIView, RetrieveAPIView
+    ListAPIView, RetrieveUpdateAPIView, RetrieveAPIView, CreateAPIView
 
 from rest_framework.parsers import JSONParser
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -20,7 +20,7 @@ from ..serializers import ReadExerciseSerializer
 from ..serializers.devices import ReadDeviceSerializer
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
     WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \
-    ChangePasswordSerializer, RoleWritableUserSerializer
+    ChangePasswordSerializer, RoleWritableUserSerializer, WritableGuestUserSerializer
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import pytz
@@ -340,6 +340,7 @@ class MyUserDetailView(RetrieveUpdateAPIView):
 
 
 class RetrieveUpdateDestroyUsersView(RetrieveUpdateDestroyAPIView):
+
     queryset = User.objects.all()
 
     def get_serializer_class(self):
@@ -425,7 +426,7 @@ class SuperAdminsDashboardReportView(APIView):
 
         for x in range(1, months_qty):
             start = now + relativedelta(months=-x)
-            end = start + relativedelta(months=+x, days=-1)
+            end = start + relativedelta(months=+1, days=-1)
             dates.append((
                 start.replace(hour=00, minute=00, day=1, second=0, microsecond=0, tzinfo=pytz.UTC),
                 end.replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=pytz.UTC)
@@ -468,7 +469,7 @@ class AdminsDashboardReportView(APIView):
 
         for x in range(1, months_qty):
             start = now + relativedelta(months=-x)
-            end = start + relativedelta(months=+x, days=-1)
+            end = start + relativedelta(months=+1, days=-1)
             dates.append((
                 start.replace(hour=00, minute=00, day=1, second=0, microsecond=0, tzinfo=pytz.UTC),
                 end.replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=pytz.UTC)
@@ -482,17 +483,17 @@ class AdminsDashboardReportView(APIView):
         exams_reject_qty = 0
         for dates_tuple in reversed(dates):
             q1 =  Exam.objects.filter(Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(
-                    evaluator=request.user)).count()
+                    evaluator=request.user) & Q(exercise__type=Exercise.REGULAR)).count()
             exams_evaluated_qty += q1
             exams_evaluated_per_month.append(q1)
             q2 = Exam.objects.filter(
                 Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(evaluator=request.user) & Q(
-                    approved=True)).count()
+                    approved=True) & Q(exercise__type=Exercise.REGULAR)).count()
             exams_approved_per_month.append(q2)
             exams_approved_qty += q2
             q3 = Exam.objects.filter(
                     Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(evaluator=request.user) & Q(
-                        approved=False)).count()
+                        approved=False) & Q(exercise__type=Exercise.REGULAR)).count()
             exams_reject_per_month.append(q3)
             exams_reject_qty += q3
         my_devices = request.user.my_devices
@@ -512,3 +513,10 @@ class AdminsDashboardReportView(APIView):
         }
 
         return Response(data, status=200)
+
+
+class RegisterGuestUserView(CreateAPIView):
+
+    permission_classes = (AllowAny,)
+    queryset = User.objects.filter(role=User.GUEST)
+    serializer_class = WritableGuestUserSerializer

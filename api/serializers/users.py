@@ -53,7 +53,8 @@ class RoleWritableUserSerializer(serializers.ModelSerializer):
         valid_roles = [
             User.TEACHER,
             User.STUDENT,
-            User.SUPERVISOR
+            User.SUPERVISOR,
+            User.GUEST
         ]
 
         if not data['role'] in valid_roles :
@@ -110,5 +111,13 @@ class WritableRawUserSerializer(WritableUserSerializer):
 
     def create(self, validated_data):
         validated_data['role'] = User.STUDENT
+        instance = User.objects.create(**validated_data)
+        return instance
+
+
+class WritableGuestUserSerializer(WritableUserSerializer):
+
+    def create(self, validated_data):
+        validated_data['role'] = User.GUEST
         instance = User.objects.create(**validated_data)
         return instance

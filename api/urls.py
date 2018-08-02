@@ -7,8 +7,8 @@ from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserVie
     UserPicUpdateView, AdminUserDetailView, AdminUserDetailOwnedDevicesView, AdminUserMyDeviceListView, \
     UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
     ListMyUsersUserView, AdminUserMyExercisesListView, RawUserDetailView, \
-    CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, AdminsDashboardReportView \
-
+    CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, AdminsDashboardReportView, \
+    RegisterGuestUserView
 
 from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, DeviceVerifyView, \
     AdminUserOwnedDevicesManageView
@@ -49,6 +49,8 @@ urlpatterns = [
     # raw users
     path('raw-users', CreateRawUserView.as_view(), name='create-list-raw-users'),
     path('raw-users/<int:pk>', RawUserDetailView.as_view(), name='raw-users'),
+    # guest users
+    path('guest-users', RegisterGuestUserView.as_view(), name='register-guest-users'),
     # Devices
     path('devices', DeviceListCreateView.as_view(), name='device-list-create'),
     path('devices/current/registration', DeviceOpenRegistrationView.as_view(), name='device-open-registration'),
