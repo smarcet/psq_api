@@ -14,3 +14,5 @@ from .device_users_groups import ReadDeviceUsersGroupSerializer, WriteableDevice
 from .news import ReadNewsSerializer, WriteNewsSerializer
 
 from .exam_pending_requests import ExamPendingRequestWriteSerializer, ExamPendingRequestVideoWriteSerializer
+
+from .file_uploads import FileUploadSerializer

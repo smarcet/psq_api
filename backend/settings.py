@@ -14,7 +14,7 @@ from django.conf import settings
 import datetime
 import os
 from google.oauth2 import service_account
-
+from django.core.files.storage import FileSystemStorage
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django_cron',
     'model_utils',
     'storages',
+    'drf_chunked_upload',
     'django_filters',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -289,6 +290,7 @@ LOGGING = {
     },
 }
 
+DRF_CHUNKED_UPLOAD_STORAGE_CLASS = FileSystemStorage
 # Import local settings
 try:
     from .settings_local import *

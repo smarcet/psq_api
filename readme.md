@@ -29,7 +29,7 @@ python manage.py createsuperuser
 
 http://django-cron.readthedocs.io/en/latest/installation.html
 
-python manage.py runcrons --force
+
 
 # locale
 

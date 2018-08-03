@@ -1,6 +1,7 @@
 from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 from django.urls import path
 
+from api.views import FileUploadView
 from .views.exercises import DeviceExercisesDetailView, TutorialListAPIView
 
 from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserView, UserActivationView, \
@@ -10,7 +11,8 @@ from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserVie
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, AdminsDashboardReportView, \
     RegisterGuestUserView
 
-from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, DeviceVerifyView, \
+from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, \
+    DeviceVerifyView, \
     AdminUserOwnedDevicesManageView
 
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
@@ -66,7 +68,9 @@ urlpatterns = [
     path('tutorials', TutorialListAPIView.as_view(), name='tutorials-list-create'),
     path('exercises/<int:pk>', ExerciseRetrieveUpdateDestroyAPIView.as_view(), name='exercises-retrieve-update-destroy'),
     # exams
-    path('exams/upload', ExamUploadAPIView.as_view(), name='exams-upload'),
+    #path('exams/upload', ExamUploadAPIView.as_view(), name='exams-upload'),
+    path('exams/upload', FileUploadView.as_view(), name='exams-upload'),
+    path('exams/upload/<uuid:pk>', FileUploadView.as_view(), name='exams-upload-details'),
     path('exams', ExamListCreateAPIView.as_view(), name='exams-list-create'),
     path('exams/<int:pk>', ExamRetrieveUpdateDestroyAPIView.as_view(), name='exams-retrieve-update-destroy'),
     path('streaming/validate', ValidateExamStreamingSignedUrlView.as_view(), name='validate-streaming'),

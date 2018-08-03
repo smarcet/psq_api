@@ -1,28 +1,28 @@
-import hmac
-import hashlib
 import base64
-
+import hashlib
+import hmac
+import logging
 import sys
 from datetime import datetime
 
+from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
+from macaddress import format_mac
+from netaddr import mac_unix
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from ..models import ModelValidationException, Device, Exercise, DeviceBroadCast
+
 from ..decorators import role_required
 from ..exceptions import CustomValidationError
+from ..models import ModelValidationException, Device, Exercise, DeviceBroadCast
 from ..models import User, Exam
 from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
-from ..serializers import ExamVideoWriteSerializer, ExamPendingRequestWriteSerializer, ExamPendingRequestVideoWriteSerializer
-from django.utils.translation import ugettext_lazy as _
-from django.db.models import Q
-import logging
-
-from netaddr import mac_unix
-from macaddress import format_mac
+from ..serializers import ExamVideoWriteSerializer, ExamPendingRequestWriteSerializer, \
+    ExamPendingRequestVideoWriteSerializer
 
 
 class mac_unix_expanded_upper(mac_unix):

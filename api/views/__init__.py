@@ -15,3 +15,5 @@ from .exams import ExamListCreateAPIView, ExamRetrieveUpdateDestroyAPIView, Exam
 from .device_user_groups import DeviceUsersGroupsListCreateView
 
 from .news import NewsListCreateAPIView, NewsRetrieveUpdateDestroyAPIView
+
+from .file_uploads import FileUploadView

@@ -6,15 +6,18 @@ from ..video_utils import MKV2OGGTranscoder, MKV2MP4Transcoder, MKV2WEBMTranscod
 from pathlib import Path
 import logging
 from django.utils.translation import ugettext_lazy as _
+from django.db import transaction
 
 
 class ExamPendingRequestsJob(CronJobBase):
+
     RUN_EVERY_MINS = 1  # every minute
     CHUNK_SIZE = 10 * 1024 * 1024
 
     schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
     code = 'api.ExamPendingRequestsJob'  # a unique code
 
+    @transaction.atomic
     def do(self):
         logger = logging.getLogger('cronjobs')
         pending_exams = ExamPendingRequest.objects.filter(is_processed=False)
@@ -47,7 +50,7 @@ class ExamPendingRequestsJob(CronJobBase):
                 # ogg
 
                 output_file_ogg = os.path.splitext(file_name)[0] + '.ogg'
-                logger.info("ExamPendingRequestsJob - start trascoding of file {tmp_name} to {output_file_ogg}".format(
+                logger.info("ExamPendingRequestsJob - start transcoding of file {tmp_name} to {output_file_ogg}".format(
                     tmp_name=file_name,
                     output_file_ogg=output_file_ogg))
                 t1 = MKV2OGGTranscoder(file_name, output_file_ogg)
@@ -55,7 +58,7 @@ class ExamPendingRequestsJob(CronJobBase):
                 logger.info("ExamPendingRequestsJob - finishing ogg trascoding")
                 # webm
                 output_file_webm = os.path.splitext(file_name)[0] + '.webm'
-                logger.info("ExamPendingRequestsJob - start trascoding of file {tmp_name} to {output_file_webm}".format(
+                logger.info("ExamPendingRequestsJob - start transcoding of file {tmp_name} to {output_file_webm}".format(
                     tmp_name=file_name,
                     output_file_webm=output_file_webm))
 
@@ -64,7 +67,7 @@ class ExamPendingRequestsJob(CronJobBase):
                 logger.info("ExamPendingRequestsJob - finishing webm trascoding")
                 # mp4
                 output_file_mp4 = os.path.splitext(file_name)[0] + '.mp4'
-                logger.info("ExamPendingRequestsJob - start trascoding of file {tmp_name} to {output_file_mp4}".format(
+                logger.info("ExamPendingRequestsJob - start transcoding of file {tmp_name} to {output_file_mp4}".format(
                     tmp_name=file_name,
                     output_file_mp4=output_file_mp4))
 

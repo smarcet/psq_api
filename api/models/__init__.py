@@ -10,4 +10,4 @@ from .device_broadcast import DeviceBroadCast
 from .news import News
 from .exam_pending_request import ExamPendingRequest
 from .exam_pending_request_video import ExamPendingRequestVideo
-
+from .file_upload import FileUpload
