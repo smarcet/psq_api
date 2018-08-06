@@ -1,9 +1,7 @@
+from django.db.models import Q
 from rest_framework import serializers
-from api.models import ModelValidationException
 from ..serializers import ReadUserSerializer, ReadDeviceSerializer
-from ..models import Device
-from ..models import User
-from ..models import Exercise
+from ..models import Exercise, Exam, User, Device, ModelValidationException
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -38,6 +36,21 @@ class ReadExerciseSerializer(serializers.ModelSerializer):
         model = Exercise
         fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration', 'type', 'author',
                   'allowed_devices', 'allowed_tutorials')
+
+
+class StudentReadExerciseSerializer(ReadExerciseSerializer):
+
+    takes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Exercise
+        fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration', 'type', 'author',
+                  'allowed_devices', 'takes')
+
+    def get_takes(self, exercise):
+        request = self.context.get('request')
+        current_user = request.user
+        return Exam.objects.filter(Q(taker=current_user) & Q(exercise=exercise)).count()
 
 
 class WriteableExerciseSerializer(serializers.ModelSerializer):

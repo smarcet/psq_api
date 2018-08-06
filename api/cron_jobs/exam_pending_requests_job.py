@@ -38,7 +38,7 @@ class ExamPendingRequestsJob(CronJobBase):
             logger.info("ExamPendingRequestsJob - new exam created")
 
             for pending_video in pending_exam.videos.all():
-                file_name = pending_video.file.path
+                file_name = pending_video.file_upload.file.file.name
                 logger.info("ExamPendingRequestsJob - processing file {name}".format(name=file_name))
 
                 # transcoding
@@ -111,6 +111,7 @@ class ExamPendingRequestsJob(CronJobBase):
                 os.remove(output_file_webm)
                 os.remove(output_file_ogg)
                 os.remove(output_file_mp4)
+                pending_video.file_upload.delete()
                 pending_video.delete()
                 if os.path.exists(file_name):
                     os.remove(file_name)

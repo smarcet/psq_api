@@ -4,7 +4,7 @@ import hmac
 import logging
 import sys
 from datetime import datetime
-
+from rest_framework.filters import SearchFilter, OrderingFilter
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from macaddress import format_mac
@@ -30,55 +30,18 @@ class mac_unix_expanded_upper(mac_unix):
     word_fmt = '%.2X'
 
 
-class ExamUploadAPIView(APIView):
-    permission_classes = (AllowAny,)
-    serializer_class = ExamVideoWriteSerializer
-    parser_classes = (MultiPartParser, FormParser)
-
-    @staticmethod
-    def post(request):
-        logger = logging.getLogger('api')
-        try:
-            logger.info("uploading new exam request ...")
-            if 'device_mac_address' not in request.data:
-                raise ModelValidationException
-
-            if 'device' not in request.data:
-                raise ModelValidationException
-
-            device = Device.objects.filter(mac_address=request.data['device_mac_address']).first()
-
-            if device is None:
-                raise ModelValidationException
-
-            if device.id != int(request.data['device']):
-                raise ModelValidationException
-
-            exam_video_serializer = ExamPendingRequestVideoWriteSerializer(data=request.data)
-            exam_serializer = ExamPendingRequestWriteSerializer(data=request.data)
-
-            if exam_serializer.is_valid() and exam_video_serializer.is_valid():
-                logger.info("uploading new exam request - data is valid")
-                exam = exam_serializer.save()
-                logger.info("uploading new exam request - saving video")
-                exam_video = exam_video_serializer.save()
-                logger.info("uploading new exam request - saved video")
-                exam_video.set_request(exam)
-                response_data = exam_serializer.data
-                logger.info("uploading new exam request - OK")
-                return Response(data=response_data, status=status.HTTP_201_CREATED)
-
-            return Response(exam_video_serializer.errors | exam_serializer.errors,
-                            status=status.HTTP_412_PRECONDITION_FAILED)
-
-        except ModelValidationException as error1:
-            raise CustomValidationError(str(error1))
-
-
 class ExamListCreateAPIView(ListCreateAPIView):
-    filter_fields = ('id', 'approved')
-    ordering_fields = ('id', 'approved')
-    queryset = Exam.objects.filter(Q(exercise__type=Exercise.REGULAR))
+
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('exercise__title', 'taker__first_name', 'taker__last_name',)
+    ordering_fields = ('id', 'created', 'eval_date' )
+
+    def get_queryset(self):
+        current_user = self.request.user
+        if current_user.is_student:
+            Exam.objects.filter(Q(exercise__type=Exercise.REGULAR) & Q(taker=current_user))
+
+        return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR))
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -135,6 +98,30 @@ class ValidateExamStreamingSignedUrlView(APIView):
     def get(request, *args, **kwargs):
         logger = logging.getLogger('api')
         try:
+            if "device_id" not in request.GET:
+                return Response(data={ "error" : _("missing device_id") },
+                                status=status.HTTP_412_PRECONDITION_FAILED)
+
+            if "exercise_id" not in request.GET:
+                return Response(data={ "error" : _("missing exercise_id") },
+                                status=status.HTTP_412_PRECONDITION_FAILED)
+
+            if "user_id" not in request.GET:
+                return Response(data={ "error" : _("missing user_id") },
+                                status=status.HTTP_412_PRECONDITION_FAILED)
+
+            if "exercise_max_duration" not in request.GET:
+                return Response(data={ "error" : _("missing exercise_max_duration") },
+                                status=status.HTTP_412_PRECONDITION_FAILED)
+
+            if "signature" not in request.GET:
+                return Response(data={ "error" : _("missing signature") },
+                                status=status.HTTP_412_PRECONDITION_FAILED)
+
+            if "expires" not in request.GET:
+                return Response(data={ "error" : _("missing expires") },
+                                status=status.HTTP_412_PRECONDITION_FAILED)
+
             device_id = int(request.GET.get("device_id"))
             exercise_id = int(request.GET.get("exercise_id"))
             user_id = int(request.GET.get("user_id"))

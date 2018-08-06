@@ -1,25 +1,22 @@
-from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 from django.urls import path
+from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 
-from api.views import FileUploadView
+from api.views import FileUploadView, VideosListAPIView
+from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
+    ExamListCreateAPIView, \
+    ExamRetrieveUpdateDestroyAPIView, DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView, \
+    DeviceUsersGroupsListCreateView, NewsListCreateAPIView, NewsRetrieveUpdateDestroyAPIView, \
+    ValidateExamStreamingSignedUrlView
+from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, \
+    DeviceVerifyView, \
+    AdminUserOwnedDevicesManageView
 from .views.exercises import DeviceExercisesDetailView, TutorialListAPIView
-
 from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserView, UserActivationView, \
     UserPicUpdateView, AdminUserDetailView, AdminUserDetailOwnedDevicesView, AdminUserMyDeviceListView, \
     UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
     ListMyUsersUserView, AdminUserMyExercisesListView, RawUserDetailView, \
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, AdminsDashboardReportView, \
     RegisterGuestUserView
-
-from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, \
-    DeviceVerifyView, \
-    AdminUserOwnedDevicesManageView
-
-from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
-    ExamListCreateAPIView, \
-    ExamRetrieveUpdateDestroyAPIView, DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView, \
-    DeviceUsersGroupsListCreateView, NewsListCreateAPIView, ExamUploadAPIView, NewsRetrieveUpdateDestroyAPIView, \
-    ValidateExamStreamingSignedUrlView
 
 urlpatterns = [
     # https://getblimp.github.io/django-rest-framework-jwt/
@@ -68,12 +65,13 @@ urlpatterns = [
     path('tutorials', TutorialListAPIView.as_view(), name='tutorials-list-create'),
     path('exercises/<int:pk>', ExerciseRetrieveUpdateDestroyAPIView.as_view(), name='exercises-retrieve-update-destroy'),
     # exams
-    #path('exams/upload', ExamUploadAPIView.as_view(), name='exams-upload'),
     path('exams/upload', FileUploadView.as_view(), name='exams-upload'),
     path('exams/upload/<uuid:pk>', FileUploadView.as_view(), name='exams-upload-details'),
     path('exams', ExamListCreateAPIView.as_view(), name='exams-list-create'),
     path('exams/<int:pk>', ExamRetrieveUpdateDestroyAPIView.as_view(), name='exams-retrieve-update-destroy'),
     path('streaming/validate', ValidateExamStreamingSignedUrlView.as_view(), name='validate-streaming'),
+    # videos
+    path('videos', VideosListAPIView.as_view(), name='videos-list'),
     # news
     path('news', NewsListCreateAPIView.as_view(), name="news-list-create"),
     path('news/<int:pk>', NewsRetrieveUpdateDestroyAPIView.as_view(), name="news-retrieve-update-destroy")

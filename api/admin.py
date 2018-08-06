@@ -16,6 +16,7 @@ from .models import DeviceBroadCast
 from .models import News
 from .models import ExamPendingRequest
 from .models import ExamPendingRequestVideo
+from .models import FileUpload
 
 
 class DeviceForm(forms.ModelForm):
@@ -80,5 +81,6 @@ admin.site.register(DeviceBroadCast)
 admin.site.register(News)
 admin.site.register(ExamPendingRequest)
 admin.site.register(ExamPendingRequestVideo)
+admin.site.register(FileUpload)
 
 admin.site.site_header = 'PSQ Admin'

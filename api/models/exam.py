@@ -15,6 +15,7 @@ class Exam(TimeStampedModel):
     evaluated = models.BooleanField(default=False)
     eval_date = models.DateTimeField(null=True)
 
+    video_views = models.IntegerField()
     # relations
 
     taker = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -32,6 +33,8 @@ class Exam(TimeStampedModel):
     device = models.ForeignKey("Device",
                                null=True, on_delete=models.SET_NULL,
                                related_name="exams")
+
+    video_shares = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True)
 
     def set_taker(self, user):
         self.taker = user

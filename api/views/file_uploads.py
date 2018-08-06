@@ -37,24 +37,23 @@ class FileUploadView(ChunkedUploadView):
 
             if device.id != int(request.data['device']):
                 raise ModelValidationException
-            file_path = chunked_upload.file.path
 
-            with open(file_path, "rb") as file_input:
-                exam_serializer = ExamPendingRequestWriteSerializer(data=request.data)
+            exam_serializer = ExamPendingRequestWriteSerializer(data=request.data)
 
-                if exam_serializer.is_valid():
-                    logger.info("uploading new exam request - data is valid")
-                    exam = exam_serializer.save()
-                    logger.info("uploading new exam request - saving video")
-                    exam_video = ExamPendingRequestVideo()
-                    exam_video.file = File(file_input)
-                    logger.info("uploading new exam request - saved video")
-                    exam_video.set_request(exam)
-                    exam_video.save()
-                    logger.info("uploading new exam request - OK")
+            if exam_serializer.is_valid():
+                logger.info("uploading new exam request - data is valid")
+                exam = exam_serializer.save()
+                logger.info("uploading new exam request - saving video")
+                exam_video = ExamPendingRequestVideo()
+                exam_video.file_upload = chunked_upload
+                logger.info("uploading new exam request - saved video")
+                exam_video.set_request(exam)
+                exam_video.save()
+                logger.info("uploading new exam request - OK")
 
         except ModelValidationException as error1:
             raise CustomValidationError(str(error1))
+
         except Exception as exc:
-            logger.error("ProcessExamCreationJobsCronJob - Unexpected error")
+            logger.error("ProcessExamCreationJobsCronJob - Unexpected error", exc)
             raise exc

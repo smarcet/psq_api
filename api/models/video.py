@@ -16,6 +16,8 @@ class Video(TimeStampedModel):
         storage=GoogleCloudStorage(bucket_name='psq_videos'),
         upload_to='videos')
 
+    views = models.IntegerField()
+
     # relations
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL,

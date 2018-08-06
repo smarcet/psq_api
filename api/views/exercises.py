@@ -1,9 +1,9 @@
 from django.db.models import Q
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from ..exceptions import CustomValidationError
 from ..models import ModelValidationException
-from ..serializers import WriteableExerciseSerializer, ReadExerciseSerializer
+from ..serializers import WriteableExerciseSerializer, ReadExerciseSerializer, StudentReadExerciseSerializer
 from ..models import User, Exercise
 from ..decorators import role_required
 from django.utils.translation import ugettext_lazy as _
@@ -24,13 +24,15 @@ class TutorialListAPIView(ListAPIView):
 
 
 class ExerciseListCreateAPIView(ListCreateAPIView):
-    filter_fields = ('id', 'title', 'type')
+    search_fields = ( 'title', )
     ordering_fields = ('id', 'title', 'type', 'created')
-    filter_backends = (SearchFilter,)
+    filter_backends = (SearchFilter, OrderingFilter)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return WriteableExerciseSerializer
+        if self.request.user.is_student:
+            return StudentReadExerciseSerializer
         return ReadExerciseSerializer
 
     def get_queryset(self):
@@ -39,12 +41,12 @@ class ExerciseListCreateAPIView(ListCreateAPIView):
             if current_user.is_student :
                 # get only the available exercises for current student
                 return Exercise.objects\
-                    .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).order_by('+created').distinct('title')
+                    .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).order_by('created').distinct()
             if current_user.is_teacher :
                 return Exercise.objects \
                     .filter(Q(allowed_devices__admins__in=[current_user])
                             | Q(allowed_devices__owner__in=[current_user])
-                            | Q(author=current_user)).order_by('-created').distinct('title')
+                            | Q(author=current_user)).order_by('created').distinct()
             # for super admin return all
             return Exercise.objects.all().order_by('id')
         return Exercise.objects.all().order_by('id')

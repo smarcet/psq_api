@@ -12,7 +12,7 @@ class VideoExamReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExamVideo
-        fields = ('id', 'created', 'modified', 'video_url', 'type')
+        fields = ('id', 'created', 'modified', 'video_url', 'type', 'views')
 
     def get_video_url(self, video):
         request = self.context.get('request')
@@ -21,6 +21,18 @@ class VideoExamReadSerializer(serializers.ModelSerializer):
         video_url = video.file.url
         return request.build_absolute_uri(video_url)
 
+
+class Exam2VideoReadSerializer(serializers.ModelSerializer):
+    taker = ReadUserSerializer()
+    videos = VideoExamReadSerializer(many=True, read_only=True)
+    exercise = ReadExerciseSerializer()
+    device = ReadDeviceSerializer()
+
+    class Meta:
+        model = Exam
+        fields = ('id', 'created', 'modified', 'duration', 'taker',
+                  'exercise', 'device', 'videos', 'video_views'
+                  )
 
 class ExamReadSerializer(serializers.ModelSerializer):
     taker = ReadUserSerializer()

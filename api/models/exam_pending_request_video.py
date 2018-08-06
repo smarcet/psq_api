@@ -13,6 +13,9 @@ class ExamPendingRequestVideo(TimeStampedModel):
         storage=FileSystemStorage(),
         upload_to='raw_videos')
 
+    file_upload = models.ForeignKey("FileUpload", null=True, on_delete=models.SET_NULL,
+                                related_name="videos")
+
     def set_request(self, request):
         self.request = request
         self.save()

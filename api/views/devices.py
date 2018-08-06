@@ -199,10 +199,11 @@ class DeviceOpenLocalStreamingStartView(GenericAPIView):
         user_id = request.POST['user_id']
 
         device = Device.objects.filter(stream_key=stream_key).first()
-        logger.info("on_publish_start stream_key {stream_key} query string {query_string}".format(stream_key=stream_key, query_string=request.META['QUERY_STRING']))
+        logger.info("on_publish_start stream_key {stream_key} ".format(stream_key=stream_key))
 
         if device is None:
             return Response("", status=status.HTTP_404_NOT_FOUND)
+
         logger.info("device found")
         broadcast = DeviceBroadCast()
         broadcast.device = device

@@ -5,9 +5,10 @@ from .users import WritableUserSerializer, ReadUserSerializer, WritableAdminUser
                    WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \
                    ChangePasswordSerializer, RoleWritableUserSerializer, WritableGuestUserSerializer
 
-from .exercises import ReadExerciseSerializer, WriteableExerciseSerializer
+from .exercises import ReadExerciseSerializer, WriteableExerciseSerializer, StudentReadExerciseSerializer
+
 from .exams import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer, \
-    ExamVideoWriteSerializer
+    ExamVideoWriteSerializer, Exam2VideoReadSerializer
 
 from .device_users_groups import ReadDeviceUsersGroupSerializer, WriteableDeviceUsersGroupSerializer
 

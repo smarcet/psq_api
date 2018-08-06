@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, \
-    ListAPIView, RetrieveUpdateAPIView, RetrieveAPIView, CreateAPIView
+    ListAPIView, RetrieveUpdateAPIView, CreateAPIView
 
 from rest_framework.parsers import JSONParser
 from rest_framework.parsers import MultiPartParser, FormParser
