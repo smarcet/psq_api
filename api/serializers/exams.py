@@ -1,9 +1,20 @@
-from rest_framework import serializers
-from api.models import ModelValidationException, ExamVideo
-from ..serializers import ReadUserSerializer, ReadDeviceSerializer, ReadExerciseSerializer
-from ..models import Exercise, User, Device, Exam
-from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
+from rest_framework import serializers
+
+from api.models import ModelValidationException, ExamVideo
+from ..models import Exercise, User, Device, Exam
+from ..serializers import ReadUserSerializer, ReadDeviceSerializer, ReadExerciseSerializer
+
+
+class NullableExamSerializer(serializers.ModelSerializer):
+    pass
+
+    class Meta:
+        model = Exam
+        exclude =  fields = ('id', 'created', 'modified', 'notes', 'duration', 'approved', 'taker', 'evaluator',
+                  'exercise', 'device', 'videos', 'video_shares', 'video_views'
+                  )
 
 
 class VideoExamReadSerializer(serializers.ModelSerializer):
@@ -33,6 +44,7 @@ class Exam2VideoReadSerializer(serializers.ModelSerializer):
         fields = ('id', 'created', 'modified', 'duration', 'taker',
                   'exercise', 'device', 'videos', 'video_views'
                   )
+
 
 class ExamReadSerializer(serializers.ModelSerializer):
     taker = ReadUserSerializer()

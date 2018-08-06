@@ -2,7 +2,7 @@ from .users import MyUserDetailView, UserList, CreateAdminUserView, CreateRawUse
     AdminUserDetailView, AdminUserDetailOwnedDevicesView, UserPicUpdateView, AdminUserMyDeviceListView, \
     AdminUsersListView, AdminUserMyExercisesListView, RawUserDetailView, \
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, \
-    AdminsDashboardReportView, RegisterGuestUserView
+    AdminsDashboardReportView, RegisterGuestUserView, ListUsersSharesView
 
 from .exercises import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, \
     DeviceExercisesDetailView, TutorialListAPIView
@@ -18,4 +18,4 @@ from .news import NewsListCreateAPIView, NewsRetrieveUpdateDestroyAPIView
 
 from .file_uploads import FileUploadView
 
-from .videos import VideosListAPIView
+from .videos import VideosListAPIView, VideosUsersAPIView, VideoPlayAPIView

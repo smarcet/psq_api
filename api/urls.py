@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token)
 
-from api.views import FileUploadView, VideosListAPIView
+from .views import FileUploadView, VideosListAPIView, VideosUsersAPIView, VideoPlayAPIView
 from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, DeviceOpenRegistrationView, \
     ExamListCreateAPIView, \
     ExamRetrieveUpdateDestroyAPIView, DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView, \
@@ -16,13 +16,14 @@ from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserVie
     UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
     ListMyUsersUserView, AdminUserMyExercisesListView, RawUserDetailView, \
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, AdminsDashboardReportView, \
-    RegisterGuestUserView
+    RegisterGuestUserView, ListUsersSharesView
 
 urlpatterns = [
     # https://getblimp.github.io/django-rest-framework-jwt/
     path('token/refresh', refresh_jwt_token, name='refresh-token'),
     path('token', obtain_jwt_token, name='get-token'),
     # users
+    path('users/me/exclude', ListUsersSharesView.as_view(), name='list-users-shares'),
     path('users', CreateListUsersView.as_view(), name='create-list-users'),
     path('users/<int:pk>', RetrieveUpdateDestroyUsersView.as_view(), name='user-details'),
     path('users/me/pic', UserPicUpdateView.as_view(), name='user-pic'),
@@ -72,6 +73,8 @@ urlpatterns = [
     path('streaming/validate', ValidateExamStreamingSignedUrlView.as_view(), name='validate-streaming'),
     # videos
     path('videos', VideosListAPIView.as_view(), name='videos-list'),
+    path('videos/<int:pk>/play', VideoPlayAPIView.as_view(), name='videos-play'),
+    path('videos/<int:pk>/users/<int:user_id>/share', VideosUsersAPIView.as_view(), name='videos-users'),
     # news
     path('news', NewsListCreateAPIView.as_view(), name="news-list-create"),
     path('news/<int:pk>', NewsRetrieveUpdateDestroyAPIView.as_view(), name="news-retrieve-update-destroy")

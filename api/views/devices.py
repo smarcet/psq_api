@@ -5,8 +5,9 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
 from rest_framework import status, serializers
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
 from ..models import User, DeviceBroadCast, Device, Exercise
 from ..models import ModelValidationException
 from ..decorators import role_required

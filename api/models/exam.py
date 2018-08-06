@@ -3,7 +3,8 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 from ..validators import validate_duration
 from datetime import datetime
-
+from ..models import ModelValidationException
+from django.utils.translation import ugettext_lazy as _
 
 class Exam(TimeStampedModel):
 
@@ -35,6 +36,34 @@ class Exam(TimeStampedModel):
                                related_name="exams")
 
     video_shares = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True)
+
+    def add_share(self, user):
+
+        if user in self.video_shares.all():
+            raise ModelValidationException(_("user %s is already on videos shares") % user.id)
+
+        if user.id == self.taker.id:
+            raise ModelValidationException(_("user %s is already owner") % user.id)
+
+        self.video_shares.add(user)
+        self.save()
+
+    def can_reproduce(self, user):
+        if self.taker == user:
+            return True
+        if user in self.video_shares.all():
+            return True
+        return False
+
+    def add_view(self):
+        self.video_views = self.video_views + 1
+        self.save()
+
+    def remove_admin(self, user):
+        if user not in self.video_shares.all():
+            raise ModelValidationException(_("user %s is not on video shares") % user.id)
+        self.video_shares.remove(user)
+        self.save()
 
     def set_taker(self, user):
         self.taker = user

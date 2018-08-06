@@ -8,7 +8,7 @@ from .users import WritableUserSerializer, ReadUserSerializer, WritableAdminUser
 from .exercises import ReadExerciseSerializer, WriteableExerciseSerializer, StudentReadExerciseSerializer
 
 from .exams import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer, \
-    ExamVideoWriteSerializer, Exam2VideoReadSerializer
+    ExamVideoWriteSerializer, Exam2VideoReadSerializer, NullableExamSerializer
 
 from .device_users_groups import ReadDeviceUsersGroupSerializer, WriteableDeviceUsersGroupSerializer
 

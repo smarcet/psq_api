@@ -520,3 +520,17 @@ class RegisterGuestUserView(CreateAPIView):
     permission_classes = (AllowAny,)
     queryset = User.objects.filter(role=User.GUEST)
     serializer_class = WritableGuestUserSerializer
+
+
+class ListUsersSharesView(ListAPIView):
+    serializer_class = ReadUserSerializer
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('first_name', 'last_name', 'email')
+    ordering_fields = ('id', 'first_name', 'last_name')
+
+    def get_queryset(self):
+        return User.objects.filter((Q(role=User.TEACHER) | Q(role=User.STUDENT)) & ~Q(id=self.request.user.id))
+
+    @role_required(required_role=User.STUDENT)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

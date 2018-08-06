@@ -21,8 +21,6 @@ from ..exceptions import CustomValidationError
 from ..models import ModelValidationException, Device, Exercise, DeviceBroadCast
 from ..models import User, Exam
 from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
-from ..serializers import ExamVideoWriteSerializer, ExamPendingRequestWriteSerializer, \
-    ExamPendingRequestVideoWriteSerializer
 
 
 class mac_unix_expanded_upper(mac_unix):
