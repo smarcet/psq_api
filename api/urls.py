@@ -16,7 +16,7 @@ from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserVie
     UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
     ListMyUsersUserView, AdminUserMyExercisesListView, RawUserDetailView, \
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, AdminsDashboardReportView, \
-    RegisterGuestUserView, ListUsersSharesView
+    RegisterGuestUserView, ListUsersSharesView, RawUserDashboardReportView
 
 urlpatterns = [
     # https://getblimp.github.io/django-rest-framework-jwt/
@@ -49,6 +49,7 @@ urlpatterns = [
     # raw users
     path('raw-users', CreateRawUserView.as_view(), name='create-list-raw-users'),
     path('raw-users/<int:pk>', RawUserDetailView.as_view(), name='raw-users'),
+    path('raw-users/dashboard-report', RawUserDashboardReportView.as_view(), name='raw-user-dashboard-report'),
     # guest users
     path('guest-users', RegisterGuestUserView.as_view(), name='register-guest-users'),
     # Devices

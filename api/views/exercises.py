@@ -76,7 +76,7 @@ class ExerciseRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             user = request.user
             exercise = self.get_object()
             if not exercise.can_view(user):
-                raise ModelValidationException(_('user is not allowed to get this exercise'))
+                raise ModelValidationException(_('user is not allowed to view this exercise'))
 
             return self.retrieve(request, *args, **kwargs)
         except ModelValidationException as error1:

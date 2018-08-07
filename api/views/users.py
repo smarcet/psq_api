@@ -1,5 +1,5 @@
 import hashlib
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from api.exceptions import CustomValidationError
 from ..decorators import role_required
 from ..models import ModelValidationException, Exercise
-from ..models import User, Device, Exam, DeviceUsersGroup
+from ..models import User, Device, Exam, DeviceUsersGroup, News
 from ..serializers import ReadExerciseSerializer
 from ..serializers.devices import ReadDeviceSerializer
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
@@ -481,6 +481,7 @@ class AdminsDashboardReportView(APIView):
         exams_evaluated_qty = 0
         exams_approved_qty = 0
         exams_reject_qty = 0
+
         for dates_tuple in reversed(dates):
             q1 =  Exam.objects.filter(Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(
                     evaluator=request.user) & Q(exercise__type=Exercise.REGULAR)).count()
@@ -514,6 +515,25 @@ class AdminsDashboardReportView(APIView):
 
         return Response(data, status=200)
 
+
+class RawUserDashboardReportView(APIView):
+
+    @role_required(required_role=User.STUDENT)
+    def get(self, request, months_qty=6):
+        now = datetime.utcnow().replace(hour=00, minute=00, day=1, second=0, microsecond=0)
+
+        data = {
+            'news_qty': News.objects.filter(Q(created_by__in=request.user.allowed_admins)).count(),
+            'new_videos_qty': Exam.objects.filter(Q(video_shares__in=[request.user]) & Q(video_views=0)).count(),
+            'exams_qty': Exam.objects.filter(Q(taker=request.user) & Q(evaluator__isnull=True)).count(),
+            'exercises_qty': Exercise.objects
+                .filter(
+                Q(type=Exercise.REGULAR) &
+                Q(allowed_devices__users__in=[request.user]) &
+                ~Q(exams__taker_id=request.user.id)).count()
+        }
+
+        return Response(data, status=200)
 
 class RegisterGuestUserView(CreateAPIView):
 

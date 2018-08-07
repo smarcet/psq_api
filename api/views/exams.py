@@ -31,13 +31,13 @@ class mac_unix_expanded_upper(mac_unix):
 class ExamListCreateAPIView(ListCreateAPIView):
 
     filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('exercise__title', 'taker__first_name', 'taker__last_name',)
+    search_fields = ('exercise__title', 'taker__first_name', 'taker__last_name', 'taker__email',)
     ordering_fields = ('id', 'created', 'eval_date' )
 
     def get_queryset(self):
         current_user = self.request.user
         if current_user.is_student:
-            Exam.objects.filter(Q(exercise__type=Exercise.REGULAR) & Q(taker=current_user))
+            return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR) & Q(taker=current_user))
 
         return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR))
 
@@ -70,7 +70,7 @@ class ExamRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         try:
             exam = self.get_object()
             current_user = request.user
-            if current_user.role == User.STUDENT and exam.taker.id != current_user.id:
+            if current_user.is_student and exam.taker.id != current_user.id:
                 # exam should be own by user
                 raise ModelValidationException(
                     _("exam {exam_id} does not belongs to user {user_id}").format(user_id=current_user.id,

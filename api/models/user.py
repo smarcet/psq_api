@@ -72,7 +72,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         for device in assigned_devices:
             if device.owner not in res:
                 res.append(device.owner)
-            for admin in device.admins:
+            for admin in device.admins.all():
                 if admin not in res:
                     res.append(admin)
         return res
