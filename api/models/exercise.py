@@ -70,3 +70,6 @@ class Exercise(TimeStampedModel):
 
         return False
 
+    def share_with(self, device):
+        self.add_allowed_device(device)
+

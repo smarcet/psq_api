@@ -1,12 +1,15 @@
 from django.db.models import Q
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, GenericAPIView
 from ..exceptions import CustomValidationError
 from ..models import ModelValidationException
 from ..serializers import WriteableExerciseSerializer, ReadExerciseSerializer, StudentReadExerciseSerializer
-from ..models import User, Exercise
+from ..models import User, Exercise, Device
 from ..decorators import role_required
 from django.utils.translation import ugettext_lazy as _
+from django.http import Http404
+from rest_framework.response import Response
+from rest_framework import status, serializers
 
 
 class TutorialListAPIView(ListAPIView):
@@ -100,3 +103,30 @@ class DeviceExercisesDetailView(ListAPIView):
         if current_user.is_teacher:
             return Exercise.objects.filter(Q(allowed_devices__in=[device_id])).order_by('-created')
         return Exercise.objects.filter(Q(allowed_devices__in=[device_id]) & Q(type=Exercise.REGULAR)).order_by('-created')
+
+
+class ShareExerciseAPIView(GenericAPIView):
+    queryset = Exercise.objects.all()
+    serializer_class = ReadExerciseSerializer
+
+    @role_required(required_role=User.TEACHER)
+    def put(self, request, pk, device_id):
+        exercise = self.get_object()
+        try:
+
+            current_user = request.user
+            if exercise.author.id != current_user.id:
+                raise ModelValidationException(
+                    _("User {user_id} is not allowed to share exercise {exercise_id}").format(user_id=current_user.id,
+                                                                                               exercise_id=pk))
+
+            device = Device.objects.get(pk=device_id)
+            if device is None:
+                raise Http404(_("Device %s does not exists") % device_id)
+
+            exercise.share_with(device)
+
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+        except ModelValidationException as error1:
+            raise CustomValidationError(str(error1), 'error')

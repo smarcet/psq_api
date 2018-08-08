@@ -23,7 +23,8 @@ class ReadUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'bio', 'is_active',
-                  'is_verified', 'first_name', 'last_name', 'role', 'pic', 'pic_url', 'assigned_devices', 'managed_devices', 'owned_devices')
+                  'is_verified', 'first_name', 'last_name', 'role', 'pic',
+                  'pic_url', 'assigned_devices', 'managed_devices', 'owned_devices', 'locale')
 
     def get_pic_url(self, user):
         request = self.context.get('request')
@@ -37,14 +38,14 @@ class WritableUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name')
+        fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name', 'locale')
 
 
 class RoleWritableUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name', 'role')
+        fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name', 'role', 'locale')
 
     def validate(self, data):
         """
@@ -66,7 +67,7 @@ class WritableOwnUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'bio', 'first_name', 'last_name')
+        fields = ('id', 'email', 'bio', 'first_name', 'last_name', 'locale')
 
     def update(self, instance, validated_data):
         instance.set_email(validated_data.get('email', instance.email))

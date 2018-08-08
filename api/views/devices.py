@@ -13,7 +13,7 @@ from ..models import ModelValidationException
 from ..decorators import role_required
 from ..exceptions import CustomValidationError
 from ..serializers import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDeviceSerializer, \
-    OpenRegistrationSerializer, VerifyDeviceSerializer
+    OpenRegistrationSerializer, VerifyDeviceSerializer, ReadBasicDeviceSerializer
 import logging
 
 
@@ -27,13 +27,15 @@ class DeviceListCreateView(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
-    @role_required(required_role=User.SUPERVISOR)
+    @role_required(required_role=User.TEACHER)
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return WriteableDeviceSerializer
+        if self.request.user.is_teacher:
+            return ReadBasicDeviceSerializer
         return ReadDeviceSerializer
 
 

@@ -10,7 +10,7 @@ from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIVi
 from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, \
     DeviceVerifyView, \
     AdminUserOwnedDevicesManageView
-from .views.exercises import DeviceExercisesDetailView, TutorialListAPIView
+from .views.exercises import DeviceExercisesDetailView, TutorialListAPIView, ShareExerciseAPIView
 from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserView, UserActivationView, \
     UserPicUpdateView, AdminUserDetailView, AdminUserDetailOwnedDevicesView, AdminUserMyDeviceListView, \
     UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
@@ -66,6 +66,7 @@ urlpatterns = [
     path('exercises', ExerciseListCreateAPIView.as_view(), name='exercises-list-create'),
     path('tutorials', TutorialListAPIView.as_view(), name='tutorials-list-create'),
     path('exercises/<int:pk>', ExerciseRetrieveUpdateDestroyAPIView.as_view(), name='exercises-retrieve-update-destroy'),
+    path('exercises/<int:pk>/devices/<int:device_id>', ShareExerciseAPIView.as_view(), name='share-exercises'),
     # exams
     path('exams/upload', FileUploadView.as_view(), name='exams-upload'),
     path('exams/upload/<uuid:pk>', FileUploadView.as_view(), name='exams-upload-details'),

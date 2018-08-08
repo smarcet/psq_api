@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 class NewsListCreateAPIView(ListCreateAPIView):
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('title', 'body')
-    ordering_fields = ('id', 'title')
+    ordering_fields = ('id', 'title', 'created')
 
     def get_queryset(self):
         current_user = self.request.user

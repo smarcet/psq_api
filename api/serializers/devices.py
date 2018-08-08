@@ -18,6 +18,13 @@ class ReadDeviceSerializer(serializers.ModelSerializer):
             'slots', 'is_active', 'owner', 'users', 'admins')
 
 
+class ReadBasicDeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Device
+        fields = (
+            'id', 'friendly_name' )
+
+
 class NullableDeviceSerializer(serializers.ModelSerializer):
     pass
 

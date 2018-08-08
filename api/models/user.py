@@ -42,6 +42,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         (SUPERVISOR, 'Supervisor'),
     )
     role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, null=True, blank=True)
+
+    SPA=1
+    ENG=2
+    LANG_CHOICES = (
+        (SPA, 'Spanish'),
+        (ENG, 'English'),
+    )
+    locale = models.PositiveSmallIntegerField(choices=LANG_CHOICES, null=True, blank=True, default=SPA)
+
     bio = models.TextField(max_length=500, blank=True)
 
     objects = UserManager()

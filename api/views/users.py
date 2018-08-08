@@ -506,7 +506,7 @@ class AdminsDashboardReportView(APIView):
             'exams_reject_per_month': exams_reject_per_month,
             'exams_reject_qty': exams_reject_qty,
             'users_qty': User.objects.filter(created_by=request.user).count(),
-            'devices_qty': Device.objects.filter(owner=request.user).count(),
+            'devices_qty': Device.objects.filter(Q(owner=request.user) | Q(admins__in=[request.user])).count(),
             'pending_exams_qty': Exam.objects.filter(
                 Q(evaluator__isnull=True) & Q(device__in=my_devices)
                 ).count(),
@@ -525,7 +525,7 @@ class RawUserDashboardReportView(APIView):
         data = {
             'news_qty': News.objects.filter(Q(created_by__in=request.user.allowed_admins)).count(),
             'new_videos_qty': Exam.objects.filter(Q(video_shares__in=[request.user]) & Q(video_views=0)).count(),
-            'exams_qty': Exam.objects.filter(Q(taker=request.user) & Q(evaluator__isnull=True)).count(),
+            'exams_qty': Exam.objects.filter(Q(taker=request.user) & Q(evaluator__isnull=False)).count(),
             'exercises_qty': Exercise.objects
                 .filter(
                 Q(type=Exercise.REGULAR) &
@@ -534,6 +534,7 @@ class RawUserDashboardReportView(APIView):
         }
 
         return Response(data, status=200)
+
 
 class RegisterGuestUserView(CreateAPIView):
 
