@@ -6,7 +6,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.crypto import get_random_string
-from django.utils.timezone import now
+from datetime import datetime
 import hashlib
 
 
@@ -43,8 +43,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, null=True, blank=True)
 
-    SPA=1
-    ENG=2
+    SPA = 1
+    ENG = 2
     LANG_CHOICES = (
         (SPA, 'Spanish'),
         (ENG, 'English'),
@@ -126,7 +126,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def verify(self, raw_password):
         self.is_verified = True
         self.is_active = True
-        self.date_verified = now()
+        self.date_verified = datetime.utcnow()
         self.set_password(raw_password)
         self.save()
 
@@ -150,7 +150,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         mail_request = MailRequest(
             to_address=self.email,
             from_address=settings.FROM_EMAIL,
-            subject=_("Attention: You have been invited to PSQ Application!!!"),
+            subject=_("[PSQ] You have been invited to PSQ Application"),
             body=body
         )
 

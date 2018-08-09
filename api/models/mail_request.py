@@ -1,6 +1,7 @@
 from django.db import models
 from model_utils.models import TimeStampedModel
-from django.utils.timezone import now
+from datetime import datetime
+import pytz
 
 
 class MailRequest(TimeStampedModel):
@@ -13,5 +14,5 @@ class MailRequest(TimeStampedModel):
 
     def mark_as_sent(self):
         self.is_sent = True
-        self.sent_date = now()
+        self.sent_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
 

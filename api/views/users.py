@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from api.exceptions import CustomValidationError
 from ..decorators import role_required
 from ..models import ModelValidationException, Exercise
-from ..models import User, Device, Exam, DeviceUsersGroup, News
+from ..models import User, Device, Exam, DeviceUsersGroup, News, ResetPasswordRequest
 from ..serializers import ReadExerciseSerializer
 from ..serializers.devices import ReadDeviceSerializer
 from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer, \
@@ -64,6 +64,35 @@ class UserActivationView(APIView):
             return Response(status=404, data=_("User not found"))
 
         user.verify(password)
+
+        return Response(status=201)
+
+
+class UserResetPasswordRequestView(APIView):
+    parser_classes = (JSONParser,)
+
+    # this view is open to anyone with a valid token, if u have the token
+    # its bc u mean to have it !
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        json = request.data
+        email = json.get("email", None)
+
+        if email is None:
+            return Response(status=400, data=_("Missing param 'email'"))
+
+        user = User.objects.filter(email=email).first()
+
+        if user is None:
+            return Response(status=404, data=_("User not found"))
+
+        if not user.is_verified:
+            return Response(status=404, data=_("User not found"))
+
+        reset_password_request = ResetPasswordRequest()
+        reset_password_request.user = user
+        reset_password_request.save()
 
         return Response(status=201)
 
@@ -340,7 +369,6 @@ class MyUserDetailView(RetrieveUpdateAPIView):
 
 
 class RetrieveUpdateDestroyUsersView(RetrieveUpdateDestroyAPIView):
-
     queryset = User.objects.all()
 
     def get_serializer_class(self):
@@ -483,8 +511,8 @@ class AdminsDashboardReportView(APIView):
         exams_reject_qty = 0
 
         for dates_tuple in reversed(dates):
-            q1 =  Exam.objects.filter(Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(
-                    evaluator=request.user) & Q(exercise__type=Exercise.REGULAR)).count()
+            q1 = Exam.objects.filter(Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(
+                evaluator=request.user) & Q(exercise__type=Exercise.REGULAR)).count()
             exams_evaluated_qty += q1
             exams_evaluated_per_month.append(q1)
             q2 = Exam.objects.filter(
@@ -493,8 +521,8 @@ class AdminsDashboardReportView(APIView):
             exams_approved_per_month.append(q2)
             exams_approved_qty += q2
             q3 = Exam.objects.filter(
-                    Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(evaluator=request.user) & Q(
-                        approved=False) & Q(exercise__type=Exercise.REGULAR)).count()
+                Q(eval_date__gte=dates_tuple[0]) & Q(eval_date__lte=dates_tuple[1]) & Q(evaluator=request.user) & Q(
+                    approved=False) & Q(exercise__type=Exercise.REGULAR)).count()
             exams_reject_per_month.append(q3)
             exams_reject_qty += q3
         my_devices = request.user.my_devices
@@ -509,7 +537,7 @@ class AdminsDashboardReportView(APIView):
             'devices_qty': Device.objects.filter(Q(owner=request.user) | Q(admins__in=[request.user])).count(),
             'pending_exams_qty': Exam.objects.filter(
                 Q(evaluator__isnull=True) & Q(device__in=my_devices)
-                ).count(),
+            ).count(),
             'user_groups_qty': DeviceUsersGroup.objects.filter(created_by=request.user).count(),
         }
 
@@ -537,7 +565,6 @@ class RawUserDashboardReportView(APIView):
 
 
 class RegisterGuestUserView(CreateAPIView):
-
     permission_classes = (AllowAny,)
     queryset = User.objects.filter(role=User.GUEST)
     serializer_class = WritableGuestUserSerializer

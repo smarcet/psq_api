@@ -3,7 +3,7 @@ from .users import MyUserDetailView, UserList, CreateAdminUserView, CreateRawUse
     AdminUsersListView, AdminUserMyExercisesListView, RawUserDetailView, \
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, \
     AdminsDashboardReportView, RegisterGuestUserView, ListUsersSharesView, \
-    RawUserDashboardReportView
+    RawUserDashboardReportView, UserResetPasswordRequestView
 
 from .exercises import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, \
     DeviceExercisesDetailView, TutorialListAPIView
