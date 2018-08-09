@@ -18,6 +18,16 @@ class ReadDeviceSerializer(serializers.ModelSerializer):
             'slots', 'is_active', 'owner', 'users', 'admins')
 
 
+class ReadSuperAdminDeviceSerializer(serializers.ModelSerializer):
+    owner = ReadUserSerializer()
+
+    class Meta:
+        model = Device
+        fields = (
+            'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'stream_key', 'serial',
+            'slots', 'is_active', 'owner')
+
+
 class ReadBasicDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
@@ -88,4 +98,4 @@ class WriteableDeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = (
             'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'slots', 'is_active', 'owner', 'users',
-            'admins')
+            'admins', 'serial')

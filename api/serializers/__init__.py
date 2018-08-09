@@ -1,5 +1,6 @@
 from .devices import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDeviceSerializer, \
-                     OpenRegistrationSerializer, VerifyDeviceSerializer, ReadBasicDeviceSerializer
+                     OpenRegistrationSerializer, VerifyDeviceSerializer, ReadBasicDeviceSerializer, \
+                     ReadSuperAdminDeviceSerializer
 
 from .users import WritableUserSerializer, ReadUserSerializer, WritableAdminUserSerializer, \
                    WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \

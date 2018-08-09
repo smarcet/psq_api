@@ -13,7 +13,7 @@ from ..models import ModelValidationException
 from ..decorators import role_required
 from ..exceptions import CustomValidationError
 from ..serializers import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDeviceSerializer, \
-    OpenRegistrationSerializer, VerifyDeviceSerializer, ReadBasicDeviceSerializer
+    OpenRegistrationSerializer, VerifyDeviceSerializer, ReadBasicDeviceSerializer, ReadSuperAdminDeviceSerializer
 import logging
 
 
@@ -36,6 +36,8 @@ class DeviceListCreateView(ListCreateAPIView):
             return WriteableDeviceSerializer
         if self.request.user.is_teacher:
             return ReadBasicDeviceSerializer
+        if self.request.user.is_supervisor:
+            return ReadSuperAdminDeviceSerializer
         return ReadDeviceSerializer
 
 
@@ -45,6 +47,8 @@ class DeviceDetailView(RetrieveUpdateDestroyAPIView):
     def get_serializer_class(self):
         if self.request.method == 'PUT':
             return WriteableDeviceSerializer
+        if self.request.user.is_supervisor:
+            return ReadSuperAdminDeviceSerializer
         return ReadDeviceSerializer
 
     def patch(self, request, *args, **kwargs):

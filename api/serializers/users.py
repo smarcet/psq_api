@@ -2,7 +2,7 @@ from rest_framework import serializers
 from ..models import Device
 from ..models import User
 from django.utils.translation import ugettext_lazy as _
-
+from django.contrib.auth.password_validation import validate_password
 
 class InternalReadDeviceSerializer(serializers.ModelSerializer):
 
@@ -73,7 +73,8 @@ class WritableOwnUserSerializer(serializers.ModelSerializer):
         instance.set_email(validated_data.get('email', instance.email))
         instance.bio = validated_data.get('bio', instance.bio)
         instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.first_name = validated_data.get('last_name', instance.last_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.locale = validated_data.get('locale', instance.locale)
         instance.save()
         return instance
 
@@ -91,6 +92,8 @@ class ChangePasswordSerializer(serializers.Serializer):
         """
         if data['password'] != data['password_confirmation']:
             raise serializers.ValidationError(_("password and password confirmation should match"))
+
+        validate_password(data['password'] )
         return data
 
 

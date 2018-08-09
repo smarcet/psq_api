@@ -16,7 +16,7 @@ class Device(TimeStampedModel):
     STREAM_KEY_LEN = 255
     STREAM_KEY_ALLOWED_CHARS = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ0123456789-_'
 
-    serial = models.UUIDField(unique=True, null=False, default=uuid.uuid4)
+    serial = models.CharField(max_length=255, unique=True, null=False, default=uuid.uuid4)
     mac_address =  MACAddressField(integer=False, unique=True)
     last_know_ip = models.GenericIPAddressField()
     friendly_name = models.CharField(max_length=255, unique=True, null=True, blank=True)
