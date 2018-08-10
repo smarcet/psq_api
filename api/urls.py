@@ -33,7 +33,8 @@ urlpatterns = [
     path('users/created-by/me', ListMyUsersUserView.as_view(), name='users-created-by-me'),
     path('users/<int:pk>/verification/resend', UserResendVerificationView.as_view(), name='user-verification-resend'),
     path('users/activate/<slug:registration_token>', UserActivationView.as_view(), name='activate-user'),
-    path('users/reset-password-requests',  UserResetPasswordRequestView.as_view(), name='reset-password-user'),
+    path('users/reset-password-requests/<slug:registration_token>',  UserResetPasswordRequestView.as_view(), name='do-reset-password-user'),
+    path('users/reset-password-requests',  UserResetPasswordRequestView.as_view(), name='reset-password-request-user'),
     # device user groups
     path('users/me/devices/all/user-groups', DeviceUsersGroupsListCreateView.as_view(), name="device-user-groups-list"),
     # super admins

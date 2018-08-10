@@ -24,7 +24,9 @@ from ..serializers.users import ReadUserSerializer, WritableAdminUserSerializer,
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import pytz
-
+from django.contrib.auth.password_validation import validate_password
+from django.db import transaction
+from django.core.exceptions import ValidationError
 
 class UserResendVerificationView(APIView):
 
@@ -75,6 +77,7 @@ class UserResetPasswordRequestView(APIView):
     # its bc u mean to have it !
     permission_classes = (AllowAny,)
 
+    @transaction.atomic
     def post(self, request):
         json = request.data
         email = json.get("email", None)
@@ -95,6 +98,38 @@ class UserResetPasswordRequestView(APIView):
         reset_password_request.save()
 
         return Response(status=201)
+
+    @transaction.atomic
+    def put(self, request, registration_token):
+        try:
+            json = request.data
+            password = json.get("password", None)
+
+            if registration_token is None:
+                return Response(status=400, data=_("Missing param 'registration_token'"))
+
+            if password is None:
+                return Response(status=400, data=_("Missing param 'password'"))
+
+            reset_password_request = ResetPasswordRequest.objects.filter(
+                request_hash=hashlib.md5(registration_token.encode('utf-8')).hexdigest()).first()
+
+            if reset_password_request is None:
+                return Response(status=404, data=_("Password Reset Request not found"))
+
+            if reset_password_request.is_processed:
+                return Response(status=404, data=_("Password Reset Request  not found"))
+
+            validate_password(password)
+            reset_password_request.user.set_password(password)
+            reset_password_request.mark_as_processed()
+            reset_password_request.save()
+
+            return Response(status=201)
+        except ValidationError as error:
+            raise CustomValidationError(str(error), 'error')
+        except ModelValidationException as error1:
+            raise CustomValidationError(str(error1), 'error')
 
 
 class UserList(APIView):

@@ -22,7 +22,7 @@ class ResetPasswordRequest(TimeStampedModel):
                              null=True, on_delete=models.SET_NULL,
                              related_name="reset_password_request")
 
-    def mark_as_sent(self):
+    def mark_as_processed(self):
         self.is_processed = True
         self.processed_date = datetime.utcnow().replace(tzinfo=pytz.UTC)
 
