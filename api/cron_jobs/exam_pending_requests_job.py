@@ -18,6 +18,15 @@ class ExamPendingRequestsJob(CronJobBase):
     @transaction.atomic
     def do(self):
         logger = logging.getLogger('cronjobs')
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        pid_file = os.path.join(BASE_DIR, "run/{pid}.pid".format(pid=self.code))
+        if os.path.exists(pid_file):
+            logger.info("ExamPendingRequestsJob - is already running, skipping it")
+            return
+
+        open(pid_file, 'w').close()
+
         pending_exams = ExamPendingRequest.objects.filter(is_processed=False)
         for pending_exam in pending_exams:
             try:
@@ -126,3 +135,6 @@ class ExamPendingRequestsJob(CronJobBase):
 
             except Exception as exc:
                 logger.error("ExamPendingRequestsJob - error", exc)
+
+        if os.path.exists(pid_file):
+            os.remove(pid_file)
