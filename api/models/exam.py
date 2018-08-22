@@ -16,7 +16,7 @@ class Exam(TimeStampedModel):
     evaluated = models.BooleanField(default=False)
     eval_date = models.DateTimeField(null=True)
 
-    video_views = models.IntegerField()
+    video_views = models.IntegerField(default=0)
     # relations
 
     taker = models.ForeignKey(settings.AUTH_USER_MODEL,
