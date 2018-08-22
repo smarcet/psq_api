@@ -138,6 +138,11 @@ class ExamPendingRequestsJob(CronJobBase):
                 except Exception as exc:
                     logger.error("ExamPendingRequestsJob - error", exc)
 
+        except Exception as exc1:
+            logger.error("ExamPendingRequestsJob - error", exc1)
+
         finally:
             if os.path.exists(pid_file):
                 os.remove(pid_file)
+
+        logger.info("ExamPendingRequestsJob - finishing")
