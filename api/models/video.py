@@ -16,7 +16,7 @@ class Video(TimeStampedModel):
         storage=GoogleCloudStorage(bucket_name='psq_videos'),
         upload_to='videos')
 
-    views = models.IntegerField()
+    views = models.IntegerField(default=0)
 
     # relations
 
