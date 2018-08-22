@@ -10,7 +10,6 @@ from django.db import transaction
 
 
 class ExamPendingRequestsJob(CronJobBase):
-
     RUN_EVERY_MINS = 1  # every minute
     CHUNK_SIZE = 10 * 1024 * 1024
 
@@ -52,26 +51,29 @@ class ExamPendingRequestsJob(CronJobBase):
                     # ogg
 
                     output_file_ogg = os.path.splitext(file_name)[0] + '.ogg'
-                    logger.info("ExamPendingRequestsJob - start transcoding of file {tmp_name} to {output_file_ogg}".format(
-                        tmp_name=file_name,
-                        output_file_ogg=output_file_ogg))
+                    logger.info(
+                        "ExamPendingRequestsJob - start transcoding of file {tmp_name} to {output_file_ogg}".format(
+                            tmp_name=file_name,
+                            output_file_ogg=output_file_ogg))
                     t1 = MKV2OGGTranscoder(file_name, output_file_ogg)
                     t1.apply()
                     logger.info("ExamPendingRequestsJob - finishing ogg trascoding")
                     # webm
                     output_file_webm = os.path.splitext(file_name)[0] + '.webm'
-                    logger.info("ExamPendingRequestsJob - start transcoding of file {tmp_name} to {output_file_webm}".format(
-                        tmp_name=file_name,
-                        output_file_webm=output_file_webm))
+                    logger.info(
+                        "ExamPendingRequestsJob - start transcoding of file {tmp_name} to {output_file_webm}".format(
+                            tmp_name=file_name,
+                            output_file_webm=output_file_webm))
 
                     t2 = MKV2WEBMTranscoder(file_name, output_file_webm)
                     t2.apply()
                     logger.info("ExamPendingRequestsJob - finishing webm trascoding")
                     # mp4
                     output_file_mp4 = os.path.splitext(file_name)[0] + '.mp4'
-                    logger.info("ExamPendingRequestsJob - start transcoding of file {tmp_name} to {output_file_mp4}".format(
-                        tmp_name=file_name,
-                        output_file_mp4=output_file_mp4))
+                    logger.info(
+                        "ExamPendingRequestsJob - start transcoding of file {tmp_name} to {output_file_mp4}".format(
+                            tmp_name=file_name,
+                            output_file_mp4=output_file_mp4))
 
                     t3 = MKV2MP4Transcoder(file_name, output_file_mp4)
                     t3.apply()
@@ -120,7 +122,6 @@ class ExamPendingRequestsJob(CronJobBase):
                     pending_video.delete()
                     if os.path.exists(file_name):
                         os.remove(file_name)
-
 
                     pending_exam.delete()
 
