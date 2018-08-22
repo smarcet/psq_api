@@ -20,7 +20,9 @@ class ExamPendingRequestsJob(CronJobBase):
         logger = logging.getLogger('cronjobs')
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         pid_file = os.path.join(BASE_DIR, "run/{pid}.pid".format(pid=self.code))
+
         try:
+            logger.info("ExamPendingRequestsJob - checking existence of file {pid_file}".format(pid_file=pid_file))
             if os.path.exists(pid_file):
                 logger.info("ExamPendingRequestsJob - is already running, skipping it")
                 return
@@ -143,6 +145,7 @@ class ExamPendingRequestsJob(CronJobBase):
 
         finally:
             if os.path.exists(pid_file):
+                logger.info("ExamPendingRequestsJob - deleting file {pid_file}".format(pid_file=pid_file))
                 os.remove(pid_file)
 
         logger.info("ExamPendingRequestsJob - finishing")
