@@ -11,7 +11,6 @@ from django.db import transaction
 
 class ExamPendingRequestsJob(CronJobBase):
     RUN_EVERY_MINS = 1  # every minute
-    CHUNK_SIZE = 10 * 1024 * 1024
 
     schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
     code = 'api.ExamPendingRequestsJob'  # a unique code
@@ -32,7 +31,7 @@ class ExamPendingRequestsJob(CronJobBase):
                 exam.duration = video_duration_seconds
                 # if the exam is from an tutorial then auto approve it
                 if exam.exercise.is_tutorial():
-                    exam.approve(notes=_('Auto-Aproved bc tutorial'))
+                    exam.approve(notes=_('AutoAproved bc tutorial'))
                     exam.evaluator = exam.taker
                 exam.save()
 
@@ -123,7 +122,7 @@ class ExamPendingRequestsJob(CronJobBase):
                     if os.path.exists(file_name):
                         os.remove(file_name)
 
-                    pending_exam.delete()
+                pending_exam.delete()
 
             except Exception as exc:
                 logger.error("ExamPendingRequestsJob - error", exc)
