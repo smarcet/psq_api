@@ -81,6 +81,7 @@ class ExamPendingRequestsJob(CronJobBase):
                     django_file1 = File(file1)
                     video1.exam = exam
                     video1.type = "video/ogg"
+                    video1.views = 0
                     video1.author = pending_exam.taker
                     video1.file.save(Path(output_file_ogg).name, django_file1, save=True)
                     video1.save()
@@ -90,6 +91,7 @@ class ExamPendingRequestsJob(CronJobBase):
                 with open(output_file_webm, "rb") as file2:
                     django_file2 = File(file2)
                     video2.exam = exam
+                    video2.views = 0
                     video2.type = "video/webm"
                     video2.author = pending_exam.taker
                     video2.file.save(Path(output_file_webm).name, django_file2, save=True)
@@ -101,6 +103,7 @@ class ExamPendingRequestsJob(CronJobBase):
                     django_file3 = File(file3)
                     video3.exam = exam
                     video3.type = "video/mp4"
+                    video3.views = 0
                     video3.author = pending_exam.taker
                     video3.file.save(Path(output_file_mp4).name, django_file3, save=True)
                     video3.save()
