@@ -54,6 +54,9 @@ class StudentReadExerciseSerializer(ReadExerciseSerializer):
 
 
 class WriteableExerciseSerializer(serializers.ModelSerializer):
+    EXERCISE_MAX_DURATION = 120 * 60
+    EXERCISE_MIN_DURATION = 60
+
     author = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.filter(role=User.TEACHER))
     allowed_devices = serializers.PrimaryKeyRelatedField(many=True, queryset=Device.objects.all(), required=False)
     allowed_tutorials = serializers.PrimaryKeyRelatedField(many=True,
@@ -86,6 +89,17 @@ class WriteableExerciseSerializer(serializers.ModelSerializer):
         instance.set_author(author)
 
         return instance
+
+    def validate_max_duration(self, value):
+
+        if value <= self.EXERCISE_MIN_DURATION:
+            raise serializers.ValidationError(_("max duration can not be lower than {min_duration} seconds".format(
+                min_duration=self.EXERCISE_MIN_DURATION)))
+
+        if value > self.EXERCISE_MAX_DURATION:
+            raise serializers.ValidationError(_("max duration can not be greater than {max_duration} seconds".format(
+                max_duration=self.EXERCISE_MAX_DURATION)))
+        return value
 
     class Meta:
         model = Exercise

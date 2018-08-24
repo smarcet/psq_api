@@ -6,7 +6,7 @@ from .users import MyUserDetailView, UserList, CreateAdminUserView, CreateRawUse
     RawUserDashboardReportView, UserResetPasswordRequestView
 
 from .exercises import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIView, \
-    DeviceExercisesDetailView, TutorialListAPIView
+    DeviceExercisesDetailView, TutorialListAPIView, ExerciseStatisticsAPIView
 
 from .devices import DeviceOpenRegistrationView, DeviceVerifyView, AdminUserOwnedDevicesManageView, \
     DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView

@@ -28,6 +28,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.db import transaction
 from django.core.exceptions import ValidationError
 
+
 class UserResendVerificationView(APIView):
 
     @role_required(required_role=User.TEACHER)

@@ -11,7 +11,7 @@ class InternalReadDeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = (
             'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'stream_key', 'serial',
-            'slots', 'is_active')
+            'slots', 'is_active', 'hand', 'organization', 'title', 'enrollment', 'country', 'state')
 
 
 class ReadUserSerializer(serializers.ModelSerializer):
@@ -25,7 +25,8 @@ class ReadUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'email', 'bio', 'is_active',
                   'is_verified', 'first_name', 'last_name', 'role', 'pic',
-                  'pic_url', 'assigned_devices', 'managed_devices', 'owned_devices', 'locale')
+                  'pic_url', 'assigned_devices', 'managed_devices', 'owned_devices', 'locale',
+                  'hand', 'organization', 'title', 'enrollment', 'country', 'state')
 
     def get_pic_url(self, user):
         request = self.context.get('request')
@@ -46,7 +47,8 @@ class RoleWritableUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name', 'role', 'locale')
+        fields = ('id', 'email', 'bio', 'is_active', 'first_name', 'last_name', 'role', 'locale', 'hand',
+                  'organization', 'title', 'enrollment', 'country', 'state')
 
     def validate(self, data):
         """
@@ -68,7 +70,8 @@ class WritableOwnUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'bio', 'first_name', 'last_name', 'locale')
+        fields = ('id', 'email', 'bio', 'first_name', 'last_name', 'locale',
+                  'hand', 'organization', 'title', 'enrollment', 'country', 'state')
 
     def update(self, instance, validated_data):
         instance.set_email(validated_data.get('email', instance.email))
@@ -76,6 +79,12 @@ class WritableOwnUserSerializer(serializers.ModelSerializer):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.locale = validated_data.get('locale', instance.locale)
+        instance.hand = validated_data.get('hand', instance.hand)
+        instance.organization = validated_data.get('organization', instance.organization)
+        instance.title = validated_data.get('title', instance.title)
+        instance.enrollment = validated_data.get('enrollment', instance.enrollment)
+        instance.country = validated_data.get('country', instance.country)
+        instance.state = validated_data.get('state', instance.state)
         instance.save()
         return instance
 

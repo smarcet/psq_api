@@ -4,12 +4,16 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from ..exceptions import CustomValidationError
 from ..models import ModelValidationException
 from ..serializers import WriteableExerciseSerializer, ReadExerciseSerializer, StudentReadExerciseSerializer
-from ..models import User, Exercise, Device
+from ..models import User, Exercise, Device, Exam
 from ..decorators import role_required
 from django.utils.translation import ugettext_lazy as _
 from django.http import Http404
 from rest_framework.response import Response
 from rest_framework import status, serializers
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import pytz
+from django.db.models import Max, Avg, Count, Min
 
 
 class TutorialListAPIView(ListAPIView):
@@ -21,13 +25,13 @@ class TutorialListAPIView(ListAPIView):
     def get_queryset(self):
         current_user = self.request.user
         return Exercise.objects \
-                .filter(Q(allowed_devices__admins__in=[current_user])
-                        | Q(allowed_devices__owner__in=[current_user])
-                        | Q(author=current_user)).distinct().filter(type=Exercise.TUTORIAL).order_by('id')
+            .filter(Q(allowed_devices__admins__in=[current_user])
+                    | Q(allowed_devices__owner__in=[current_user])
+                    | Q(author=current_user)).distinct().filter(type=Exercise.TUTORIAL).order_by('id')
 
 
 class ExerciseListCreateAPIView(ListCreateAPIView):
-    search_fields = ( 'title', )
+    search_fields = ('title',)
     ordering_fields = ('id', 'title', 'type', 'created')
     filter_backends = (SearchFilter, OrderingFilter)
 
@@ -41,11 +45,12 @@ class ExerciseListCreateAPIView(ListCreateAPIView):
     def get_queryset(self):
         if self.request.method == 'GET':
             current_user = self.request.user
-            if current_user.is_student :
+            if current_user.is_student:
                 # get only the available exercises for current student
-                return Exercise.objects\
-                    .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).order_by('created').distinct()
-            if current_user.is_teacher :
+                return Exercise.objects \
+                    .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).order_by(
+                    'created').distinct()
+            if current_user.is_teacher:
                 return Exercise.objects \
                     .filter(Q(allowed_devices__admins__in=[current_user])
                             | Q(allowed_devices__owner__in=[current_user])
@@ -94,6 +99,39 @@ class ExerciseRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         return self.partial_update(request, *args, **kwargs)
 
 
+class ExerciseStatisticsAPIView(GenericAPIView):
+    queryset = Exercise.objects.all()
+    serializer_class = ReadExerciseSerializer
+
+    @role_required(required_role=User.STUDENT)
+    def put(self, request, pk, start_date, end_date):
+        exercise = self.get_object()
+        try:
+
+            current_user = request.user
+            start_date = datetime.fromtimestamp(start_date).strftime('%c')
+            end_date = datetime.fromtimestamp(end_date).strftime('%c')
+
+            exams = Exam.objects.filter(Q(created__gte=start_date) & Q(created__lte=end_date) & Q(
+                taker=current_user) & Q(exercise=exercise))
+
+            if exams.count() == 0:
+                return Response([], status=404)
+
+            data = {
+                'total_instances': exams.count(),
+                'max_instances_per_day': exams.values('created').annotate(qty=Count('pk')).aggregate(Max('qty')).order_by('created'),
+                'best_time': exams.aggregate(Min('duration')),
+                'instances_per_day': exams.values('created').annotate(qty=Count('pk')).order_by('created'),
+                'best_time_per_day': exams.values('created').annotate(qty=Min('duration')).order_by('created'),
+            }
+
+            return Response(data, status=200)
+
+        except ModelValidationException as error1:
+            raise CustomValidationError(str(error1), 'error')
+
+
 class DeviceExercisesDetailView(ListAPIView):
     serializer_class = ReadExerciseSerializer
 
@@ -102,7 +140,8 @@ class DeviceExercisesDetailView(ListAPIView):
         current_user = self.request.user
         if current_user.is_teacher:
             return Exercise.objects.filter(Q(allowed_devices__in=[device_id])).order_by('-created')
-        return Exercise.objects.filter(Q(allowed_devices__in=[device_id]) & Q(type=Exercise.REGULAR)).order_by('-created')
+        return Exercise.objects.filter(Q(allowed_devices__in=[device_id]) & Q(type=Exercise.REGULAR)).order_by(
+            '-created')
 
 
 class ShareExerciseAPIView(GenericAPIView):
@@ -118,7 +157,7 @@ class ShareExerciseAPIView(GenericAPIView):
             if exercise.author.id != current_user.id:
                 raise ModelValidationException(
                     _("User {user_id} is not allowed to share exercise {exercise_id}").format(user_id=current_user.id,
-                                                                                               exercise_id=pk))
+                                                                                              exercise_id=pk))
 
             device = Device.objects.get(pk=device_id)
             if device is None:

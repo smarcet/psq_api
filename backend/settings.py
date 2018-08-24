@@ -184,6 +184,10 @@ CRON_CLASSES = [
     "api.cron_jobs.ExamPendingRequestsJob",
 ]
 
+DJANGO_CRON_LOCK_BACKEND = 'django_cron.backends.lock.file.FileLock'
+
+DJANGO_CRON_LOCKFILE_PATH = '/tmp'
+
 MACADDRESS_DEFAULT_DIALECT = 'netaddr.mac_eui48'
 
 

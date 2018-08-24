@@ -6,6 +6,7 @@ from datetime import datetime
 from ..models import ModelValidationException
 from django.utils.translation import ugettext_lazy as _
 
+
 class Exam(TimeStampedModel):
 
     notes = models.TextField()

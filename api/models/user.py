@@ -24,6 +24,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(_('staff status'), default=False)
     registration_hash = models.CharField(max_length=REGISTRATION_HASH_LEN, blank=True)
     pic = models.ImageField(upload_to='users', null=True, blank=True)
+    organization = models.CharField(_('organization'), max_length=255, blank=True)
+    title = models.CharField(_('title'), max_length=255, blank=True)
+    enrollment = models.CharField(_('enrollment'), max_length=255, blank=True)
+    country = models.CharField(_('country'), max_length=3, blank=True)
+    state = models.CharField(_('state'), max_length=255, blank=True)
     # relations
 
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL,
@@ -42,6 +47,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         (SUPERVISOR, 'Supervisor'),
     )
     role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, null=True, blank=True)
+
+    LEFT = 1
+    RIGHT = 2
+    HAND_CHOICES = (
+        (LEFT, 'Left'),
+        (RIGHT, 'Right'),
+
+    )
+    hand = models.PositiveSmallIntegerField(choices=HAND_CHOICES, null=True, blank=True)
 
     SPA = 1
     ENG = 2
