@@ -11,7 +11,7 @@ class InternalReadDeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = (
             'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'stream_key', 'serial',
-            'slots', 'is_active', 'hand', 'organization', 'title', 'enrollment', 'country', 'state')
+            'slots', 'is_active')
 
 
 class ReadUserSerializer(serializers.ModelSerializer):

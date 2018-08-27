@@ -9,11 +9,11 @@ from ..decorators import role_required
 from django.utils.translation import ugettext_lazy as _
 from django.http import Http404
 from rest_framework.response import Response
-from rest_framework import status, serializers
+from rest_framework import status
+from django.db.models import Max, Count, Min
+import itertools
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import pytz
-from django.db.models import Max, Avg, Count, Min
 
 
 class TutorialListAPIView(ListAPIView):
@@ -104,26 +104,42 @@ class ExerciseStatisticsAPIView(GenericAPIView):
     serializer_class = ReadExerciseSerializer
 
     @role_required(required_role=User.STUDENT)
-    def put(self, request, pk, start_date, end_date):
+    def get(self, request, pk, start_date, end_date):
         exercise = self.get_object()
         try:
 
             current_user = request.user
-            start_date = datetime.fromtimestamp(start_date).strftime('%c')
-            end_date = datetime.fromtimestamp(end_date).strftime('%c')
+            start_date = datetime.fromtimestamp(start_date) \
+                .replace(hour=00, minute=00, second=0, microsecond=0, tzinfo=pytz.UTC)
+            end_date = datetime.fromtimestamp(end_date) \
+                .replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=pytz.UTC)
 
-            exams = Exam.objects.filter(Q(created__gte=start_date) & Q(created__lte=end_date) & Q(
-                taker=current_user) & Q(exercise=exercise))
+            exams = Exam.objects.filter(Q(created__gte=start_date) & Q(created__lte=end_date) & Q(taker=current_user) &
+                                        Q(exercise=exercise))
 
             if exams.count() == 0:
                 return Response([], status=404)
 
+            grouped = itertools.groupby(exams, lambda record: record.created.strftime("%Y-%m-%d"))
+            grouped2 = itertools.groupby(exams, lambda record: record.created.strftime("%Y-%m-%d"))
+            best_time_per_day = []
+
+            max_instances_per_day = 0
+            for tuple in [(day, min(list(exams_this_day), key=lambda x: x.duration)) for day, exams_this_day
+                          in grouped]:
+                best_time_per_day.append((tuple[0], tuple[1].duration))
+
+            instances_per_day = [(day, len(list(exams_this_day))) for day, exams_this_day in grouped2]
+            for tuple in instances_per_day:
+                if max_instances_per_day < tuple[1]:
+                    max_instances_per_day = tuple[1]
+
             data = {
                 'total_instances': exams.count(),
-                'max_instances_per_day': exams.values('created').annotate(qty=Count('pk')).aggregate(Max('qty')).order_by('created'),
+                'max_instances_per_day': max_instances_per_day,
                 'best_time': exams.aggregate(Min('duration')),
-                'instances_per_day': exams.values('created').annotate(qty=Count('pk')).order_by('created'),
-                'best_time_per_day': exams.values('created').annotate(qty=Min('duration')).order_by('created'),
+                'best_time_per_day': best_time_per_day,
+                'instances_per_day': instances_per_day,
             }
 
             return Response(data, status=200)
