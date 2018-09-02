@@ -119,7 +119,7 @@ class UserResetPasswordRequestView(APIView):
                 return Response(status=404, data=_("Password Reset Request not found"))
 
             if reset_password_request.is_processed:
-                return Response(status=404, data=_("Password Reset Request  not found"))
+                return Response(status=404, data=_("Password Reset Request not found"))
 
             validate_password(password)
             reset_password_request.user.set_password(password)

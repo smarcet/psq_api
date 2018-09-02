@@ -41,7 +41,7 @@ class VideosUsersAPIView(GenericAPIView):
             current_user = request.user
             if not exam.taker == current_user:
                 raise ModelValidationException(
-                    _("User {user_id} cant share video {exam_id}}").format(user_id=current_user.id,
+                    _("User {user_id} cant share video {exam_id}").format(user_id=current_user.id,
                                                                            exam_id=pk))
 
             user = User.objects.get(pk=user_id)
@@ -63,7 +63,7 @@ class VideosUsersAPIView(GenericAPIView):
             current_user = request.user
             if not exam.taker == current_user:
                 raise ModelValidationException(
-                    _("User {user_id} cant share video {exam_id}}").format(user_id=current_user.id,
+                    _("User {user_id} cant share video {exam_id}").format(user_id=current_user.id,
                                                                            exam_id=pk))
 
             user = User.objects.get(pk=user_id)
@@ -90,7 +90,7 @@ class VideoPlayAPIView(GenericAPIView):
             current_user = request.user
             if not exam.can_reproduce(current_user):
                 raise ModelValidationException(
-                    _("User {user_id} cant view video {exam_id}}").format(user_id=current_user.id,
+                    _("User {user_id} cant view video {exam_id}").format(user_id=current_user.id,
                                                                            exam_id=pk))
 
             exam.add_view()

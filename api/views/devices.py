@@ -99,7 +99,7 @@ class DeviceUsersListView(GenericAPIView):
             current_user = request.user
             if not device.is_allowed_admin(current_user):
                 raise ModelValidationException(
-                    _("User {user_id} is mot allowed to manage device {device_id}}").format(user_id=current_user.id,
+                    _("User {user_id} is mot allowed to manage device {device_id}").format(user_id=current_user.id,
                                                                                             device_id=pk))
 
             user = User.objects.get(pk=user_id)
@@ -121,7 +121,7 @@ class DeviceUsersListView(GenericAPIView):
             current_user = request.user
             if not device.is_allowed_admin(current_user):
                 raise ModelValidationException(
-                    _("User {user_id} is mot allowed to manage device {device_id}}").format(user_id=current_user.id,
+                    _("User {user_id} is mot allowed to manage device {device_id}").format(user_id=current_user.id,
                                                                                             device_id=pk))
 
             user = User.objects.get(pk=user_id)
@@ -146,7 +146,7 @@ class AdminUserOwnedDevicesManageView(GenericAPIView):
         try:
             if not device.is_allowed_admin(admin_user):
                 raise ModelValidationException(
-                    _("User {user_id} is mot allowed to manage device {device_id}}").format(user_id=admin_user.id,
+                    _("User {user_id} is mot allowed to manage device {device_id}").format(user_id=admin_user.id,
                                                                                             device_id=device_id))
 
             device.unlink_from_owner()
@@ -298,7 +298,7 @@ class DeviceAdminsListView(GenericAPIView):
             current_user = request.user
             if not device.is_allowed_admin(current_user):
                 raise ModelValidationException(
-                    _("User {user_id} is mot allowed to manage device {device_id}}").format(user_id=current_user.id,
+                    _("User {user_id} is mot allowed to manage device {device_id}").format(user_id=current_user.id,
                                                                                             device_id=pk))
 
             user = User.objects.get(pk=user_id)
@@ -321,7 +321,7 @@ class DeviceAdminsListView(GenericAPIView):
             current_user = request.user
             if not device.is_allowed_admin(current_user):
                 raise ModelValidationException(
-                    _("User {user_id} is mot allowed to manage device {device_id}}").format(user_id=current_user.id,
+                    _("User {user_id} is mot allowed to manage device {device_id}").format(user_id=current_user.id,
                                                                                             device_id=pk))
 
             user = User.objects.get(pk=user_id)

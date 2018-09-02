@@ -39,3 +39,16 @@ django-admin compilemessages
 # kill debug process
 
 sudo lsof -t -i tcp:8000 | xargs kill -9
+
+# postgre SQL
+
+https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04
+
+sudo -u postgres psql
+
+\l  -- list databases.
+\du -- list users
+
+CREATE DATABASE psq;
+
+GRANT ALL PRIVILEGES ON DATABASE psq TO psq_user;
