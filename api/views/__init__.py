@@ -1,6 +1,6 @@
 from .users import MyUserDetailView, UserList, CreateAdminUserView, CreateRawUserView, UserActivationView, \
     AdminUserDetailView, AdminUserDetailOwnedDevicesView, UserPicUpdateView, AdminUserMyDeviceListView, \
-    AdminUsersListView, AdminUserMyExercisesListView, RawUserDetailView, \
+    AdminUsersListView, RawUserDetailView, \
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, \
     AdminsDashboardReportView, RegisterGuestUserView, ListUsersSharesView, \
     RawUserDashboardReportView, UserResetPasswordRequestView
@@ -13,7 +13,7 @@ from .devices import DeviceOpenRegistrationView, DeviceVerifyView, AdminUserOwne
 
 from .exams import ExamListCreateAPIView, ExamRetrieveUpdateDestroyAPIView, ValidateExamStreamingSignedUrlView
 
-from .device_user_groups import DeviceUsersGroupsListCreateView
+from .device_user_groups import DeviceUsersGroupsListCreateView, DeviceUsersGroupsRetrieveUpdateDestroyAPIView
 
 from .news import NewsListCreateAPIView, NewsRetrieveUpdateDestroyAPIView
 

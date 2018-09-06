@@ -7,12 +7,11 @@ from ..validators import validate_max_duration
 
 
 class Exercise(TimeStampedModel):
-
     title = models.CharField(max_length=255, blank=False, unique=True)
 
     abstract = models.TextField(blank=False)
 
-    max_duration = models.IntegerField(blank=False, validators=[validate_max_duration,])
+    max_duration = models.IntegerField(blank=False, validators=[validate_max_duration, ])
 
     REGULAR = 1
     TUTORIAL = 2
@@ -32,15 +31,21 @@ class Exercise(TimeStampedModel):
 
     allowed_devices = models.ManyToManyField("Device", related_name="allowed_exercises", blank=True)
 
+    shared_with_devices = models.ManyToManyField("Device", related_name="allowed_shared_exercises", blank=True)
+
     allowed_tutorials = models.ManyToManyField("Exercise", related_name="related_exercises", blank=True)
 
     def add_allowed_device(self, device):
 
         if device in self.allowed_devices.all():
-            raise ModelValidationException(_("device {device_id} is already an allowed device").format(device_id=device.id))
+            raise ModelValidationException(
+                _("device {device_id} is already an allowed device").format(device_id=device.id))
 
         self.allowed_devices.add(device)
         self.save()
+
+    def is_allowed_device(self, device):
+        return device in self.allowed_devices.all()
 
     def is_tutorial(self):
         return self.type == Exercise.TUTORIAL
@@ -68,8 +73,39 @@ class Exercise(TimeStampedModel):
             if device.is_allowed_user(user):
                 return True
 
+        for device in self.shared_with_devices.all():
+            if device.is_allowed_user(user):
+                return True
+
         return False
 
     def share_with(self, device):
-        self.add_allowed_device(device)
+        if device in self.shared_with_devices.all():
+            raise ModelValidationException(
+                _("device {device_id} is already an allowed shared device").format(device_id=device.id))
 
+        self.shared_with_devices.add(device)
+        self.save()
+
+    def un_share_with(self, device):
+        if not device in self.shared_with_devices.all():
+            raise ModelValidationException(
+                _("device {device_id} is not an allowed shared device").format(device_id=device.id))
+
+        self.shared_with_devices.remove(device)
+        self.save()
+
+    def un_shared_with_user(self, user):
+        for device in user.my_devices:
+            if self.is_shared_with(device):
+                self.un_share_with(device)
+        self.save()
+
+    def is_shared_with(self, device):
+        return device in self.shared_with_devices.all()
+
+    def is_shared_with_user(self, user):
+        for device in user.my_devices:
+            if self.is_shared_with(device):
+                return True
+        return False

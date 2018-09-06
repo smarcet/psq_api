@@ -6,7 +6,7 @@ from .views import ExerciseListCreateAPIView, ExerciseRetrieveUpdateDestroyAPIVi
     ExamListCreateAPIView, \
     ExamRetrieveUpdateDestroyAPIView, DeviceOpenLocalStreamingStartView, DeviceOpenLocalStreamingEndsView, \
     DeviceUsersGroupsListCreateView, NewsListCreateAPIView, NewsRetrieveUpdateDestroyAPIView, \
-    ValidateExamStreamingSignedUrlView
+    ValidateExamStreamingSignedUrlView, DeviceUsersGroupsRetrieveUpdateDestroyAPIView
 from .views.devices import DeviceListCreateView, DeviceDetailView, DeviceUsersListView, DeviceAdminsListView, \
     DeviceVerifyView, \
     AdminUserOwnedDevicesManageView
@@ -14,7 +14,7 @@ from .views.exercises import DeviceExercisesDetailView, TutorialListAPIView, Sha
 from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserView, UserActivationView, \
     UserPicUpdateView, AdminUserDetailView, AdminUserDetailOwnedDevicesView, AdminUserMyDeviceListView, \
     UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
-    ListMyUsersUserView, AdminUserMyExercisesListView, RawUserDetailView, \
+    ListMyUsersUserView, RawUserDetailView, \
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, AdminsDashboardReportView, \
     RegisterGuestUserView, ListUsersSharesView, RawUserDashboardReportView, UserResetPasswordRequestView
 
@@ -37,12 +37,12 @@ urlpatterns = [
     path('users/reset-password-requests',  UserResetPasswordRequestView.as_view(), name='reset-password-request-user'),
     # device user groups
     path('users/me/devices/all/user-groups', DeviceUsersGroupsListCreateView.as_view(), name="device-user-groups-list"),
+    path('users/me/devices/all/user-groups/<int:pk>', DeviceUsersGroupsRetrieveUpdateDestroyAPIView.as_view(), name="device-user-groups-details"),
     # super admins
     path('super-admins/dashboard-report', SuperAdminsDashboardReportView.as_view(), name='super-admin-dashboard-report'),
     # admin users
     path('admin-users', CreateAdminUserView.as_view(), name='create-list-admin-users'),
     path('admin-users/me/devices', AdminUserMyDeviceListView.as_view(), name='admin-user-my-devices'),
-    path('admin-users/me/exercises', AdminUserMyExercisesListView.as_view(), name='admin-user-my-exercises'),
     path('admin-users/<int:pk>/owned-devices/<int:device_id>', AdminUserOwnedDevicesManageView.as_view(),
          name='admin-user-owned-devices-manage'),
     path('admin-users/<int:pk>/owned-devices', AdminUserDetailOwnedDevicesView.as_view(), name='admin-user-devices'),

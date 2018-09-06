@@ -180,30 +180,6 @@ class AdminUserMyDeviceListView(ListAPIView):
         return Response(serializer.data)
 
 
-class AdminUserMyExercisesListView(ListAPIView):
-    filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('title', 'abstract',)
-    ordering_fields = ('id', 'title')
-
-    def get_serializer_class(self):
-        return ReadExerciseSerializer
-
-    @role_required(required_role=User.TEACHER)
-    def get(self, request, *args, **kwargs):
-        admin_user = request.user
-        queryset = self.filter_queryset(Exercise.objects.filter(
-            Q(allowed_devices__owner=admin_user) | Q(author=admin_user) | Q(
-                allowed_devices__admins__in=[admin_user])).distinct())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-
 class AdminUserDetailOwnedDevicesView(ListAPIView):
 
     def get_serializer_class(self):

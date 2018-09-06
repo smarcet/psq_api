@@ -38,7 +38,8 @@ class ExamListCreateAPIView(ListCreateAPIView):
         current_user = self.request.user
         if current_user.is_student:
             return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR) & Q(taker=current_user))
-
+        if current_user.is_teacher:
+            return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR) & Q(device__in=current_user.my_devices))
         return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR))
 
     def get_serializer_class(self):

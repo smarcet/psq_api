@@ -31,11 +31,20 @@ class ReadExerciseSerializer(serializers.ModelSerializer):
     author = ReadUserSerializer()
     allowed_devices = ReadDeviceSerializer(many=True)
     allowed_tutorials = ReadTutorialSerializer(many=True)
+    is_shared = serializers.SerializerMethodField()
+
+    def get_is_shared(self, exercise):
+        request = self.context.get('request')
+        current_user = request.user
+        for device in current_user.my_devices:
+            if exercise.is_shared_with(device):
+                return True
+        return False
 
     class Meta:
         model = Exercise
         fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration', 'type', 'author',
-                  'allowed_devices', 'allowed_tutorials')
+                  'allowed_devices', 'allowed_tutorials', 'is_shared')
 
 
 class StudentReadExerciseSerializer(ReadExerciseSerializer):

@@ -26,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Application definition
 
@@ -198,9 +198,6 @@ STREAMING_SERVER = os.getenv("STREAMING_SERVER")
 STREAMING_SERVER_DASH_TPL = STREAMING_SERVER + '/dash/{slug}.m4v'
 STREAMING_SERVER_HLS_TPL = STREAMING_SERVER + '/hls/{slug}.m3u8'
 FILE_UPLOAD_TEMP_DIR="/tmp/django_file_uploads"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 

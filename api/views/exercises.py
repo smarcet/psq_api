@@ -50,10 +50,13 @@ class ExerciseListCreateAPIView(ListCreateAPIView):
                 return Exercise.objects \
                     .filter(Q(type=Exercise.REGULAR) & Q(allowed_devices__users__in=[current_user])).order_by(
                     'created').distinct()
+
             if current_user.is_teacher:
                 return Exercise.objects \
                     .filter(Q(allowed_devices__admins__in=[current_user])
                             | Q(allowed_devices__owner__in=[current_user])
+                            | Q(shared_with_devices__admins__in=[current_user])
+                            | Q(shared_with_devices__owner__in=[current_user])
                             | Q(author=current_user)).order_by('created').distinct()
             # for super admin return all
             return Exercise.objects.all().order_by('id')
@@ -92,6 +95,11 @@ class ExerciseRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     @role_required(required_role=User.TEACHER)
     def delete(self, request, *args, **kwargs):
+        current_user = request.user
+        exercise = self.get_object()
+        if exercise.is_shared_with_user(current_user):
+            exercise.un_shared_with_user(current_user)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         return self.destroy(request, *args, **kwargs)
 
     @role_required(required_role=User.TEACHER)
@@ -155,8 +163,15 @@ class DeviceExercisesDetailView(ListAPIView):
         device_id = self.kwargs['pk']
         current_user = self.request.user
         if current_user.is_teacher:
-            return Exercise.objects.filter(Q(allowed_devices__in=[device_id])).order_by('-created')
-        return Exercise.objects.filter(Q(allowed_devices__in=[device_id]) & Q(type=Exercise.REGULAR)).order_by(
+            return Exercise.objects.filter(
+                Q(allowed_devices__in=[device_id]) |
+                Q(shared_with_devices__in=[device_id])
+            ).order_by('-created')
+
+        return Exercise.objects.filter(
+            (Q(allowed_devices__in=[device_id]) |
+            Q(shared_with_devices__in=[device_id]) )
+            & Q(type=Exercise.REGULAR)).order_by(
             '-created')
 
 
@@ -178,6 +193,10 @@ class ShareExerciseAPIView(GenericAPIView):
             device = Device.objects.get(pk=device_id)
             if device is None:
                 raise Http404(_("Device %s does not exists") % device_id)
+
+            if exercise.is_allowed_device(device):
+                raise ModelValidationException(
+                    _("device {device_id} is already an allowed device").format(device_id=device_id))
 
             exercise.share_with(device)
 
