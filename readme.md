@@ -31,6 +31,9 @@ http://django-cron.readthedocs.io/en/latest/installation.html
 
 python manage.py runcrons --force
 
+# static files
+python manage.py  collectstatic
+
 # locale
 
 django-admin makemessages -l es

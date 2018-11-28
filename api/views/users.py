@@ -123,6 +123,7 @@ class UserResetPasswordRequestView(APIView):
 
             validate_password(password)
             reset_password_request.user.set_password(password)
+            reset_password_request.user.save()
             reset_password_request.mark_as_processed()
             reset_password_request.save()
 
