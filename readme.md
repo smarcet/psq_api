@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 pip freeze > requirements.txt
 
-pip install gunicorn
+pip install gunicorn psycopg2-binary
 
 python manage.py makemigrations
 

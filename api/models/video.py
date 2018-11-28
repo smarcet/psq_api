@@ -3,7 +3,7 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 import uuid
 from storages.backends.gcloud import GoogleCloudStorage
-
+import os
 
 class Video(TimeStampedModel):
     description = models.TextField()
@@ -13,7 +13,7 @@ class Video(TimeStampedModel):
     key = models.UUIDField(unique=True, null=False, default=uuid.uuid4)
 
     file = models.FileField(
-        storage=GoogleCloudStorage(bucket_name='psq_videos'),
+        storage=GoogleCloudStorage(bucket_name=os.getenv("GS_VIDEO_BUCKET_NAME")),
         upload_to='videos')
 
     views = models.IntegerField(default=0)

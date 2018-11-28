@@ -7,7 +7,7 @@ from ..models import ModelValidationException, Device, ExamPendingRequestVideo
 from ..serializers import ExamPendingRequestWriteSerializer
 from ..exceptions import CustomValidationError
 from django.db import transaction
-from django.core.files import File
+from django.utils.translation import ugettext_lazy as _
 
 
 class FileUploadView(ChunkedUploadView):
@@ -36,7 +36,7 @@ class FileUploadView(ChunkedUploadView):
                 raise ModelValidationException
 
             if device.id != int(request.data['device']):
-                raise ModelValidationException
+                raise ModelValidationException(_("device id is incorrect"))
 
             exam_serializer = ExamPendingRequestWriteSerializer(data=request.data)
 
@@ -55,5 +55,5 @@ class FileUploadView(ChunkedUploadView):
             raise CustomValidationError(str(error1))
 
         except Exception as exc:
-            logger.error("ProcessExamCreationJobsCronJob - Unexpected error", exc)
+            logger.error("FileUploadView - Unexpected error", exc)
             raise exc
