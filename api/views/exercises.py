@@ -112,17 +112,23 @@ class ExerciseStatisticsAPIView(GenericAPIView):
     serializer_class = ReadExerciseSerializer
 
     @role_required(required_role=User.STUDENT)
-    def get(self, request, pk, start_date, end_date):
+    def get(self, request, pk, user_id, start_date, end_date):
         exercise = self.get_object()
         try:
 
+            requested_user = User.objects.get(id=user_id)
             current_user = request.user
+
+            # and student cant get statistics from another user, only from himself
+            if current_user.is_student and current_user.id != requested_user.id:
+                return Response([], status=403)
+
             start_date = datetime.fromtimestamp(start_date) \
                 .replace(hour=00, minute=00, second=0, microsecond=0, tzinfo=pytz.UTC)
             end_date = datetime.fromtimestamp(end_date) \
                 .replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=pytz.UTC)
 
-            exams = Exam.objects.filter(Q(created__gte=start_date) & Q(created__lte=end_date) & Q(taker=current_user) &
+            exams = Exam.objects.filter(Q(created__gte=start_date) & Q(created__lte=end_date) & Q(taker=requested_user) &
                                         Q(exercise=exercise))
 
             if exams.count() == 0:

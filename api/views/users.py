@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.exceptions import CustomValidationError
+from api.views import devices
 from ..decorators import role_required
 from ..models import ModelValidationException, Exercise
 from ..models import User, Device, Exam, DeviceUsersGroup, News, ResetPasswordRequest
@@ -179,6 +180,25 @@ class AdminUserMyDeviceListView(ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class AdminUserMyAllowedUsersListView(ListAPIView):
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('email', 'first_name', 'last_name')
+    ordering_fields = ('id', 'email', 'first_name', 'last_name')
+
+    def get_queryset(self):
+        admin_user = self.request.user
+        queryset = self.filter_queryset(
+            User.objects.filter(Q(created_by=admin_user) | Q(assigned_devices__in=[admin_user.managed_devices])).distinct())
+        return queryset
+
+    def get_serializer_class(self):
+        return ReadUserSerializer
+
+    @role_required(required_role=User.TEACHER)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 class AdminUserDetailOwnedDevicesView(ListAPIView):

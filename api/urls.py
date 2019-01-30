@@ -16,7 +16,8 @@ from .views.users import MyUserDetailView, CreateRawUserView, CreateAdminUserVie
     UserResendVerificationView, NonSuperAdminUsersListView, AdminUsersListView, \
     ListMyUsersUserView, RawUserDetailView, \
     CreateListUsersView, RetrieveUpdateDestroyUsersView, SuperAdminsDashboardReportView, AdminsDashboardReportView, \
-    RegisterGuestUserView, ListUsersSharesView, RawUserDashboardReportView, UserResetPasswordRequestView
+    RegisterGuestUserView, ListUsersSharesView, RawUserDashboardReportView, UserResetPasswordRequestView, \
+    AdminUserMyAllowedUsersListView
 
 urlpatterns = [
     # https://getblimp.github.io/django-rest-framework-jwt/
@@ -43,6 +44,7 @@ urlpatterns = [
     # admin users
     path('admin-users', CreateAdminUserView.as_view(), name='create-list-admin-users'),
     path('admin-users/me/devices', AdminUserMyDeviceListView.as_view(), name='admin-user-my-devices'),
+    path('admin-users/me/users', AdminUserMyAllowedUsersListView.as_view(), name='admin-user-my-users'),
     path('admin-users/<int:pk>/owned-devices/<int:device_id>', AdminUserOwnedDevicesManageView.as_view(),
          name='admin-user-owned-devices-manage'),
     path('admin-users/<int:pk>/owned-devices', AdminUserDetailOwnedDevicesView.as_view(), name='admin-user-devices'),
@@ -68,7 +70,7 @@ urlpatterns = [
     path('exercises', ExerciseListCreateAPIView.as_view(), name='exercises-list-create'),
     path('tutorials', TutorialListAPIView.as_view(), name='tutorials-list-create'),
     path('exercises/<int:pk>', ExerciseRetrieveUpdateDestroyAPIView.as_view(), name='exercises-retrieve-update-destroy'),
-    path('exercises/<int:pk>/statistics/<int:start_date>/<int:end_date>', ExerciseStatisticsAPIView.as_view(), name='exercises-statistics'),
+    path('exercises/<int:pk>/users-statistics/<int:user_id>/<int:start_date>/<int:end_date>', ExerciseStatisticsAPIView.as_view(), name='exercises-statistics'),
     path('exercises/<int:pk>/devices/<int:device_id>', ShareExerciseAPIView.as_view(), name='share-exercises'),
     # exams
     path('exams/upload', FileUploadView.as_view(), name='exams-upload'),
