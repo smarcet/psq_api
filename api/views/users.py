@@ -189,8 +189,20 @@ class AdminUserMyAllowedUsersListView(ListAPIView):
 
     def get_queryset(self):
         admin_user = self.request.user
-        queryset = self.filter_queryset(
-            User.objects.filter(Q(created_by=admin_user) | Q(assigned_devices__in=[admin_user.managed_devices])).distinct())
+        managed_devices = list(admin_user.managed_devices.all())
+        owned_devices = list(admin_user.owned_devices.all())
+        ids = []
+
+        for d in managed_devices:
+            for u in d.users.all():
+                ids.append(u.pk)
+
+        for d in owned_devices:
+            for u in d.users.all():
+                ids.append(u.pk)
+
+        queryset = self.filter_queryset(User.objects.filter(Q(created_by=admin_user) | Q(pk__in=ids))
+                                        .distinct())
         return queryset
 
     def get_serializer_class(self):
