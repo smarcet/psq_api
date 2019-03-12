@@ -185,8 +185,13 @@ class DeviceVerifyView(GenericAPIView):
         if serializer.is_valid():
             device.do_verify()
             instance = serializer.save()
-            data = {'id': instance.id, 'mac_address': str(instance.mac_address), 'last_know_ip': instance.last_know_ip,
-                    'stream_key': instance.stream_key, 'serial': str(instance.serial)}
+            data = {
+                'id': instance.id,
+                'mac_address': str(instance.mac_address),
+                'last_know_ip': instance.last_know_ip,
+                'stream_key': instance.stream_key,
+                'serial': str(instance.serial)
+            }
             return Response(data, status=status.HTTP_204_NO_CONTENT)
 
         return Response(serializer.errors, status=status.HTTP_412_PRECONDITION_FAILED)

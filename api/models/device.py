@@ -114,6 +114,7 @@ class Device(TimeStampedModel):
 
     def do_verify(self):
         self.is_verified = True
+        self.is_active = True
         if self.stream_key is None:
             while True:
                 new_stream_token = Device.generates_stream_token()

@@ -53,9 +53,11 @@ class OpenRegistrationSerializer(serializers.ModelSerializer):
 
 
 class VerifyDeviceSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all(), required=True, allow_null=True)
+
     class Meta:
         model = Device
-        fields = ('friendly_name', 'slots')
+        fields = ('friendly_name', 'slots', 'owner', 'serial')
 
 
 class WriteableDeviceSerializer(serializers.ModelSerializer):
