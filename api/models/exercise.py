@@ -23,6 +23,10 @@ class Exercise(TimeStampedModel):
 
     type = models.PositiveSmallIntegerField(choices=TYPE_CHOICES, null=True, blank=False, default=REGULAR)
 
+    daily_repetitions = models.PositiveIntegerField(null=True, default=0)
+
+    practice_days = models.PositiveIntegerField(null=True, default=0)
+
     # relations
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL,

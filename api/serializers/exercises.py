@@ -44,7 +44,7 @@ class ReadExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exercise
         fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration', 'type', 'author',
-                  'allowed_devices', 'allowed_tutorials', 'is_shared')
+                  'allowed_devices', 'allowed_tutorials', 'is_shared', 'daily_repetitions', 'practice_days')
 
 
 class StudentReadExerciseSerializer(ReadExerciseSerializer):
@@ -54,7 +54,7 @@ class StudentReadExerciseSerializer(ReadExerciseSerializer):
     class Meta:
         model = Exercise
         fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration', 'type', 'author',
-                  'allowed_devices', 'takes')
+                  'allowed_devices', 'takes', 'daily_repetitions', 'practice_days')
 
     def get_takes(self, exercise):
         request = self.context.get('request')
@@ -112,4 +112,5 @@ class WriteableExerciseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exercise
-        fields = ('id', 'title', 'abstract', 'max_duration', 'type', 'author', 'allowed_devices', 'allowed_tutorials')
+        fields = ('id', 'title', 'abstract', 'max_duration', 'type', 'author', 'allowed_devices', 'allowed_tutorials',
+                  'daily_repetitions', 'practice_days')

@@ -12,7 +12,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Max, Count, Min
 import itertools
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.db.models.functions import TruncDate, TruncDay, TruncYear, TruncMonth
 import pytz
 
 
@@ -131,14 +132,29 @@ class ExerciseStatisticsAPIView(GenericAPIView):
             exams = Exam.objects.filter(Q(created__gte=start_date) & Q(created__lte=end_date) & Q(taker=requested_user) &
                                         Q(exercise=exercise))
 
+            advanced = 0.0
+
+            if exercise.practice_days > 0 and exercise.daily_repetitions > 0:
+                advance_count = Exam.objects \
+                    .filter(Q(taker=requested_user) & Q(exercise=exercise)) \
+                    .annotate(date=TruncDate('created'))\
+                    .values('date')\
+                    .annotate(total=Count("pk")) \
+                    .filter(Q(total__gte=exercise.daily_repetitions))\
+                    .count()
+                if advance_count > 0:
+                    advanced = round((advance_count * 100.0) / exercise.practice_days, 2)
+
             if exams.count() == 0:
                 return Response([], status=404)
 
-            grouped = itertools.groupby(exams, lambda record: record.created.strftime("%Y-%m-%d"))
+            grouped  = itertools.groupby(exams, lambda record: record.created.strftime("%Y-%m-%d"))
             grouped2 = itertools.groupby(exams, lambda record: record.created.strftime("%Y-%m-%d"))
+
             best_time_per_day = []
 
             max_instances_per_day = 0
+
             for tuple in [(day, min(list(exams_this_day), key=lambda x: x.duration)) for day, exams_this_day
                           in grouped]:
                 best_time_per_day.append((tuple[0], tuple[1].duration))
@@ -148,12 +164,24 @@ class ExerciseStatisticsAPIView(GenericAPIView):
                 if max_instances_per_day < tuple[1]:
                     max_instances_per_day = tuple[1]
 
+            delta = end_date - start_date  # timedelta
+            days = []
+
+            for i in range(delta.days + 1):
+                days.append((start_date + timedelta(i)).strftime('%Y-%m-%d'))
+
             data = {
+                'user_id' : user_id,
+                'user_fullname': requested_user.get_full_name(),
                 'total_instances': exams.count(),
                 'max_instances_per_day': max_instances_per_day,
                 'best_time': exams.aggregate(Min('duration')),
                 'best_time_per_day': best_time_per_day,
                 'instances_per_day': instances_per_day,
+                'advanced': advanced,
+                'range': days,
+                'daily_repetitions': exercise.daily_repetitions,
+                'practice_days': exercise.practice_days
             }
 
             return Response(data, status=200)
