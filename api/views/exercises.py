@@ -130,13 +130,13 @@ class ExerciseStatisticsAPIView(GenericAPIView):
                 .replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=pytz.UTC)
 
             exams = Exam.objects.filter(Q(created__gte=start_date) & Q(created__lte=end_date) & Q(taker=requested_user) &
-                                        Q(exercise=exercise))
+                                        Q(exercise=exercise) & Q(approved=True) & Q(device__isnull=False))
 
             advanced = 0.0
 
             if exercise.practice_days > 0 and exercise.daily_repetitions > 0:
                 advance_count = Exam.objects \
-                    .filter(Q(taker=requested_user) & Q(exercise=exercise)) \
+                    .filter(Q(taker=requested_user) & Q(exercise=exercise) & Q(approved=True) & Q(device__isnull=False)) \
                     .annotate(date=TruncDate('created'))\
                     .values('date')\
                     .annotate(total=Count("pk")) \
