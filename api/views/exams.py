@@ -11,7 +11,6 @@ from macaddress import format_mac
 from netaddr import mac_unix
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,7 +19,7 @@ from ..decorators import role_required
 from ..exceptions import CustomValidationError
 from ..models import ModelValidationException, Device, Exercise, DeviceBroadCast
 from ..models import User, Exam
-from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer
+from ..serializers import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer, ExamReadSerializerList
 
 
 class mac_unix_expanded_upper(mac_unix):
@@ -46,7 +45,7 @@ class ExamListCreateAPIView(ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return ExamStudentWriteSerializer
-        return ExamReadSerializer
+        return ExamReadSerializerList
 
     @role_required(required_role=User.STUDENT)
     def post(self, request, *args, **kwargs):

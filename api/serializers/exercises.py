@@ -1,6 +1,6 @@
 from django.db.models import Q
 from rest_framework import serializers
-from ..serializers import ReadUserSerializer, ReadDeviceSerializer
+from ..serializers import ReadUserSerializer, ReadUserSerializerMin , ReadDeviceSerializer
 from ..models import Exercise, Exam, User, Device, ModelValidationException
 from django.utils.translation import ugettext_lazy as _
 
@@ -25,6 +25,25 @@ class ReadTutorialSerializer(serializers.ModelSerializer):
                     'type': video.type
                 })
         return videos
+
+
+class ReadExerciseSerializerMin(serializers.ModelSerializer):
+    author = ReadUserSerializerMin()
+    is_shared = serializers.SerializerMethodField()
+
+    def get_is_shared(self, exercise):
+        request = self.context.get('request')
+        current_user = request.user
+        for device in current_user.my_devices:
+            if exercise.is_shared_with(device):
+                return True
+        return False
+
+    class Meta:
+        model = Exercise
+        fields = ('id', 'created', 'modified', 'title', 'abstract', 'max_duration',
+                  'type', 'author',
+                  'is_shared', 'daily_repetitions', 'practice_days')
 
 
 class ReadExerciseSerializer(serializers.ModelSerializer):

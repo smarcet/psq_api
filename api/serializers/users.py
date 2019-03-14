@@ -14,6 +14,24 @@ class InternalReadDeviceSerializer(serializers.ModelSerializer):
             'slots', 'is_active')
 
 
+class ReadUserSerializerMin(serializers.ModelSerializer):
+    pic_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'bio', 'is_active',
+                  'is_verified', 'first_name', 'last_name', 'role', 'pic',
+                  'pic_url', 'locale',
+                  'hand', 'organization', 'title', 'enrollment', 'country', 'state')
+
+    def get_pic_url(self, user):
+        request = self.context.get('request')
+        if not user.pic:
+            return None
+        pic_url = user.pic.url
+        return request.build_absolute_uri(pic_url)
+
+
 class ReadUserSerializer(serializers.ModelSerializer):
     pic_url = serializers.SerializerMethodField()
 

@@ -4,7 +4,8 @@ from rest_framework import serializers
 
 from api.models import ModelValidationException, ExamVideo
 from ..models import Exercise, User, Device, Exam
-from ..serializers import ReadUserSerializer, ReadDeviceSerializer, ReadExerciseSerializer
+from ..serializers import ReadUserSerializer, ReadDeviceSerializer, ReadExerciseSerializer, ReadUserSerializerMin, \
+    ReadExerciseSerializerMin, ReadDeviceSerializerMin
 
 
 class NullableExamSerializer(serializers.ModelSerializer):
@@ -12,9 +13,10 @@ class NullableExamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        exclude =  fields = ('id', 'created', 'modified', 'notes', 'duration', 'approved', 'taker', 'evaluator',
+        exclude =  fields = (
+            'id', 'created', 'modified', 'notes', 'duration', 'approved', 'taker', 'evaluator',
                   'exercise', 'device', 'videos', 'video_shares', 'video_views'
-                  )
+        )
 
 
 class VideoExamReadSerializer(serializers.ModelSerializer):
@@ -46,12 +48,40 @@ class Exam2VideoReadSerializer(serializers.ModelSerializer):
                   )
 
 
+class ExamReadSerializerList(serializers.ModelSerializer):
+    taker = ReadUserSerializerMin()
+    evaluator = ReadUserSerializerMin()
+    exercise = ReadExerciseSerializerMin()
+    device = ReadDeviceSerializerMin()
+    created = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    approved = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    modified = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+
+    class Meta:
+        model = Exam
+        fields = (
+            'id',
+            'created',
+            'modified',
+            'notes',
+            'duration',
+            'approved',
+            'taker',
+            'evaluator',
+            'exercise',
+            'device'
+        )
+
+
 class ExamReadSerializer(serializers.ModelSerializer):
     taker = ReadUserSerializer()
     evaluator = ReadUserSerializer()
     exercise = ReadExerciseSerializer()
     device = ReadDeviceSerializer()
     videos = VideoExamReadSerializer(many=True, read_only=True)
+    created = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    approved = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    modified = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
         model = Exam

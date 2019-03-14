@@ -6,6 +6,15 @@ from ..models import User
 from django.utils.translation import ugettext_lazy as _
 
 
+class ReadDeviceSerializerMin(serializers.ModelSerializer):
+    class Meta:
+        model = Device
+        fields = (
+            'id', 'mac_address', 'last_know_ip', 'friendly_name', 'is_verified', 'stream_key', 'serial',
+            'slots', 'is_active'
+        )
+
+
 class ReadDeviceSerializer(serializers.ModelSerializer):
     owner = ReadUserSerializer()
     users = ReadUserSerializer(many=True)

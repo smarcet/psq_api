@@ -1,15 +1,17 @@
 from .devices import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDeviceSerializer, \
                      OpenRegistrationSerializer, VerifyDeviceSerializer, ReadBasicDeviceSerializer, \
-                     ReadSuperAdminDeviceSerializer
+                     ReadSuperAdminDeviceSerializer, ReadDeviceSerializerMin
 
 from .users import WritableUserSerializer, ReadUserSerializer, WritableAdminUserSerializer, \
                    WritableRawUserSerializer, UserPicSerializer, WritableOwnUserSerializer, \
-                   ChangePasswordSerializer, RoleWritableUserSerializer, WritableGuestUserSerializer
+                   ChangePasswordSerializer, RoleWritableUserSerializer, WritableGuestUserSerializer, \
+                   ReadUserSerializerMin
 
-from .exercises import ReadExerciseSerializer, WriteableExerciseSerializer, StudentReadExerciseSerializer
+from .exercises import ReadExerciseSerializer, WriteableExerciseSerializer, StudentReadExerciseSerializer, \
+    ReadExerciseSerializerMin
 
 from .exams import ExamReadSerializer, ExamStudentWriteSerializer, ExamEvaluatorWriteSerializer, \
-    ExamVideoWriteSerializer, Exam2VideoReadSerializer, NullableExamSerializer
+    ExamVideoWriteSerializer, Exam2VideoReadSerializer, NullableExamSerializer, ExamReadSerializerList
 
 from .device_users_groups import ReadDeviceUsersGroupSerializer, WriteableDeviceUsersGroupSerializer
 
