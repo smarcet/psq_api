@@ -106,6 +106,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         owned_devices = self.owned_devices.all()
         return managed_devices | owned_devices
 
+    @property
+    def my_devices_ids(self):
+        managed_devices = self.managed_devices.all().values_list('id', flat=True)
+        owned_devices = self.owned_devices.all().values_list('id', flat=True)
+        return managed_devices | owned_devices
+
     @staticmethod
     def generates_registration_token():
         return get_random_string(User.REGISTRATION_HASH_LEN, User.REGISTRATION_HASH_ALLOWED_CHARS)
