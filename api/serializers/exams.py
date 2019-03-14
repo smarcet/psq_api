@@ -54,7 +54,6 @@ class ExamReadSerializerList(serializers.ModelSerializer):
     exercise = ReadExerciseSerializerMin()
     device = ReadDeviceSerializerMin()
     created = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
-    approved = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     modified = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
@@ -80,7 +79,6 @@ class ExamReadSerializer(serializers.ModelSerializer):
     device = ReadDeviceSerializer()
     videos = VideoExamReadSerializer(many=True, read_only=True)
     created = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
-    approved = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     modified = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
