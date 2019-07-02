@@ -15,6 +15,7 @@ import itertools
 from datetime import datetime, timedelta
 from django.db.models.functions import TruncDate, TruncDay, TruncYear, TruncMonth
 import pytz
+from django.db import connection
 
 
 class TutorialListAPIView(ListAPIView):
@@ -117,74 +118,81 @@ class ExerciseStatisticsAPIView(GenericAPIView):
         exercise = self.get_object()
         try:
 
-            requested_user = User.objects.get(id=user_id)
-            current_user = request.user
+            with connection.cursor() as cursor:
+                requested_user = User.objects.get(id=user_id)
+                current_user = request.user
+                # and student cant get statistics from another user, only from himself
+                if current_user.is_student and current_user.id != requested_user.id:
+                    return Response([], status=403)
 
-            # and student cant get statistics from another user, only from himself
-            if current_user.is_student and current_user.id != requested_user.id:
-                return Response([], status=403)
+                start_date = datetime.fromtimestamp(start_date) \
+                    .replace(hour=00, minute=00, second=0, microsecond=0, tzinfo=pytz.UTC)
+                end_date = datetime.fromtimestamp(end_date) \
+                    .replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=pytz.UTC)
 
-            start_date = datetime.fromtimestamp(start_date) \
-                .replace(hour=00, minute=00, second=0, microsecond=0, tzinfo=pytz.UTC)
-            end_date = datetime.fromtimestamp(end_date) \
-                .replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=pytz.UTC)
+                exams = Exam.objects.filter(
+                    Q(created__gte=start_date) & Q(created__lte=end_date) & Q(taker=requested_user) &
+                    Q(exercise=exercise) & Q(device__isnull=False))
 
-            exams = Exam.objects.filter(Q(created__gte=start_date) & Q(created__lte=end_date) & Q(taker=requested_user) &
-                                        Q(exercise=exercise) & Q(approved=True) & Q(device__isnull=False))
+                cursor.execute(
+                    "SELECT concat(extract(year from created) ,'/', extract(month from created) ,'/',  extract(day from created)) , MIN(duration) FROM api_exam WHERE (created >= %s AND api_exam.created <= %s AND api_exam.taker_id = %s  AND api_exam.exercise_id = %s AND api_exam.device_id IS NOT NULL) group by 1",
+                    [start_date, end_date, user_id, exercise.id])
 
-            advanced = 0.0
+                advanced = 0.0
 
-            if exercise.practice_days > 0 and exercise.daily_repetitions > 0:
-                advance_count = Exam.objects \
-                    .filter(Q(taker=requested_user) & Q(exercise=exercise) & Q(approved=True) & Q(device__isnull=False)) \
-                    .annotate(date=TruncDate('created'))\
-                    .values('date')\
-                    .annotate(total=Count("pk")) \
-                    .filter(Q(total__gte=exercise.daily_repetitions))\
-                    .count()
-                if advance_count > 0:
-                    advanced = round((advance_count * 100.0) / exercise.practice_days, 2)
+                if exercise.practice_days > 0 and exercise.daily_repetitions > 0:
+                    advance_count = Exam.objects \
+                        .filter(
+                        Q(taker=requested_user) & Q(exercise=exercise) & Q(approved=True) & Q(device__isnull=False)) \
+                        .annotate(date=TruncDate('created')) \
+                        .values('date') \
+                        .annotate(total=Count("pk")) \
+                        .filter(Q(total__gte=exercise.daily_repetitions)) \
+                        .count()
+                    if advance_count > 0:
+                        advanced = round((advance_count * 100.0) / exercise.practice_days, 2)
 
-            if exams.count() == 0:
-                return Response([], status=404)
+                if exams.count() == 0:
+                    return Response([], status=404)
 
-            grouped  = itertools.groupby(exams, lambda record: record.created.strftime("%Y-%m-%d"))
-            grouped2 = itertools.groupby(exams, lambda record: record.created.strftime("%Y-%m-%d"))
+                best_time_per_day = []
+                instances_per_day = []
 
-            best_time_per_day = []
+                max_instances_per_day = 0
 
-            max_instances_per_day = 0
+                for row in cursor.fetchall():
+                    best_time_per_day.append((row[0], row[1]))
 
-            for tuple in [(day, min(list(exams_this_day), key=lambda x: x.duration)) for day, exams_this_day
-                          in grouped]:
-                best_time_per_day.append((tuple[0], tuple[1].duration))
+                cursor.execute(
+                    "SELECT concat(extract(year from created) ,'/', extract(month from created) ,'/',  extract(day from created)) , COUNT(id) FROM api_exam WHERE (created >= %s AND api_exam.created <= %s AND api_exam.taker_id = %s  AND api_exam.exercise_id = %s AND api_exam.device_id IS NOT NULL) group by 1",
+                    [start_date, end_date, user_id, exercise.id])
 
-            instances_per_day = [(day, len(list(exams_this_day))) for day, exams_this_day in grouped2]
-            for tuple in instances_per_day:
-                if max_instances_per_day < tuple[1]:
-                    max_instances_per_day = tuple[1]
+                for row in cursor.fetchall():
+                    instances_per_day.append((row[0], row[1]))
+                    if max_instances_per_day < row[1]:
+                        max_instances_per_day = row[1]
 
-            delta = end_date - start_date  # timedelta
-            days = []
+                delta = end_date - start_date  # timedelta
+                days = []
 
-            for i in range(delta.days + 1):
-                days.append((start_date + timedelta(i)).strftime('%Y-%m-%d'))
+                for i in range(delta.days + 1):
+                    days.append((start_date + timedelta(i)).strftime('%Y-%m-%d'))
 
-            data = {
-                'user_id' : user_id,
-                'user_fullname': requested_user.get_full_name(),
-                'total_instances': exams.count(),
-                'max_instances_per_day': max_instances_per_day,
-                'best_time': exams.aggregate(Min('duration')),
-                'best_time_per_day': best_time_per_day,
-                'instances_per_day': instances_per_day,
-                'advanced': advanced,
-                'range': days,
-                'daily_repetitions': exercise.daily_repetitions,
-                'practice_days': exercise.practice_days
-            }
+                data = {
+                    'user_id': user_id,
+                    'user_fullname': requested_user.get_full_name(),
+                    'total_instances': exams.count(),
+                    'max_instances_per_day': max_instances_per_day,
+                    'best_time': exams.aggregate(Min('duration')),
+                    'best_time_per_day': best_time_per_day,
+                    'instances_per_day': instances_per_day,
+                    'advanced': advanced,
+                    'range': days,
+                    'daily_repetitions': exercise.daily_repetitions,
+                    'practice_days': exercise.practice_days
+                }
 
-            return Response(data, status=200)
+                return Response(data, status=200)
 
         except ModelValidationException as error1:
             raise CustomValidationError(str(error1), 'error')
@@ -204,7 +212,7 @@ class DeviceExercisesDetailView(ListAPIView):
 
         return Exercise.objects.filter(
             (Q(allowed_devices__in=[device_id]) |
-            Q(shared_with_devices__in=[device_id]) )
+             Q(shared_with_devices__in=[device_id]))
             & Q(type=Exercise.REGULAR)).order_by(
             '-created')
 
