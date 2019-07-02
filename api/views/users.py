@@ -581,7 +581,10 @@ class AdminsDashboardReportView(APIView):
             'users_qty': User.objects.filter(created_by=request.user).count(),
             'devices_qty': Device.objects.filter(Q(owner=request.user) | Q(admins__in=[request.user])).count(),
             'pending_exams_qty': Exam.objects.filter(
-                Q(evaluator__isnull=True) & Q(device__in=my_devices)
+                Q(evaluator__isnull=True)
+                & Q(exercise__isnull=False)
+                & Q(taker__isnull=False)
+                & Q(device__in=my_devices)
             ).count(),
             'user_groups_qty': DeviceUsersGroup.objects.filter(created_by=request.user).count(),
         }
