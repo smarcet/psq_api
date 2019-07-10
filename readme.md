@@ -55,3 +55,7 @@ sudo -u postgres psql
 CREATE DATABASE psq;
 
 GRANT ALL PRIVILEGES ON DATABASE psq TO psq_user;
+
+# macos
+
+brew services restart postgres

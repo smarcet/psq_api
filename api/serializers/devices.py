@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from ..models import ModelValidationException
 from ..serializers.users import ReadUserSerializer
-from ..models import Device
-from ..models import User
+from ..models import Device, DeviceBroadCast
+from ..models import User, Exercise
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -42,6 +42,18 @@ class ReadBasicDeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = (
             'id', 'friendly_name' )
+
+
+class ReadBasicDeviceBroadcast(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all(), required=True, allow_null=True)
+    exercise = serializers.PrimaryKeyRelatedField(many=False, queryset=Exercise.objects.all(), required=True, allow_null=True)
+    device = serializers.PrimaryKeyRelatedField(many=False, queryset=Device.objects.all(), required=True, allow_null=True)
+
+    class Meta:
+        model = DeviceBroadCast
+        fields = (
+            'id', 'start_at', 'ends_at', 'user', 'exercise', 'device'
+        )
 
 
 class NullableDeviceSerializer(serializers.ModelSerializer):

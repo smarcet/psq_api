@@ -3,7 +3,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, GenericAPIView, RetrieveAPIView
 from rest_framework import status, serializers
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -13,7 +13,8 @@ from ..models import ModelValidationException
 from ..decorators import role_required
 from ..exceptions import CustomValidationError
 from ..serializers import WriteableDeviceSerializer, ReadDeviceSerializer, NullableDeviceSerializer, \
-    OpenRegistrationSerializer, VerifyDeviceSerializer, ReadBasicDeviceSerializer, ReadSuperAdminDeviceSerializer
+    OpenRegistrationSerializer, VerifyDeviceSerializer, ReadBasicDeviceSerializer, ReadSuperAdminDeviceSerializer, \
+    ReadBasicDeviceBroadcast
 import logging
 
 
@@ -226,7 +227,7 @@ class DeviceOpenLocalStreamingStartView(GenericAPIView):
 
         logger.info("redirection to {slug}".format(slug=device.slug))
 
-        return HttpResponseRedirect(device.slug)
+        return HttpResponseRedirect("{slug}_{timestamp}".format(slug=device.slug, timestamp=broadcast.start_at.timestamp()))
 
 
 class DeviceOpenLocalStreamingEndsView(GenericAPIView):

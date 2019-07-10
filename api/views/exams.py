@@ -36,9 +36,9 @@ class ExamListCreateAPIView(ListCreateAPIView):
     def get_queryset(self):
         current_user = self.request.user
         if current_user.is_student:
-            return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR) & Q(taker=current_user))
+            return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR) & Q(taker=current_user)).order_by('created')
         if current_user.is_teacher:
-            return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR) & Q(device__in=current_user.my_devices_ids))
+            return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR) & Q(device__in=current_user.my_devices_ids)).order_by('created')
 
         return Exam.objects.filter(Q(exercise__type=Exercise.REGULAR))
 
@@ -155,13 +155,13 @@ class ValidateExamStreamingSignedUrlView(APIView):
             if signature != calculate_signature:
                 raise ModelValidationException(_("link signature is invalid"))
 
-            is_broadcasting =  DeviceBroadCast.objects.filter(
+            current_broadcasting =  DeviceBroadCast.objects.filter(
                 Q(exercise_id=exercise_id) &
                 Q(device_id=device_id) &
                 Q(user_id=user_id) &
-                Q(ends_at=None)).count() > 0
+                Q(ends_at=None)).first()
 
-            if not is_broadcasting:
+            if current_broadcasting is None:
                 raise ModelValidationException(_("device is not currently broadcasting"))
 
             return Response({
@@ -180,6 +180,10 @@ class ValidateExamStreamingSignedUrlView(APIView):
                     'id': current_user.id,
                     'first_name': current_user.first_name,
                     'last_name': current_user.last_name,
+                },
+                'broadcasting': {
+                    'id': current_broadcasting.id,
+                    'start_at': current_broadcasting.start_at.timestamp()
                 }
             }, status=status.HTTP_200_OK)
 
