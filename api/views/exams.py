@@ -159,7 +159,7 @@ class ValidateExamStreamingSignedUrlView(APIView):
                 Q(exercise_id=exercise_id) &
                 Q(device_id=device_id) &
                 Q(user_id=user_id) &
-                Q(ends_at=None)).first()
+                Q(ends_at=None)).order_by('-start_at').first()
 
             if current_broadcasting is None:
                 raise ModelValidationException(_("device is not currently broadcasting"))

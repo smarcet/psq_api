@@ -227,7 +227,7 @@ class DeviceOpenLocalStreamingStartView(GenericAPIView):
 
         logger.info("redirection to {slug}".format(slug=device.slug))
 
-        return HttpResponseRedirect("{slug}_{timestamp}".format(slug=device.slug, timestamp=broadcast.start_at.timestamp()))
+        return HttpResponseRedirect("{slug}_{broadcast_id}".format(slug=device.slug, broadcast_id=broadcast.id))
 
 
 class DeviceOpenLocalStreamingEndsView(GenericAPIView):
@@ -247,7 +247,7 @@ class DeviceOpenLocalStreamingEndsView(GenericAPIView):
             return Response("", status=status.HTTP_404_NOT_FOUND)
 
         broadcast = DeviceBroadCast.objects.filter(Q(device=device) & Q(ends_at=None)).first()
-
+        logger.info("on_publish_done broadcast id {id}".format(id=broadcast.id))
         broadcast.ends_at = timezone.now()
         broadcast.save()
         logger.info("on_publish done!")
